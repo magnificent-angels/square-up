@@ -1,8 +1,9 @@
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth"
-import { getFirestore } from "firebase/firestore"
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { initializeAuth, getAuth } from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const firebaseConfig = {
+const config = {
   apiKey: "AIzaSyDek8dKipBmCgWkCmUO-O2MeFwM1TbsQ8k",
   authDomain: "squareup-f3c0b.firebaseapp.com",
   projectId: "squareup-f3c0b",
@@ -11,6 +12,23 @@ const firebaseConfig = {
   appId: "1:999426747082:web:584887443725c4de40e233"
 };
 
-const firebaseApp = initializeApp(firebaseConfig);
-export const auth = getAuth(firebaseApp)
-export const db = getFirestore(firebaseApp)
+export let app, auth;
+
+if (!getApps().length) {
+  try {
+    app = initializeApp(config);
+    auth = initializeAuth(app);
+
+    // Set up AsyncStorage as the persistence provider
+    const persistenceKey = "myApp:persistence";
+    await AsyncStorage.setItem(persistenceKey, "1");
+    await getAuth(app).setPersistence(auth.Persistence.LOCAL);
+  } catch (error) {
+    console.log("Error initializing app: " + error);
+  }
+} else {
+  app = getApp();
+  auth = getAuth(app);
+}
+
+export const database = getFirestore(app);

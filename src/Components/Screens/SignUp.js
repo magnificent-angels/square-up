@@ -2,6 +2,8 @@ import React from "react";
 import { Text, StyleSheet, TextInput, Button, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useForm, Controller } from "react-hook-form";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
 
 function SignUp() {
   const {
@@ -19,7 +21,19 @@ function SignUp() {
     },
   });
 
-  const onSubmit = (data) => console.log("Signing up with", data);
+  const onSubmit = ({ email, password }) => {
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed up
+        const user = userCredential.user;
+        console.log(user);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(error);
+      });
+  };
 
   const phoneNumberValidation = {
     required: { value: true, message: "Phone number is required" },
@@ -77,7 +91,9 @@ function SignUp() {
           )}
           name="fullName"
         />
-        {errors.fullName && <Text style={styles.error}>{errors.fullName.message}</Text>}
+        {errors.fullName && (
+          <Text style={styles.error}>{errors.fullName.message}</Text>
+        )}
 
         <Text style={styles.label}>Phone Number</Text>
         <Controller
@@ -94,7 +110,9 @@ function SignUp() {
           )}
           name="phoneNumber"
         />
-        {errors.phoneNumber && <Text style={styles.error}>{errors.phoneNumber.message}</Text>}
+        {errors.phoneNumber && (
+          <Text style={styles.error}>{errors.phoneNumber.message}</Text>
+        )}
 
         <Text style={styles.label}>Email</Text>
         <Controller
@@ -107,12 +125,13 @@ function SignUp() {
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
-
             />
           )}
           name="email"
         />
-        {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
+        {errors.email && (
+          <Text style={styles.error}>{errors.email.message}</Text>
+        )}
 
         <Text style={styles.label}>Password</Text>
         <Controller
@@ -130,7 +149,9 @@ function SignUp() {
           )}
           name="password"
         />
-        {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
+        {errors.password && (
+          <Text style={styles.error}>{errors.password.message}</Text>
+        )}
 
         <Text style={styles.label}>Re-Enter Password</Text>
         <Controller
@@ -148,7 +169,9 @@ function SignUp() {
           )}
           name="confirmPassword"
         />
-        {errors.confirmPassword && <Text style={styles.error}>{errors.confirmPassword.message}</Text>}
+        {errors.confirmPassword && (
+          <Text style={styles.error}>{errors.confirmPassword.message}</Text>
+        )}
 
         <Button title="Submit" onPress={handleSubmit(onSubmit)} />
       </View>
@@ -174,15 +197,15 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   error: {
-    color: 'red',
+    color: "red",
     marginBottom: 10,
   },
-  formHeader:{
+  formHeader: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    alignSelf: 'center',
-  }
+    alignSelf: "center",
+  },
 });
 
 export default SignUp;
