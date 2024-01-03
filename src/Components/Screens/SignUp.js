@@ -1,6 +1,7 @@
+import React from 'react';
 import { StyleSheet } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { Layout, Text, Card, Input, Button, Icon, IconElement } from '@ui-kitten/components';
+import { Layout, Text, Card, Input, Button } from '@ui-kitten/components';
 
 function SignUp() {
   const {
@@ -144,7 +145,7 @@ function SignUp() {
         />
         {errors.confirmPassword && <Text style={styles.error}>{errors.confirmPassword.message}</Text>}
 
-        <Button onPress={handleSubmit(onSubmit)}>
+        <Button onPress={handleSubmit(onSubmit)} style={{paddingTop: '10px'}}>
           Sign Up
         </Button>
       </Card>

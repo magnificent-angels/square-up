@@ -9,7 +9,7 @@ import Theme from './assets/Themes.json'
 
 export default function App() {
   return (
-    <ApplicationProvider {...eva} theme={{...eva.light, ...Theme}}>
+    <ApplicationProvider {...eva} theme={{...eva.dark, ...Theme}}>
       <NavigationContainer>
         <AuthNav />
       </NavigationContainer>

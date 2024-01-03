@@ -9,7 +9,6 @@ function LandingPage() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
     <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text category='h1'>Logo goes here</Text>
       <Button 
         style={{ marginVertical: 4 }} 
         size='large'
