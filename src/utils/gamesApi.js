@@ -4,13 +4,12 @@ const bggApi = axios.create({
     baseURL: 'https://boardgamegeek.com/xmlapi'
 })
 const getGame = (game) => {
-    const XMLParser = require('react-xml-parser');
-    const url = `/search?search=${game}&exact=1`
+    const XMLParser = require('react-xml-parser')
+    const urlifiedGame = game.replaceAll(' ', '%20')
+    const url = `/search?search=${urlifiedGame}&exact=1`
     return bggApi.get(url)
     .then(({data}) => {
-        console.log(data)
         const xml = new XMLParser().parseFromString(data);
-        console.log(xml)
         const firstResult = {
             name: xml.getElementsByTagName('name')[0].value,
             id: xml.getElementsByTagName('boardgame')[0].attributes.objectid
@@ -38,7 +37,7 @@ const getGame = (game) => {
         return gameData
     })
     .catch((err) => {
-        console.log('fetch', err)
+        return Promise.reject()
     })
 }
 export default getGame
