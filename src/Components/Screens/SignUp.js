@@ -2,7 +2,7 @@ import React from "react";
 import { Text, StyleSheet, TextInput, Button, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useForm, Controller } from "react-hook-form";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 
 function SignUp() {
@@ -55,8 +55,7 @@ function SignUp() {
   const passwordValidation = {
     required: { value: true, message: "Password is required" },
     pattern: {
-      value:
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
+      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
       message: "Invalid password",
     },
   };
@@ -91,9 +90,7 @@ function SignUp() {
           )}
           name="fullName"
         />
-        {errors.fullName && (
-          <Text style={styles.error}>{errors.fullName.message}</Text>
-        )}
+        {errors.fullName && <Text style={styles.error}>{errors.fullName.message}</Text>}
 
         <Text style={styles.label}>Phone Number</Text>
         <Controller
@@ -110,28 +107,18 @@ function SignUp() {
           )}
           name="phoneNumber"
         />
-        {errors.phoneNumber && (
-          <Text style={styles.error}>{errors.phoneNumber.message}</Text>
-        )}
+        {errors.phoneNumber && <Text style={styles.error}>{errors.phoneNumber.message}</Text>}
 
         <Text style={styles.label}>Email</Text>
         <Controller
           control={control}
           rules={emailValidation}
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-            />
+            <TextInput style={styles.input} placeholder="Email" onBlur={onBlur} onChangeText={onChange} value={value} />
           )}
           name="email"
         />
-        {errors.email && (
-          <Text style={styles.error}>{errors.email.message}</Text>
-        )}
+        {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
 
         <Text style={styles.label}>Password</Text>
         <Controller
@@ -149,9 +136,7 @@ function SignUp() {
           )}
           name="password"
         />
-        {errors.password && (
-          <Text style={styles.error}>{errors.password.message}</Text>
-        )}
+        {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
 
         <Text style={styles.label}>Re-Enter Password</Text>
         <Controller
@@ -169,9 +154,7 @@ function SignUp() {
           )}
           name="confirmPassword"
         />
-        {errors.confirmPassword && (
-          <Text style={styles.error}>{errors.confirmPassword.message}</Text>
-        )}
+        {errors.confirmPassword && <Text style={styles.error}>{errors.confirmPassword.message}</Text>}
 
         <Button title="Submit" onPress={handleSubmit(onSubmit)} />
       </View>
