@@ -1,20 +1,30 @@
-import { View, Text,Pressable } from "react-native";
-import { useNavigation } from "@react-navigation/native"
-
+import React from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { Layout, Text, Button } from '@ui-kitten/components';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 function LandingPage() {
-  const nav = useNavigation()
+  const nav = useNavigation();
 
   return (
-    <View>
-      <Text>Logo goes here</Text>
-      <Pressable onPress={()=>{ nav.navigate('SignUp') }}>
-        <Text>Sign up</Text>
-      </Pressable>
-      <Pressable onPress={()=>{ nav.navigate('SignIn')}}>
-        <Text>Sign in</Text>
-      </Pressable>
-    </View>
+    <SafeAreaView style={{ flex: 1 }}>
+    <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text category='h1'>Logo goes here</Text>
+      <Button 
+        style={{ marginVertical: 4 }} 
+        size='large'
+        onPress={() => nav.navigate('SignIn')}>
+        Log In
+      </Button>
+      <Button 
+        style={{ marginVertical: 4 }} 
+        size='large'
+        appearance='ghost'
+        onPress={() => nav.navigate('SignUp')}>
+        Register
+      </Button>
+    </Layout>
+    </SafeAreaView>
   );
 }
 

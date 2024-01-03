@@ -3,12 +3,17 @@ import { StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import AuthNav from "./src/Components/Navigation/AuthNav";
 import LandingPage from "./src/Components/Screens/LandingPage";
+import * as eva from '@eva-design/eva';
+import { ApplicationProvider } from '@ui-kitten/components';
+import Theme from './assets/Themes.json'
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <AuthNav />
-    </NavigationContainer>
+    <ApplicationProvider {...eva} theme={{...eva.light, ...Theme}}>
+      <NavigationContainer>
+        <AuthNav />
+      </NavigationContainer>
+    </ApplicationProvider>
   );
 }
 
