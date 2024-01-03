@@ -11,15 +11,15 @@ const Error = (props) => {
         )
      }
 
-function GameScreen(search) {
+function GameScreen({search}) {
   const [game, setGame] = useState({})
   const [isLoading, setIsLoading] = useState(true)
   const [isError, setIsError] = useState(false)
 
   useEffect(() => {
-      setIsLoading(true)
       setIsError(false)
-      getGame(search.search)
+      setIsLoading(true)
+      getGame(search)
       .then((gameData) => {
             setGame(gameData)
             setIsLoading(false)

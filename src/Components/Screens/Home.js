@@ -12,10 +12,6 @@ function Home() {
     setEditSearch("")
   }
 
-  function onChange(input) {
-    setEditSearch(input)
-  }
-
   return (
     <>
     <View>
@@ -25,7 +21,7 @@ function Home() {
     <View>
     <SearchBar
       placeholder="Type Here..."
-      onChangeText={onChange}
+      onChangeText={(input) => { setEditSearch(input) }}
       value={editSearch}
       onSubmitEditing={onSubmit}
     />
