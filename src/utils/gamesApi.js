@@ -1,20 +1,14 @@
 import axios from 'axios'
+
 const bggApi = axios.create({
     baseURL: 'https://boardgamegeek.com/xmlapi'
 })
 const getGame = (game) => {
-    console.log(game)
     const XMLParser = require('react-xml-parser');
-    return bggApi.get(`/search`, {
-        params: {
-            search: game,
-            exact: 1,
-        headers: {
-            "content-type": "application/xml; charset=utf-8"
-            }
-        }
-    })
+    const url = `/search?search=${game}&exact=1`
+    return bggApi.get(url)
     .then(({data}) => {
+        console.log(data)
         const xml = new XMLParser().parseFromString(data);
         console.log(xml)
         const firstResult = {
