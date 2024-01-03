@@ -16,8 +16,6 @@ function GameScreen(search) {
   const [isLoading, setIsLoading] = useState(true)
   const [isError, setIsError] = useState(false)
 
-
-
   useEffect(() => {
       setIsLoading(true)
       setIsError(false)
