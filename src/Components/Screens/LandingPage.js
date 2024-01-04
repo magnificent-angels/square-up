@@ -1,30 +1,72 @@
-import React from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { Layout, Text, Button } from '@ui-kitten/components';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, Pressable, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useContext } from "react";
+import { UserContext } from "../../../Context/UserContext";
 
 function LandingPage() {
+  const { user } = useContext(UserContext);
   const nav = useNavigation();
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-    <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Button 
-        style={{ marginVertical: 4 }} 
-        size='large'
-        onPress={() => nav.navigate('SignIn')}>
-        Log In
-      </Button>
-      <Button 
-        style={{ marginVertical: 4 }} 
-        size='large'
-        appearance='ghost'
-        onPress={() => nav.navigate('SignUp')}>
-        Register
-      </Button>
-    </Layout>
-    </SafeAreaView>
+    <View style={styles.container}>
+      {!user ? (
+        <>
+          <Text>Logo goes here</Text>
+          <Pressable
+            onPress={() => {
+              nav.navigate("SignUp");
+            }}
+          >
+            <Text>Sign up</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              nav.navigate("SignIn");
+            }}
+          >
+            <Text>Sign in</Text>
+          </Pressable>
+        </>
+      ) : (
+        <Pressable
+          onPress={() => {
+            nav.navigate("Profile");
+          }}
+        >
+          <Text>Go to Profile</Text>
+        </Pressable>
+      )}
+    </View>
   );
 }
 
 export default LandingPage;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  form: {
+    width: "80%",
+  },
+  input: {
+    borderColor: "gray",
+    borderWidth: 1,
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 5,
+  },
+  error: {
+    color: "red",
+    marginBottom: 10,
+  },
+  formHeader: {
+    fontSize: 32,
+    fontWeight: "bold",
+    marginBottom: 20,
+    alignSelf: "center",
+  },
+});

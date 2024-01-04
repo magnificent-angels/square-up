@@ -2,6 +2,8 @@ import React from 'react';
 import { StyleSheet } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { Layout, Text, Card, Input, Button } from '@ui-kitten/components';
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
 
 function SignUp() {
   const {
@@ -19,7 +21,19 @@ function SignUp() {
     },
   });
 
-  const onSubmit = (data) => console.log("Signing up with", data);
+  const onSubmit = ({ email, password }) => {
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed up
+        const user = userCredential.user;
+        console.log(user);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(error);
+      });
+  };
 
   const phoneNumberValidation = {
     required: { value: true, message: "Phone number is required" },
@@ -41,8 +55,7 @@ function SignUp() {
   const passwordValidation = {
     required: { value: true, message: "Password is required" },
     pattern: {
-      value:
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
+      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
       message: "Invalid password",
     },
   };
@@ -106,8 +119,6 @@ function SignUp() {
               value={value}
               label={"Email"}
             />
-          )}
-          name="email"
         />
         {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
 
@@ -169,15 +180,15 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   error: {
-    color: 'red',
+    color: "red",
     marginBottom: 10,
   },
   formHeader: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    alignSelf: 'center',
-  }
+    alignSelf: "center",
+  },
 });
 
 export default SignUp;
