@@ -3,11 +3,12 @@ import { StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import AuthNav from "./src/Components/Navigation/AuthNav";
 import LandingPage from "./src/Components/Screens/LandingPage";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function App() {
   return (
     <NavigationContainer>
-      <AuthNav />
+        <AuthNav />
     </NavigationContainer>
   );
 }
