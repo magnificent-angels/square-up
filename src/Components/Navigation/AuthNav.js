@@ -7,17 +7,18 @@ import LandingPage from "../Screens/LandingPage";
 import GameScreen from "../Screens/GameScreen";
 import Home from "../Screens/Home";
 import CreateEvent from "../Screens/CreateEvent";
+import TopNav from "./TopNav";
 
 const Stack = createNativeStackNavigator();
 
 function AuthNav() {
   return (
-    <Stack.Navigator screenOptions={{headerShown:false}}>
-      <Stack.Screen name="Home" component={Home}/>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="HomeScreen" component={TopNav} />
       <Stack.Screen name="LandingPage" component={LandingPage} />
       <Stack.Screen name="SignIn" component={SignIn} />
       <Stack.Screen name="SignUp" component={SignUp} />
-      <Stack.Screen name="CreateEvent" component={CreateEvent}/>
+      <Stack.Screen name="CreateEvent" component={CreateEvent} />
     </Stack.Navigator>
   );
 }
