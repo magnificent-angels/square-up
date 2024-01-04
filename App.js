@@ -1,15 +1,22 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import AuthNav from "./src/Components/Navigation/AuthNav";
 import LandingPage from "./src/Components/Screens/LandingPage";
-import { SafeAreaView } from "react-native-safe-area-context";
+import * as eva from '@eva-design/eva';
+import { ApplicationProvider } from '@ui-kitten/components';
+import Theme from './assets/Themes.json'
+import { UserProvider } from "./Context/UserContext";
 
 export default function App() {
   return (
-    <NavigationContainer>
+    <UserProvider>
+     <ApplicationProvider {...eva} theme={{...eva.dark, ...Theme}}>
+      <NavigationContainer>
         <AuthNav />
-    </NavigationContainer>
+      </NavigationContainer>
+</ApplicationProvider>
+    </UserProvider>
   );
 }
 
