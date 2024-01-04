@@ -8,7 +8,6 @@ import Profile from "../Screens/Profile";
 import GameScreen from "../Screens/GameScreen";
 import Home from "../Screens/Home";
 import CreateEvent from "../Screens/CreateEvent";
-import TopNav from "./TopNav";
 import BottomNav from "./BottomNav";
 
 const Stack = createNativeStackNavigator();

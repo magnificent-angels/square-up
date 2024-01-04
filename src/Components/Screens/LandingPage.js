@@ -1,42 +1,43 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useContext } from "react";
 import { UserContext } from "../../../Context/UserContext";
+import { Layout, Card, Text, Button, Avatar, Divider } from "@ui-kitten/components";
 
 function LandingPage() {
   const { user } = useContext(UserContext);
   const nav = useNavigation();
 
   return (
-    <View style={styles.container}>
+    <Layout style={styles.container}>
       {!user ? (
         <>
           <Text>Logo goes here</Text>
-          <Pressable
+          <Button
             onPress={() => {
               nav.navigate("SignUp");
             }}
           >
             <Text>Sign up</Text>
-          </Pressable>
-          <Pressable
+          </Button>
+          <Button
             onPress={() => {
               nav.navigate("SignIn");
             }}
           >
             <Text>Sign in</Text>
-          </Pressable>
+          </Button>
         </>
       ) : (
-        <Pressable
+        <Button
           onPress={() => {
             nav.navigate("Profile");
           }}
         >
           <Text>Go to Profile</Text>
-        </Pressable>
+        </Button>
       )}
-    </View>
+    </Layout>
   );
 }
 
