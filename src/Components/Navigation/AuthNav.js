@@ -16,7 +16,7 @@ const Stack = createNativeStackNavigator();
 function AuthNav() {
   return (
     <Stack.Navigator screenOptions={{headerShown:false}}>
-      <Stack.Screen name="Home" component={BottomNav} />
+      <Stack.Screen name="HomeScreen" component={BottomNav} />
       <Stack.Screen name="LandingPage" component={LandingPage} />
       <Stack.Screen name="SignIn" component={SignIn} />
       <Stack.Screen name="SignUp" component={SignUp} />

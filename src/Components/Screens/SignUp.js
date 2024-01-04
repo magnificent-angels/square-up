@@ -119,6 +119,7 @@ function SignUp() {
               value={value}
               label={"Email"}
             />
+          )}
         />
         {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
 
