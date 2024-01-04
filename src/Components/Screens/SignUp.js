@@ -2,6 +2,10 @@ import React from "react";
 import { Text, StyleSheet, TextInput, Button, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useForm, Controller } from "react-hook-form";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from '../../firebase'
+import { setDoc, doc } from 'firebase/firestore'
+import { useNavigation } from "@react-navigation/native"
 
 function SignUp() {
   const {
@@ -19,7 +23,27 @@ function SignUp() {
     },
   });
 
-  const onSubmit = (data) => console.log("Signing up with", data);
+  const nav = useNavigation()
+
+  const onSubmit = ({ email, password, username }) => {
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed up
+        const user = userCredential.user;
+        const userUid = doc(db, "users", user.uid)
+        setDoc(userUid, {
+          username: username
+        })
+      })
+      .then(() => {
+        nav.navigate('Profile')
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(error);
+      });
+  };
 
   const emailValidation = {
     required: { value: true, message: "Email is required" },
