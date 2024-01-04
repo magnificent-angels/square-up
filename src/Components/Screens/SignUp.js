@@ -25,14 +25,15 @@ function SignUp() {
 
   const nav = useNavigation()
 
-  const onSubmit = ({ email, password, username }) => {
+  const onSubmit = ({ email, password, username, fullName }) => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed up
         const user = userCredential.user;
         const userUid = doc(db, "users", user.uid)
         setDoc(userUid, {
-          username: username
+          username: username,
+          name: fullName
         })
       })
       .then(() => {

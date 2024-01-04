@@ -4,7 +4,7 @@ function CreateEvent() {
 
     return (
 <View>
-    <Text>CREATE A FUCKING EVENT</Text>
+    <Text></Text>
 </View>
     )
 
