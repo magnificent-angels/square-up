@@ -2,8 +2,6 @@ import React from "react";
 import { Text, StyleSheet, TextInput, Button, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useForm, Controller } from "react-hook-form";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase";
 
 function SignUp() {
   const {
@@ -14,34 +12,14 @@ function SignUp() {
   } = useForm({
     defaultValues: {
       fullName: "",
-      phoneNumber: "+44",
+      username: "",
       email: "",
       password: "",
       confirmPassword: "",
     },
   });
 
-  const onSubmit = ({ email, password }) => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed up
-        const user = userCredential.user;
-        console.log(user);
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(error);
-      });
-  };
-
-  const phoneNumberValidation = {
-    required: { value: true, message: "Phone number is required" },
-    pattern: {
-      value: /((\+44(\s\(0\)\s|\s0\s|\s)?)|0)7\d{3}(\s)?\d{6}/,
-      message: "Invalid UK phone number",
-    },
-  };
+  const onSubmit = (data) => console.log("Signing up with", data);
 
   const emailValidation = {
     required: { value: true, message: "Email is required" },
@@ -55,7 +33,8 @@ function SignUp() {
   const passwordValidation = {
     required: { value: true, message: "Password is required" },
     pattern: {
-      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
+      value:
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
       message: "Invalid password",
     },
   };
@@ -92,29 +71,36 @@ function SignUp() {
         />
         {errors.fullName && <Text style={styles.error}>{errors.fullName.message}</Text>}
 
-        <Text style={styles.label}>Phone Number</Text>
+        <Text style={styles.label}>Username</Text>
         <Controller
           control={control}
-          rules={phoneNumberValidation}
+          rules={{ required: "Username is required" }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               style={styles.input}
-              placeholder="Phone Number"
+              placeholder="Username"
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
             />
           )}
-          name="phoneNumber"
+          name="username"
         />
-        {errors.phoneNumber && <Text style={styles.error}>{errors.phoneNumber.message}</Text>}
+        {errors.username && <Text style={styles.error}>{errors.username.message}</Text>}
 
         <Text style={styles.label}>Email</Text>
         <Controller
           control={control}
           rules={emailValidation}
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput style={styles.input} placeholder="Email" onBlur={onBlur} onChangeText={onChange} value={value} />
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+
+            />
           )}
           name="email"
         />
@@ -180,15 +166,15 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   error: {
-    color: "red",
+    color: 'red',
     marginBottom: 10,
   },
-  formHeader: {
+  formHeader:{
     fontSize: 32,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 20,
-    alignSelf: "center",
-  },
+    alignSelf: 'center',
+  }
 });
 
 export default SignUp;
