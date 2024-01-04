@@ -11,11 +11,11 @@ import { UserProvider } from "./Context/UserContext";
 export default function App() {
   return (
     <UserProvider>
-     <ApplicationProvider {...eva} theme={{...eva.dark, ...Theme}}>
-      <NavigationContainer>
-        <AuthNav />
-      </NavigationContainer>
-</ApplicationProvider>
+      <ApplicationProvider {...eva} theme={{ ...eva.light, ...Theme }}>
+        <NavigationContainer>
+          <AuthNav />
+        </NavigationContainer>
+      </ApplicationProvider>
     </UserProvider>
   );
 }

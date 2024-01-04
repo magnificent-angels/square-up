@@ -30,12 +30,12 @@ function SignIn() {
         const userCred = userCredential.user;
         setUser(userCred);
         nav.navigate("Profile");
-        console.log(userCred);
+        //console.log(userCred);
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        console.log(error);
+        //console.log(error);
       });
   };
 
