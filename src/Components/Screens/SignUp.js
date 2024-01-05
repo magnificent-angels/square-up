@@ -3,7 +3,9 @@ import { StyleSheet } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { Layout, Text, Card, Input, Button } from '@ui-kitten/components';
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase";
+import { auth, db } from '../../firebase'
+import { setDoc, doc } from 'firebase/firestore'
+import { useNavigation } from "@react-navigation/native"
 
 function SignUp() {
   const {
@@ -14,33 +16,34 @@ function SignUp() {
   } = useForm({
     defaultValues: {
       fullName: "",
-      phoneNumber: "",
+      username: "",
       email: "",
       password: "",
       confirmPassword: "",
     },
   });
 
-  const onSubmit = ({ email, password }) => {
+  const nav = useNavigation()
+
+  const onSubmit = ({ email, password, username, fullName }) => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed up
         const user = userCredential.user;
-        console.log(user);
+        const userUid = doc(db, "users", user.uid)
+        setDoc(userUid, {
+          username: username,
+          name: fullName
+        })
+      })
+      .then(() => {
+        nav.navigate('Profile')
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
         console.log(error);
       });
-  };
-
-  const phoneNumberValidation = {
-    required: { value: true, message: "Phone number is required" },
-    pattern: {
-      value: /((\+44(\s\(0\)\s|\s0\s|\s)?)|0)7\d{3}(\s)?\d{6}/,
-      message: "Invalid UK phone number",
-    },
   };
 
   const emailValidation = {
@@ -55,7 +58,8 @@ function SignUp() {
   const passwordValidation = {
     required: { value: true, message: "Password is required" },
     pattern: {
-      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
+      value:
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
       message: "Invalid password",
     },
   };
@@ -94,25 +98,27 @@ function SignUp() {
 
         <Controller
           control={control}
-          rules={phoneNumberValidation}
+          rules={{required: true, message: "Username is required"}}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              placeholder="+44"
+              style={styles.input}
+              placeholder="Username"
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
-              label={"Phone Number"}
+              label={"Username"}
             />
           )}
-          name="phoneNumber"
+          name="username"
         />
-        {errors.phoneNumber && <Text style={styles.error}>{errors.phoneNumber.message}</Text>}
+        {errors.username && <Text style={styles.error}>{errors.username.message}</Text>}
 
         <Controller
           control={control}
           rules={emailValidation}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
+              style={styles.input}
               placeholder="Email"
               onBlur={onBlur}
               onChangeText={onChange}
@@ -120,6 +126,7 @@ function SignUp() {
               label={"Email"}
             />
           )}
+          name='email'
         />
         {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
 
@@ -181,15 +188,15 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   error: {
-    color: "red",
+    color: 'red',
     marginBottom: 10,
   },
-  formHeader: {
+  formHeader:{
     fontSize: 32,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 20,
-    alignSelf: "center",
-  },
+    alignSelf: 'center',
+  }
 });
 
 export default SignUp;

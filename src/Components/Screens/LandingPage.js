@@ -5,6 +5,7 @@ import { UserContext } from '../../../Context/UserContext';
 import { Dimensions, StyleSheet } from 'react-native';
 import LottieView from 'lottie-react-native';
 
+
 function LandingPage() {
   const { user } = useContext(UserContext);
   const navigation = useNavigation();

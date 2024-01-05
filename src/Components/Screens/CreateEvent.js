@@ -1,14 +1,11 @@
-import {View, Text} from 'react-native'
+import { Text, View } from 'react-native'
 
 function CreateEvent() {
-
-    return (
-<View>
-    <Text>CREATE A FUCKING EVENT</Text>
-</View>
-    )
-
+  <View>
+    <Text>Create an event</Text>
+  </View>
 }
+
 
 
 export default CreateEvent
