@@ -14,10 +14,10 @@ const Stack = createNativeStackNavigator();
 function AuthNav() {
   return (
     <Stack.Navigator screenOptions={{headerShown:false}}>
-      <Stack.Screen name="Home" component={Home}/>
-      <Stack.Screen name="CreateEvent" component={CreateEvent}/>
       <Stack.Screen name="LandingPage" component={LandingPage} />
       <Stack.Screen name="SignIn" component={SignIn} />
+      <Stack.Screen name="Home" component={Home}/>
+      <Stack.Screen name="CreateEvent" component={CreateEvent}/>
       <Stack.Screen name="SignUp" component={SignUp} />
       <Stack.Screen name="Profile" component={Profile} />
     </Stack.Navigator>

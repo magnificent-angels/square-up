@@ -14,6 +14,7 @@
     "@react-navigation/native-stack": "^6.9.17",
     "@rneui/themed": "^4.0.0-rc.8",
     "axios": "^1.6.3",
+    "dayjs": "^1.11.10",
     "expo": "~49.0.15",
     "expo-status-bar": "~1.6.0",
     "firebase": "^10.7.1",
@@ -22,6 +23,7 @@
     "react-hook-form": "^7.49.2",
     "react-native": "^0.72.6",
     "react-native-safe-area-context": "4.6.3",
+    "react-native-ui-datepicker": "^1.0.11",
     "react-native-web": "~0.19.6",
     "react-native-xml2js": "^1.0.3",
     "react-xml-parser": "^1.1.8"
