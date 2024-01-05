@@ -1,4 +1,4 @@
-import { Text, TextInput, SafeAreaView, StyleSheet, Button } from 'react-native'
+import { Text, TextInput, View, StyleSheet, Button } from 'react-native'
 import { auth } from '../../firebase'
 import {collection, query, where, doc, getDoc} from 'firebase/firestore'
 import { db } from '../../firebase'
@@ -17,7 +17,7 @@ function CreateEvent({game}) {
 
   const user = auth.currentUser
 
-  const onSubmit = (data) => console.log(data);
+  const onSubmit = () => console.log(eventName, location, eventDate, deadline);
 
   useEffect(() => {
     const docRef = doc(db, "users", user.uid)
@@ -39,7 +39,7 @@ function CreateEvent({game}) {
   if (isLoading) return <Text>Loading...</Text>
 
   return (
-  <SafeAreaView>
+  <View>
     <Text>Organise an event, {userData.username}!</Text>
     <Text style={styles.label}>Name of event: </Text>
     <TextInput
@@ -48,15 +48,15 @@ function CreateEvent({game}) {
       value={eventName}
     />
     <Text>Select the date and time for your event: </Text>
-    {/* <DateTimePicker 
+    <DateTimePicker 
       value={eventDate}
       onValueChange={(date) => setEventDate(date)}
-    />     */}
+    />    
     <Text>What is the deadline for signing up?</Text>
-    {/* <DateTimePicker 
+    <DateTimePicker 
       value={deadline}
       onValueChange={(date) => setDeadline(date)}
-    /> */}
+    />
     <Text>Enter a postcode for the event: </Text>
     <TextInput 
       style={styles.input}
@@ -64,8 +64,9 @@ function CreateEvent({game}) {
       value={location}
       placeholder="eg M1 7ED"
     />
-    <Button title="Create event" onSubmit={() => onsubmit}></Button>
-  </SafeAreaView>
+    <Button title="Submit" onPress={onSubmit}></Button>
+
+  </View>
   );  
 }
 

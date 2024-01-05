@@ -1,6 +1,6 @@
 import getGame from "../../utils/gamesApi"
 import { useState, useEffect } from 'react'
-import { View, Text, Image, Button, StyleSheet } from 'react-native'
+import { View, Text, Image, Button, StyleSheet, ScrollView } from 'react-native'
 import { useNavigation } from "@react-navigation/native"
 import CreateEvent from "./CreateEvent"
 
@@ -44,7 +44,12 @@ function GameScreen({ search }) {
 
 
     return (
-        <View>
+        <ScrollView
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps={"handled"}
+            alwaysBounceVertical={false}
+            contentContainerStyle={styles.container}
+        >
             {isLoading ? <Text>Loading...</Text> :
                 <View style={styles.container}>
                     <Text style={styles.name}>{name}</Text>
@@ -57,7 +62,7 @@ function GameScreen({ search }) {
                     { eventBeingCreated ? <CreateEvent game={game} /> : null }
                 </View>
             }
-        </View>
+        </ScrollView>
     )
 
 }
@@ -66,10 +71,8 @@ const styles = StyleSheet.create({
     container: {
         justifyContent: "center",
         alignItems: "center",
-        width: 200,
-        height: 200,
         marginTop: 70,
-        marginHorizontal: 80
+        marginBottom: 70
     },
     name: {
         fontSize: 40,
