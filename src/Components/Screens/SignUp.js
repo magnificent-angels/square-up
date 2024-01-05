@@ -101,7 +101,6 @@ function SignUp() {
           rules={{required: true, message: "Username is required"}}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              style={styles.input}
               placeholder="Username"
               onBlur={onBlur}
               onChangeText={onChange}
@@ -118,7 +117,6 @@ function SignUp() {
           rules={emailValidation}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              style={styles.input}
               placeholder="Email"
               onBlur={onBlur}
               onChangeText={onChange}
