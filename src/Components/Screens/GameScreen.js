@@ -1,15 +1,15 @@
 import getGame from "../../utils/gamesApi"
 import { useState, useEffect } from 'react'
-import { View, Image, Button, StyleSheet } from 'react-native'
+import { View, Text, Image, Button, StyleSheet } from 'react-native'
 import { useNavigation } from "@react-navigation/native"
 import { Layout, Text } from "@ui-kitten/components"
 
 const Error = (props) => {
     const { msg } = props
     return (
-        <Layout>
+        <View>
             <Text>{msg}</Text>
-        </Layout>
+        </View>
     )
 }
 
@@ -43,9 +43,10 @@ function GameScreen({ search }) {
 
 
     return (
-        <Layout>
+        <View>
             {isLoading ? <Text>Loading...</Text> :
-                <Layout style={styles.container}>
+                <View style={styles.container}>
+
                     <Text style={styles.name}>{name}</Text>
                     <Image source={{ uri: `${imageUrl}` }} style={{ width: 100, height: 100 }}></Image>
                     <Text>{minPlayers} - {maxPlayers} players</Text>
@@ -53,9 +54,9 @@ function GameScreen({ search }) {
                     <Button title="I own this game"></Button>
                     <Button title="Add to wishlist"></Button>
                     <Button onPress={() => nav.navigate('CreateEvent')} title="Create event" ></Button>
-                </Layout>
+                </View>
             }
-        </Layout>
+        </View>
     )
 
 }
