@@ -4,11 +4,10 @@ import GameScreen from "./GameScreen";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Map from "./Map";
 
-
 function Home() {
   return (
     <>
-    <Map/>
+      <Map />
     </>
   );
 }

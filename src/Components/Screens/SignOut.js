@@ -8,7 +8,6 @@ import { useContext } from "react";
 function SignOut() {
   const { user, setUser } = useContext(UserContext);
   const nav = useNavigation();
-  console.log(user);
   return (
     <View>
       <Pressable
