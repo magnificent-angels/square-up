@@ -1,4 +1,4 @@
-import { Text, TextInput} from 'react-native'
+import { Text, TextInput, SafeAreaView, StyleSheet, Button } from 'react-native'
 import { auth } from '../../firebase'
 import {collection, query, where, doc, getDoc} from 'firebase/firestore'
 import { db } from '../../firebase'
@@ -10,18 +10,20 @@ function CreateEvent({game}) {
 
   const [userData, setUserData] = useState(null)
   const [eventName, setEventName] = useState('')
-  const [eventDate, setEventDate] = useState=(dayjs())
+  const [eventDate, setEventDate] = useState(dayjs())
   const [deadline, setDeadline] = useState(dayjs())
   const [location, setLocation] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
 
   const user = auth.currentUser
 
-  const onSubmit = data => console.log(data);
+  const onSubmit = (data) => console.log(data);
 
   useEffect(() => {
     const docRef = doc(db, "users", user.uid)
     getDoc(docRef).then((result) => {
       setUserData(result.data())
+      setIsLoading(false)
     })
   }, [])
 
@@ -34,14 +36,15 @@ function CreateEvent({game}) {
     imageUrl
   }
 
+  if (isLoading) return <Text>Loading...</Text>
 
-  if (user) return (
+  return (
   <SafeAreaView>
     <Text>Organise an event, {userData.username}!</Text>
     <Text style={styles.label}>Name of event: </Text>
     <TextInput
       style={styles.input}
-      onChangeText={onChangeEventName}
+      onChangeText={(input) => setEventName(input)}
       value={eventName}
     />
     <Text>Select the date and time for your event: </Text>
@@ -57,12 +60,43 @@ function CreateEvent({game}) {
     <Text>Enter a postcode for the event: </Text>
     <TextInput 
       style={styles.input}
-      onChangeText={onChangeLocation}
+      onChangeText={(input) => setLocation(input)}
       value={location}
       placeholder="eg M1 7ED"
     />
-    <Button title="Create event" onSubmit={handleSubmit(onSubmit)}></Button>
+    <Button title="Create event" onSubmit={() => onsubmit}></Button>
   </SafeAreaView>
-  );
-
+  );  
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  form: {
+    width: "80%",
+  },
+  label : {
+    fontSize: 16
+  },
+  input: {
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+  error: {
+    color: "red",
+    marginBottom: 10,
+  },
+  formHeader: {
+    fontSize: 32,
+    fontWeight: "bold",
+    marginBottom: 20,
+    alignSelf: "center",
+  },
+});
+
+export default CreateEvent

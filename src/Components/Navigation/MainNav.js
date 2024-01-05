@@ -9,7 +9,7 @@ function MainNav() {
     return (
         <MainStack.Navigator screenOptions={{ headerShown: false }}>
             <MainStack.Screen name="Root Nav" component={BottomNav} />
-            <MainStack.Screen name="CreateEvent" component={CreateEvent} />
+            {/* <MainStack.Screen name="CreateEvent" component={CreateEvent} /> */}
         </MainStack.Navigator>
     );
 }
