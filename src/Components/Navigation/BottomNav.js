@@ -1,17 +1,18 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Home from "../Screens/Home"
 import Profile from '../Screens/Profile'
-import {useState} from 'react'
+import Map from "../Screens/Map";
+import SearchScreen from "../Screens/SearchScreen";
 
 const Tab = createBottomTabNavigator()
 
-function BottomTab(){
+function BottomNav(){
   
     return (
-      <Tab.Navigator>
-        <Tab.Screen name="Home" component={Home} />
+      <Tab.Navigator screenOptions={{ headerShown: false }}>
+        <Tab.Screen name="Home" component={Map} />
+        <Tab.Screen name="Search" component={SearchScreen} />
         <Tab.Screen name="Profile" component={Profile} />
       </Tab.Navigator>
     );
 }
-export default BottomTab
+export default BottomNav;
