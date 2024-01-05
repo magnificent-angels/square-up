@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { UserContext } from '../../../Context/UserContext';
 import { StyleSheet } from 'react-native';
 
+
 function LandingPage() {
   const { user } = useContext(UserContext);
   const navigation = useNavigation();
