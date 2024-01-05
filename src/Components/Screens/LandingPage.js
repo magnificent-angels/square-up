@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginVertical: 4,
     fontSize: 20,
-    width: 200,
+    zIndex: 1,
   },
   landingHeader: {
     textAlign: 'center',
