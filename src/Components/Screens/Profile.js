@@ -11,10 +11,10 @@ import {
   Divider,
 } from "@ui-kitten/components";
 import { Ionicons } from "@expo/vector-icons";
-import { Controller } from "react-hook-form";
 
 function Profile() {
   const { user } = useContext(UserContext);
+  console.log(user);
 
   return (
     <>
@@ -115,25 +115,21 @@ const styles = StyleSheet.create({
   editIcon: {
     top: 2,
     right: -60,
-    index: 1,
     position: "absolute",
   },
   editDescription: {
     top: 8,
     right: -35,
-    index: 1,
     position: "absolute",
   },
   createIcon: {
     top: 1,
     right: -75,
-    index: 1,
     position: "absolute",
   },
   createDescription: {
     top: 5,
     right: -50,
-    index: 1,
     position: "absolute",
   },
 });

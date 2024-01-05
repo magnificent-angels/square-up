@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { View, Image, Button, StyleSheet } from 'react-native'
 import { useNavigation } from "@react-navigation/native"
 import CreateEvent from "./CreateEvent"
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "react-native";
 
 
 const Error = (props) => {
@@ -56,7 +58,7 @@ function GameScreen({ search }) {
     game;
 
     return (
-        <View>
+        <SafeAreaView style={styles.container}>
             {isLoading ? <Text>Loading...</Text> :
                 <View style={styles.container}>
                     <Text style={styles.name}>{name}</Text>
@@ -69,7 +71,7 @@ function GameScreen({ search }) {
                 </View>
                 }
                 {isPressed ? <CreateEvent game={game}/> : null}
-            </View>
+            </SafeAreaView>
         )
 }
 
@@ -81,6 +83,7 @@ const styles = StyleSheet.create({
     height: 200,
     marginTop: 70,
     marginHorizontal: 80,
+    paddingTop: StatusBar.currentHeight || 0,
   },
   name: {
     fontSize: 40,

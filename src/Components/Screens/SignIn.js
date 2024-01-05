@@ -27,7 +27,6 @@ function SignIn() {
       .then((userCredential) => {
         const userCred = userCredential.user;
         setUser(userCred);
-        nav.navigate("Profile");
       })
       .catch((error) => {
         console.error(error);

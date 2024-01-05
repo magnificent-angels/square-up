@@ -9,16 +9,13 @@ export const UserProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    onAuthStateChanged(auth, (currentUser) => {
-      if (user) {
-        setUser(currentUser);
-        setLoading(false);
-      } else {
-        setUser(null);
-        setLoading(false);
-      } 
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
     });
-}, []);
+    return unsubscribe;
+  }, []);
+  
 
   return (
     <UserContext.Provider

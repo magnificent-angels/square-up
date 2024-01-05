@@ -1,13 +1,9 @@
 import * as React from "react";
-import { View, Text } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import SignUp from "../Screens/SignUp";
 import SignIn from "../Screens/SignIn";
 import LandingPage from "../Screens/LandingPage";
-import Profile from "../Screens/Profile";
-import GameScreen from "../Screens/GameScreen";
-import CreateEvent from "../Screens/CreateEvent";
-import BottomNav from "./BottomNav";
+
 
 const Stack = createNativeStackNavigator();
 

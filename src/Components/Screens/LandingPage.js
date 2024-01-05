@@ -14,7 +14,6 @@ function LandingPage() {
   const BottomAnimation = useRef(null);
   return (
     <Layout style={styles.container}>
-      {!user ? (
         <>
         <LottieView
             autoPlay
@@ -42,7 +41,7 @@ function LandingPage() {
             <Button style={styles.button} onPress={() => navigation.navigate('SignIn')} size='large'>
               Log In
               </Button>
-            <Button style={styles.button} onPress={() => navigation.navigate('SignUp')} size='large'>
+            <Button style={styles.button} onPress={() => navigation.navigate('SignUp')} size='large' appearance='ghost'>
               Join SquareUp
             </Button>
           <LottieView
@@ -57,11 +56,6 @@ function LandingPage() {
             source={require('../../../assets/animations/bottomAnimation.json')}
           />
         </>
-      ) : (
-        <Button onPress={() => navigation.navigate('Profile')}>
-          Go to Profile
-        </Button>
-      )}
     </Layout>
   );
 }
@@ -78,6 +72,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginVertical: 4,
     fontSize: 20,
+    width: 200,
     zIndex: 1,
   },
   landingHeader: {
