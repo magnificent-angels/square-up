@@ -96,18 +96,17 @@ function SignUp() {
         />
         {errors.fullName && <Text style={styles.error}>{errors.fullName.message}</Text>}
 
-        <Text style={styles.label}>Username</Text>
         <Controller
           control={control}
-          rules={{ required: "Username is required" }}
+          rules={{required: true, message: "Username is required"}}
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
+            <Input
               style={styles.input}
               placeholder="Username"
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
-              label={"Phone Number"}
+              label={"Username"}
             />
           )}
           name="username"
@@ -118,15 +117,16 @@ function SignUp() {
           control={control}
           rules={emailValidation}
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
+            <Input
               style={styles.input}
               placeholder="Email"
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
-
+              label={"Email"}
             />
           )}
+          name='email'
         />
         {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
 
