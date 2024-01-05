@@ -1,10 +1,11 @@
 import { Text, TextInput, View, StyleSheet, Button } from 'react-native'
 import { auth } from '../../firebase'
-import {collection, query, where, doc, getDoc} from 'firebase/firestore'
+import { doc, getDoc, GeoPoint } from 'firebase/firestore'
 import { db } from '../../firebase'
 import { useEffect, useState } from 'react'
 import DateTimePicker from 'react-native-ui-datepicker';
 import dayjs from 'dayjs';
+import { getLatLong } from '../../utils/postcodeLookup'
 
 function CreateEvent({game}) {
 
@@ -12,12 +13,36 @@ function CreateEvent({game}) {
   const [eventName, setEventName] = useState('')
   const [eventDate, setEventDate] = useState(dayjs())
   const [deadline, setDeadline] = useState(dayjs())
-  const [location, setLocation] = useState('')
+  const [postcode, setPostcode] = useState('')
+  const [latitude, setLatitude] = useState('')
+  const [longitude, setLongitude] = useState('')
   const [isLoading, setIsLoading] = useState(true)
-
+  
   const user = auth.currentUser
-
-  const onSubmit = () => console.log(eventName, location, eventDate, deadline);
+  const { name, description, minPlayers, maxPlayers, playingTime, imageUrl } = game
+  
+  const onSubmit = () => {
+    getLatLong(postcode)
+    .then(({latitude, longitude}) => {
+      setLatitude(latitude)
+      setLongitude(longitude)
+    })
+    .then(() => {
+      const eventObj = {
+        location: new GeoPoint(latitude, longitude),
+        eventName,
+        eventDate,
+        deadline,
+        organiserUsername: userData.username,
+        organiserUid: user.uid,
+        gameName: name,
+        minPlayers,
+        maxPlayers,
+        playingTime,
+        imageUrl,
+      }
+    })
+  }
 
   useEffect(() => {
     const docRef = doc(db, "users", user.uid)
@@ -27,14 +52,6 @@ function CreateEvent({game}) {
     })
   }, [])
 
-  const { name, description, minPlayers, maxPlayers, playingTime, imageUrl } = game
-  const eventObj = {
-    gameName: name,
-    minPlayers,
-    maxPlayers,
-    playingTime,
-    imageUrl
-  }
 
   if (isLoading) return <Text>Loading...</Text>
 
@@ -60,8 +77,8 @@ function CreateEvent({game}) {
     <Text>Enter a postcode for the event: </Text>
     <TextInput 
       style={styles.input}
-      onChangeText={(input) => setLocation(input)}
-      value={location}
+      onChangeText={(input) => setPostcode(input)}
+      value={postcode}
       placeholder="eg M1 7ED"
     />
     <Button title="Submit" onPress={onSubmit}></Button>
