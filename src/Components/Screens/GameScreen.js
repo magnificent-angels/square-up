@@ -20,6 +20,7 @@ function GameScreen({ search }) {
     const [isLoading, setIsLoading] = useState(true)
     const [isError, setIsError] = useState(false)
     const [eventBeingCreated, setEventBeingCreated] = useState(false)
+    const [eventCreated, setEventCreated] = useState(false)
 
     useEffect(() => {
         setIsError(false)
@@ -35,13 +36,9 @@ function GameScreen({ search }) {
             })
     }, [search])
 
-
-
     if (isError) return <Error msg="Game not found" />
 
     const { name, description, minPlayers, maxPlayers, playingTime, imageUrl } = game
-
-
 
     return (
         <ScrollView
@@ -59,7 +56,8 @@ function GameScreen({ search }) {
                     <Button title="I own this game"></Button>
                     <Button title="Add to wishlist"></Button>
                     <Button onPress={() => {setEventBeingCreated(true)}} title="Create event" ></Button>
-                    { eventBeingCreated ? <CreateEvent game={game} /> : null }
+                    { eventBeingCreated ? <CreateEvent game={game} setEventCreated={setEventCreated} setEventBeingCreated={setEventBeingCreated} /> : null }
+                    { eventCreated ? <Text>Your event has been created!</Text> : null}
                 </View>
             }
         </ScrollView>

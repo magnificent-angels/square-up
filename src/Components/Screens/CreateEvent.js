@@ -1,13 +1,13 @@
 import { Text, TextInput, View, StyleSheet, Button } from 'react-native'
 import { auth } from '../../firebase'
-import { doc, getDoc, GeoPoint } from 'firebase/firestore'
+import { doc, getDoc, GeoPoint, addDoc, collection, Timestamp } from 'firebase/firestore'
 import { db } from '../../firebase'
 import { useEffect, useState } from 'react'
 import DateTimePicker from 'react-native-ui-datepicker';
 import dayjs from 'dayjs';
 import { getLatLong } from '../../utils/postcodeLookup'
 
-function CreateEvent({game}) {
+function CreateEvent({game, setEventBeingCreated, setEventCreated}) {
 
   const [userData, setUserData] = useState(null)
   const [eventName, setEventName] = useState('')
@@ -17,36 +17,60 @@ function CreateEvent({game}) {
   const [latitude, setLatitude] = useState('')
   const [longitude, setLongitude] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+
   
   const user = auth.currentUser
   const { name, description, minPlayers, maxPlayers, playingTime, imageUrl } = game
-  
+
+  const handleDates = (dateString) => {
+    const date = new Date(dateString)
+    const milliseconds = date.getTime()
+    return milliseconds
+  }
+
   const onSubmit = () => {
     getLatLong(postcode)
     .then(({latitude, longitude}) => {
       setLatitude(latitude)
       setLongitude(longitude)
+      const dateTime = handleDates(eventDate)
+      const eventDeadline = handleDates(deadline)
+      return [dateTime, eventDeadline]
     })
-    .then(() => {
-      const eventObj = {
-        location: new GeoPoint(latitude, longitude),
+    .then(([dateTime, eventDeadline]) => {
+      addDoc(collection(db, "events"), {
+        location: [latitude, longitude],
         eventName,
-        eventDate,
-        deadline,
+        dateTime,
+        eventDeadline,
         organiserUsername: userData.username,
         organiserUid: user.uid,
         gameName: name,
-        minPlayers,
-        maxPlayers,
-        playingTime,
+        minPlayers: +minPlayers,
+        maxPlayers: +maxPlayers,
+        playingTime: +playingTime,
         imageUrl,
-      }
+      })
+    })
+    .then(() => {
+      setEventName('')
+      setEventDate(dayjs())
+      setDeadline(dayjs())
+      setPostcode('')
+      setLatitude('')
+      setLongitude('')
+      setEventCreated(true)
+      setEventBeingCreated(false)
+    })
+    .catch((err) => {
+      console.log(err)
     })
   }
 
   useEffect(() => {
     const docRef = doc(db, "users", user.uid)
-    getDoc(docRef).then((result) => {
+    getDoc(docRef)
+    .then((result) => {
       setUserData(result.data())
       setIsLoading(false)
     })
@@ -67,7 +91,7 @@ function CreateEvent({game}) {
     <Text>Select the date and time for your event: </Text>
     <DateTimePicker 
       value={eventDate}
-      onValueChange={(date) => setEventDate(date)}
+      onValueChange={(date) => setEventDate(handleDates(date))}
     />    
     <Text>What is the deadline for signing up?</Text>
     <DateTimePicker 
@@ -82,7 +106,6 @@ function CreateEvent({game}) {
       placeholder="eg M1 7ED"
     />
     <Button title="Submit" onPress={onSubmit}></Button>
-
   </View>
   );  
 }
