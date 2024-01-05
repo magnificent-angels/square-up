@@ -11,9 +11,11 @@ import {
   Divider,
 } from "@ui-kitten/components";
 import { Ionicons } from "@expo/vector-icons";
+import { Controller } from "react-hook-form";
 
 function Profile() {
   const { user } = useContext(UserContext);
+
   return (
     <>
       <View style={styles.container}>
@@ -39,6 +41,9 @@ function Profile() {
             size={25}
             onPress={console.log("edit favourites")}
           />
+          <Text category="s2" style={styles.editDescription}>
+            Edit
+          </Text>
           <Text category="h5">Favourite Games</Text>
 
           <Divider />
@@ -47,11 +52,14 @@ function Profile() {
           </Text>
         </Card>
         <Card style={styles.contentContainer}>
+          <Text category="s2" style={styles.createDescription}>
+            Create Event
+          </Text>
           <Ionicons
             name="add-circle-outline"
-            style={styles.addIcon}
+            style={styles.createIcon}
             size={25}
-            onPress={console.log("organise game")}
+            onPress={console.log("create an event")}
           />
           <Text category="h5">Owned Games</Text>
           <Divider />
@@ -105,14 +113,26 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   editIcon: {
-    top: 8,
-    right: -50,
+    top: 2,
+    right: -60,
     index: 1,
     position: "absolute",
   },
-  addIcon: {
-    top: 10,
-    right: -65,
+  editDescription: {
+    top: 8,
+    right: -35,
+    index: 1,
+    position: "absolute",
+  },
+  createIcon: {
+    top: 1,
+    right: -75,
+    index: 1,
+    position: "absolute",
+  },
+  createDescription: {
+    top: 5,
+    right: -50,
     index: 1,
     position: "absolute",
   },
