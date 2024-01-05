@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native'
 
-function CreatEvent() {
+function CreateEvent() {
   <View>
     <Text>Create an event</Text>
   </View>
