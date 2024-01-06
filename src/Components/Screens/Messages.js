@@ -1,136 +1,229 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
-import { UserContext } from "../Context/UserContext";
-import { Layout, Text, Card, Input, Icon, Button } from "@ui-kitten/components";
-import { StyleSheet, ScrollView, View } from "react-native";
-import { collection, addDoc, onSnapshot, orderBy, query } from "firebase/firestore";
-import { db } from "../../firebase";
+import { StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import { collection, addDoc, getDocs, query, where, doc, getDoc, onSnapshot } from "firebase/firestore";
+import { db } from "../../firebase";
+import { useNavigation } from "@react-navigation/native";
 
-const Messages = (props) => {
+import {
+  Icon,
+  Button,
+  List,
+  Text,
+  Divider,
+  Layout,
+  Autocomplete,
+  AutocompleteItem,
+  Spinner,
+} from "@ui-kitten/components";
+
+import { useEffect, useState, useContext } from "react";
+import { UserContext } from "../Context/UserContext";
+
+const Messages = () => {
   const { user } = useContext(UserContext);
-  const [messages, setMessages] = useState([]);
-  const [content, setContent] = useState("");
-  const { threadId } = props.route.params;
-  const scrollViewRef = useRef();
+  const [messageThreads, setMessageThreads] = useState([]);
+  const [autoCompleteData, setAutoCompleteData] = useState(["loading..."]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const nav = useNavigation();
 
-  useEffect(() => {
-    const getMessages = () => {
-      const threadRef = collection(db, "messageThreads", threadId, "messages");
-      const q = query(threadRef, orderBy("timestamp", "asc"));
+  const handleSearchChange = async (newTerm) => {
+    setSearchTerm(newTerm);
 
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const msgs = snapshot.docs.map((doc) => doc.data());
-        setMessages(msgs);
-      });
-
-      // Clean up the listener when the component unmounts
-      return () => unsubscribe();
-    };
-
-    getMessages();
-  }, [threadId]);
-
-  const sendMessageToThread = async (threadId, senderId, content) => {
-    const threadRef = collection(db, "messageThreads", threadId, "messages");
-
-    setMessages((prevMessages) => [...prevMessages, { senderId, content, timestamp: new Date() }]);
-
-    try {
-      await addDoc(threadRef, {
-        senderId,
-        content,
-        timestamp: new Date(),
-      });
-
-      console.log("Message sent to thread:", threadId);
-      scrollViewRef.current.scrollToEnd({ animated: true });
-    } catch (error) {
-      console.error("Error sending message to thread:", error);
+    if (searchTerm !== "" && searchTerm.length <= 10) {
+      const newAutoCompleteData = await fetchUsernames(newTerm);
+    } else {
+      setAutoCompleteData(["No Users Found"]);
     }
   };
 
-  const renderIcon = (props) => <Icon {...props} name="paper-plane-outline" />;
+  const handleSearch = async () => {
+    const q = query(collection(db, "users"), where("username", "==", searchTerm));
 
-  return (
-    <Layout style={styles.section}>
-      <ScrollView style={styles.msgs} ref={scrollViewRef}>
-        {messages.map((message, index) => {
-          return (
-            <Card key={index} style={message.senderId === user.uid ? styles.sent : styles.received}>
-              <Text>{message.content}</Text>
-            </Card>
-          );
-        })}
-      </ScrollView>
-      <View style={styles.inputView}>
-        <Input
-          style={styles.input}
-          placeholder="Message..."
-          value={content}
-          onChangeText={(text) => setContent(text)}
-          onSubmitEditing={() => {
-            sendMessageToThread(threadId, user.uid, content);
-            setContent("");
-          }}
-        />
-        <Button
-          appearance="outline"
-          accessoryLeft={renderIcon}
-          style={styles.send}
-          onPress={() => {
-            sendMessageToThread(threadId, user.uid, content);
-            setContent("");
-          }}
-        />
-      </View>
-    </Layout>
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.log("No users found");
+      return;
+    } else {
+      const userDoc = querySnapshot.docs[0];
+      const userId = userDoc.id;
+
+      const threadId = await createMessageThread(user.uid, userId);
+
+      if (threadId) {
+        nav.navigate("Messages", { threadId });
+      }
+    }
+  };
+
+  const fetchUsernames = async (searchTerm) => {
+    const q = query(collection(db, "users"), where("username", ">=", searchTerm));
+
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.log("No users found");
+      return;
+    } else {
+      const usernames = querySnapshot.docs.map((doc) => {
+        return doc.data().username;
+      });
+      setAutoCompleteData(usernames);
+    }
+  };
+
+  const createMessageThread = async (user1Id, user2Id) => {
+    // Check if a thread already exists between the two users
+    const queryUser1 = query(collection(db, "messageThreads"), where("participants", "array-contains", user1Id));
+
+    const queryUser2 = query(collection(db, "messageThreads"), where("participants", "array-contains", user2Id));
+
+    try {
+      const [resultUser1, resultUser2] = await Promise.all([getDocs(queryUser1), getDocs(queryUser2)]);
+
+      // Check for an intersection of threads
+      const commonThreads = resultUser1.docs.filter((doc) => resultUser2.docs.some((d) => d.id === doc.id));
+
+      if (commonThreads.length > 0) {
+        const existingThread = commonThreads[0];
+        console.log("Thread already exists with ID:", existingThread.id);
+        return existingThread.id;
+      }
+
+      // If no existing thread, create a new one
+      const newThreadDocRef = await addDoc(collection(db, "messageThreads"), {
+        participants: [user1Id, user2Id],
+        createdAt: new Date(),
+      });
+
+      console.log("Message thread created with ID:", newThreadDocRef.id);
+      return newThreadDocRef.id;
+    } catch (error) {
+      console.error("Error creating or checking message thread:", error);
+      return null;
+    }
+  };
+
+  const getUserThreads = async () => {
+    const threadsQuery = query(collection(db, "messageThreads"), where("participants", "array-contains", user.uid));
+
+    const unsubscribe = onSnapshot(
+      threadsQuery,
+      (querySnapshot) => {
+        const threads = [];
+
+        querySnapshot.forEach((document) => {
+          const data = document.data();
+          data.id = document.id;
+          const participants = data.participants;
+
+          const otherParticipants = participants.filter((participantId) => {
+            return participantId !== user.uid;
+          });
+
+          data.participants = [];
+
+          Promise.all(
+            otherParticipants.map(async (participantId) => {
+              const userRef = doc(db, "users", participantId);
+              const userData = await getDoc(userRef);
+
+              data.participants.push(userData.data());
+
+              return data;
+            })
+          ).then((updatedThreads) => {
+            threads.push(...updatedThreads);
+            setMessageThreads(threads); // Move the setMessageThreads call here
+          });
+        });
+      },
+      (error) => {
+        console.error("Error fetching user threads:", error);
+      }
+    );
+
+    return unsubscribe;
+  };
+
+  useEffect(() => {
+    setIsLoading(true);
+    const createThreads = async () => {
+      if (!user) return;
+      await getUserThreads();
+    };
+
+    createThreads();
+    setIsLoading(false);
+  }, [user, setMessageThreads]);
+
+  const renderIcon = (props) => {
+    return <Icon {...props} name="person-outline" />;
+  };
+
+  const renderItem = ({ item, index }) => (
+    <Button
+      key={index}
+      style={styles.card}
+      accessoryLeft={renderIcon}
+      appearance="ghost"
+      onPress={() => {
+        nav.navigate("Messages", { threadId: item.id });
+      }}
+    >
+      <Text>{item.participants[0].username}</Text>
+    </Button>
   );
+
+  if (isLoading) {
+    return (
+      <Layout style={styles.loading}>
+        <Spinner size="giant" />
+      </Layout>
+    );
+  } else {
+    return (
+      <Layout>
+        <Autocomplete
+          style={styles.autocomplete}
+          placeholder="Search User..."
+          value={searchTerm}
+          onSelect={(index) => setSearchTerm(autoCompleteData[index])}
+          onChangeText={handleSearchChange}
+          size="large"
+        >
+          {autoCompleteData.map((item, index) => (
+            <AutocompleteItem key={index} title={item} style={styles.autoItem} />
+          ))}
+        </Autocomplete>
+        <Button appearance="ghost" onPress={handleSearch} style={styles.button}>
+          Search
+        </Button>
+        <List style={styles.container} data={messageThreads} renderItem={renderItem} ItemSeparatorComponent={Divider} />
+      </Layout>
+    );
+  }
 };
 
 const styles = StyleSheet.create({
+  loading: {
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  autocomplete: {
+    minWidth: "100%",
+    alignSelf: "center",
+    marginTop: 10,
+  },
   container: {
     paddingTop: StatusBar.currentHeight || 0,
     height: "100%",
   },
-  section: {
-    padding: 5,
-    justifyContent: "space-between",
-    height: "100%",
-    flex: 1,
-  },
-  sent: {
-    width: "85%",
-    alignSelf: "flex-end",
-    backgroundColor: "rgba(51, 255, 102, 0.48)",
-    marginBottom: 10,
-    borderTopWidth: 1,
-    borderTopColor: "gray",
-  },
-  received: {
-    width: "85%",
-    alignSelf: "flex-start",
-    backgroundColor: "rgba(51, 102, 255, 0.48)",
-    marginBottom: 10,
-    borderTopWidth: 1,
-    borderTopColor: "gray",
-  },
-  inputView: {
-    width: "100%",
-    backgroundColor: "#222B45",
-    flexDirection: "row",
-    padding: 5,
-    justifyContent: "space-between",
-    height: "10%",
-  },
-  input: {
-    width: "86%",
-    height: 50,
-    borderTopWidth: 1,
-    borderTopColor: "gray",
-  },
-  send: {
-    width: "10%",
-    height: 40,
+  card: {
+    borderRadius: 0,
+    justifyContent: "left",
   },
 });
 

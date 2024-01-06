@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { SearchBar } from "@rneui/themed";
 import GameScreen from "./GameScreen";
+import { Layout } from "@ui-kitten/components";
+import { StyleSheet } from "react-native";
 
 function SearchScreen() {
   const [search, setSearch] = useState("");
@@ -12,7 +14,7 @@ function SearchScreen() {
   }
 
   return (
-    <>
+    <Layout style={styles.container}>
       <SearchBar
         placeholder="Type Here..."
         onChangeText={(input) => {
@@ -22,8 +24,15 @@ function SearchScreen() {
         onSubmitEditing={onSubmit}
       />
       {search ? <GameScreen search={search} /> : null}
-    </>
+    </Layout>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    height: "100%",
+  },
+});
 
 export default SearchScreen;

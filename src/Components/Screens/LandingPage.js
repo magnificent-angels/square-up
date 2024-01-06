@@ -1,10 +1,9 @@
-import React, { useContext, useRef } from 'react';
-import { Layout, Text, Button } from '@ui-kitten/components';
-import { useNavigation } from '@react-navigation/native';
-import { UserContext } from '../../../Context/UserContext';
-import { Dimensions, StyleSheet } from 'react-native';
-import LottieView from 'lottie-react-native';
-
+import React, { useContext, useRef } from "react";
+import { Layout, Text, Button } from "@ui-kitten/components";
+import { useNavigation } from "@react-navigation/native";
+import { UserContext } from "../Context/UserContext";
+import { Dimensions, StyleSheet } from "react-native";
+import LottieView from "lottie-react-native";
 
 function LandingPage() {
   const { user } = useContext(UserContext);
@@ -16,45 +15,47 @@ function LandingPage() {
     <Layout style={styles.container}>
       {!user ? (
         <>
-        <LottieView
+          <LottieView
             autoPlay
             ref={TopAnimation}
             style={{
-              position: 'absolute',
-              width: Dimensions.get('window').width,
-              height: 'auto',
+              position: "absolute",
+              width: Dimensions.get("window").width,
+              height: "auto",
               top: 0,
             }}
-            source={require('../../../assets/animations/TopAnimation.json')}
+            source={require("../../../assets/animations/TopAnimation.json")}
           />
           <LottieView
             autoPlay
             ref={BoardGameAnimation}
-              style={{
+            style={{
               width: 350,
-              height: 'auto',
+              height: "auto",
               left: 8.5,
               top: -2.5,
             }}
-            source={require('../../../assets/animations/BoardGame.json')}
+            source={require("../../../assets/animations/BoardGame.json")}
           />
-          <Text category='h1' style={styles.landingHeader}>Connect with Game Enthusiasts Like You!</Text>
-            <Button style={styles.button} onPress={() => navigation.navigate('SignIn')} size='large'>
-              Log In
-              </Button>
-            <Button style={styles.button} onPress={() => navigation.navigate('SignUp')} size='large'>
-              Join SquareUp
-            </Button>
+          <Text category="h1" style={styles.landingHeader}>
+            Connect with Game Enthusiasts Like You!
+          </Text>
+          <Button style={styles.button} onPress={() => navigation.navigate("SignIn")} size="large">
+            Log In
+          </Button>
+          <Button style={styles.button} onPress={() => navigation.navigate("SignUp")} size="large">
+            Join SquareUp
+          </Button>
           <LottieView
             autoPlay
             ref={BottomAnimation}
             style={{
-              width: Dimensions.get('window').width,
-              height: 'auto',
-              position: 'absolute',
+              width: Dimensions.get("window").width,
+              height: "auto",
+              position: "absolute",
               bottom: 0,
             }}
-            source={require('../../../assets/animations/bottomAnimation.json')}
+            source={require("../../../assets/animations/bottomAnimation.json")}
           />
         </>
       ) : (
@@ -79,7 +80,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   landingHeader: {
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 50,
-  }
+  },
 });
