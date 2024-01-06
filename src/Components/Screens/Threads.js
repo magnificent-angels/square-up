@@ -1,20 +1,19 @@
 import { StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { collection, addDoc, getDocs, query, where, doc, getDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useNavigation } from "@react-navigation/native";
 
-import { Icon, Button, List, Text, Divider, Layout } from "@ui-kitten/components";
+import { Icon, Button, List, Text, Divider, Layout, Input, Spinner } from "@ui-kitten/components";
 
 import { useEffect, useState, useContext } from "react";
 import { UserContext } from "../../../Context/UserContext";
 
-const user2 = "Kuv6ZONHJLNl0a0InHyK6wIM6972";
-const user3 = "qimh40TUGNOA5sf7RR6fiCXtMC63";
-
 const Threads = () => {
   const { user } = useContext(UserContext);
   const [messageThreads, setMessageThreads] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const nav = useNavigation();
 
   const createMessageThread = async (user1Id, user2Id) => {
@@ -49,49 +48,82 @@ const Threads = () => {
     }
   };
 
-  const getUserThreads = async () => {
-    const threadsQuery = query(collection(db, "messageThreads"), where("participants", "array-contains", user.uid));
+  const handleSearchChange = (newTerm) => {
+    setSearchTerm(newTerm);
+  };
 
-    try {
-      const querySnapshot = await getDocs(threadsQuery);
+  const handleSearch = async () => {
+    const q = query(collection(db, "users"), where("username", "==", searchTerm));
 
-      querySnapshot.forEach(async (document) => {
-        const data = document.data();
-        data.id = document.id;
-        setMessageThreads([]);
-        const participants = data.participants;
+    const querySnapshot = await getDocs(q);
 
-        const otherParticipants = participants.filter((participantId) => {
-          return participantId !== user.uid;
-        });
+    if (querySnapshot.empty) {
+      console.log("No users found");
+      return;
+    } else {
+      const userDoc = querySnapshot.docs[0];
+      const userId = userDoc.id;
 
-        data.participants = [];
+      const threadId = await createMessageThread(user.uid, userId);
 
-        otherParticipants.forEach(async (participantId) => {
-          const userRef = doc(db, "users", participantId);
-          const userData = await getDoc(userRef);
-
-          data.participants.push(userData.data());
-
-          setMessageThreads((prev) => [...prev, data]);
-        });
-      });
-    } catch (error) {
-      console.error("Error fetching user threads:", error);
-      return [];
+      if (threadId) {
+        nav.navigate("Messages", { threadId });
+      }
     }
   };
 
+  const getUserThreads = async () => {
+    const threadsQuery = query(collection(db, "messageThreads"), where("participants", "array-contains", user.uid));
+
+    const unsubscribe = onSnapshot(
+      threadsQuery,
+      (querySnapshot) => {
+        const threads = [];
+
+        querySnapshot.forEach((document) => {
+          const data = document.data();
+          data.id = document.id;
+          const participants = data.participants;
+
+          const otherParticipants = participants.filter((participantId) => {
+            return participantId !== user.uid;
+          });
+
+          data.participants = [];
+
+          Promise.all(
+            otherParticipants.map(async (participantId) => {
+              const userRef = doc(db, "users", participantId);
+              const userData = await getDoc(userRef);
+
+              data.participants.push(userData.data());
+
+              return data;
+            })
+          ).then((updatedThreads) => {
+            threads.push(...updatedThreads);
+            setMessageThreads(threads); // Move the setMessageThreads call here
+          });
+        });
+      },
+      (error) => {
+        console.error("Error fetching user threads:", error);
+      }
+    );
+
+    return unsubscribe;
+  };
+
   useEffect(() => {
+    setIsLoading(true);
     const createThreads = async () => {
       if (!user) return;
-      const newThread = await createMessageThread(user.uid, user2);
-      const newThread2 = await createMessageThread(user.uid, user3);
       await getUserThreads();
     };
 
     createThreads();
-  }, [user]);
+    setIsLoading(false);
+  }, [user, setMessageThreads]);
 
   const renderIcon = (props) => {
     return <Icon {...props} name="person-outline" />;
@@ -111,15 +143,36 @@ const Threads = () => {
     </Button>
   );
 
-  if (messageThreads)
+  if (isLoading) {
+    return (
+      <Layout style={styles.loading}>
+        <Spinner size="giant" />
+      </Layout>
+    );
+  } else {
     return (
       <Layout>
+        <Input
+          value={searchTerm}
+          placeholder="Search User..."
+          onChangeText={handleSearchChange}
+          autoCapitalize="none"
+        />
+        <Button appearance="ghost" onPress={handleSearch} style={styles.button}>
+          Search
+        </Button>
         <List style={styles.container} data={messageThreads} renderItem={renderItem} ItemSeparatorComponent={Divider} />
       </Layout>
     );
+  }
 };
 
 const styles = StyleSheet.create({
+  loading: {
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
     paddingTop: StatusBar.currentHeight || 0,
     height: "100%",
