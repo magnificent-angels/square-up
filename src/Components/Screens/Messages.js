@@ -62,7 +62,7 @@ const Messages = (props) => {
           );
         })}
       </ScrollView>
-      <View style={styles.type}>
+      <View style={styles.inputView}>
         <Input
           style={styles.input}
           placeholder="Message..."
@@ -98,23 +98,6 @@ const styles = StyleSheet.create({
     height: "100%",
     flex: 1,
   },
-  type: {
-    width: "100%",
-    backgroundColor: "#222B45",
-    flexDirection: "row",
-    padding: 5,
-    justifyContent: "space-between",
-  },
-  input: {
-    width: "86%",
-    height: 40,
-    borderTopWidth: 1,
-    borderTopColor: "gray",
-  },
-  send: {
-    width: "10%",
-    height: 40,
-  },
   sent: {
     width: "85%",
     alignSelf: "flex-end",
@@ -130,6 +113,24 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderTopWidth: 1,
     borderTopColor: "gray",
+  },
+  inputView: {
+    width: "100%",
+    backgroundColor: "#222B45",
+    flexDirection: "row",
+    padding: 5,
+    justifyContent: "space-between",
+    height: "10%",
+  },
+  input: {
+    width: "86%",
+    height: 50,
+    borderTopWidth: 1,
+    borderTopColor: "gray",
+  },
+  send: {
+    width: "10%",
+    height: 40,
   },
 });
 

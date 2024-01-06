@@ -4,7 +4,17 @@ import { collection, addDoc, getDocs, query, where, doc, getDoc, onSnapshot } fr
 import { db } from "../../firebase";
 import { useNavigation } from "@react-navigation/native";
 
-import { Icon, Button, List, Text, Divider, Layout, Input, Spinner } from "@ui-kitten/components";
+import {
+  Icon,
+  Button,
+  List,
+  Text,
+  Divider,
+  Layout,
+  Autocomplete,
+  AutocompleteItem,
+  Spinner,
+} from "@ui-kitten/components";
 
 import { useEffect, useState, useContext } from "react";
 import { UserContext } from "../../../Context/UserContext";
@@ -12,9 +22,56 @@ import { UserContext } from "../../../Context/UserContext";
 const Threads = () => {
   const { user } = useContext(UserContext);
   const [messageThreads, setMessageThreads] = useState([]);
+  const [autoCompleteData, setAutoCompleteData] = useState(["loading..."]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const nav = useNavigation();
+
+  const handleSearchChange = async (newTerm) => {
+    setSearchTerm(newTerm);
+
+    if (searchTerm !== "" && searchTerm.length <= 10) {
+      const newAutoCompleteData = await fetchUsernames(newTerm);
+    } else {
+      setAutoCompleteData(["No Users Found"]);
+    }
+  };
+
+  const handleSearch = async () => {
+    const q = query(collection(db, "users"), where("username", "==", searchTerm));
+
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.log("No users found");
+      return;
+    } else {
+      const userDoc = querySnapshot.docs[0];
+      const userId = userDoc.id;
+
+      const threadId = await createMessageThread(user.uid, userId);
+
+      if (threadId) {
+        nav.navigate("Messages", { threadId });
+      }
+    }
+  };
+
+  const fetchUsernames = async (searchTerm) => {
+    const q = query(collection(db, "users"), where("username", ">=", searchTerm));
+
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.log("No users found");
+      return;
+    } else {
+      const usernames = querySnapshot.docs.map((doc) => {
+        return doc.data().username;
+      });
+      setAutoCompleteData(usernames);
+    }
+  };
 
   const createMessageThread = async (user1Id, user2Id) => {
     // Check if a thread already exists between the two users
@@ -45,30 +102,6 @@ const Threads = () => {
     } catch (error) {
       console.error("Error creating or checking message thread:", error);
       return null;
-    }
-  };
-
-  const handleSearchChange = (newTerm) => {
-    setSearchTerm(newTerm);
-  };
-
-  const handleSearch = async () => {
-    const q = query(collection(db, "users"), where("username", "==", searchTerm));
-
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      console.log("No users found");
-      return;
-    } else {
-      const userDoc = querySnapshot.docs[0];
-      const userId = userDoc.id;
-
-      const threadId = await createMessageThread(user.uid, userId);
-
-      if (threadId) {
-        nav.navigate("Messages", { threadId });
-      }
     }
   };
 
@@ -152,12 +185,18 @@ const Threads = () => {
   } else {
     return (
       <Layout>
-        <Input
-          value={searchTerm}
+        <Autocomplete
+          style={styles.autocomplete}
           placeholder="Search User..."
+          value={searchTerm}
+          onSelect={(index) => setSearchTerm(autoCompleteData[index])}
           onChangeText={handleSearchChange}
-          autoCapitalize="none"
-        />
+          size="large"
+        >
+          {autoCompleteData.map((item, index) => (
+            <AutocompleteItem key={index} title={item} style={styles.autoItem} />
+          ))}
+        </Autocomplete>
         <Button appearance="ghost" onPress={handleSearch} style={styles.button}>
           Search
         </Button>
@@ -172,6 +211,11 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
+  },
+  autocomplete: {
+    minWidth: "100%",
+    alignSelf: "center",
+    marginTop: 10,
   },
   container: {
     paddingTop: StatusBar.currentHeight || 0,
