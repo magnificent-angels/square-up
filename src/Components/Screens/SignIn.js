@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 import { Layout, Input, Button, Card, Text } from "@ui-kitten/components";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
-import { UserContext } from "../../../Context/UserContext";
+import { UserContext } from "../Context/UserContext";
 import { useForm, Controller } from "react-hook-form";
 
 function SignIn() {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { UserContext } from "../../../Context/UserContext";
+import { UserContext } from "../Context/UserContext";
 import { Layout, Text, Card, Input, Icon, Button } from "@ui-kitten/components";
 import { StyleSheet, ScrollView, View } from "react-native";
 import { collection, addDoc, onSnapshot, orderBy, query } from "firebase/firestore";
