@@ -169,7 +169,7 @@ const Messages = () => {
       accessoryLeft={renderIcon}
       appearance="ghost"
       onPress={() => {
-        nav.navigate("Messages", { threadId: item.id });
+        nav.navigate("Chat", { threadId: item.id });
       }}
     >
       <Text>{item.participants[0].username}</Text>
