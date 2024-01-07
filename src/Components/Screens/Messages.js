@@ -52,7 +52,7 @@ const Messages = () => {
       const threadId = await createMessageThread(user.uid, userId);
 
       if (threadId) {
-        nav.navigate("Messages", { threadId });
+        nav.navigate("Chat", { threadId: threadId, name: userDoc.data().username });
       }
     }
   };
