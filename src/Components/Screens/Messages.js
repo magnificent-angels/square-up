@@ -38,7 +38,7 @@ const Messages = () => {
   };
 
   const handleSearch = async () => {
-    const q = query(collection(db, "users"), where("username", "==", searchTerm));
+    const q = query(collection(db, "users"), where("username", ">=", searchTerm));
 
     const querySnapshot = await getDocs(q);
 
@@ -192,6 +192,7 @@ const Messages = () => {
           onSelect={(index) => setSearchTerm(autoCompleteData[index])}
           onChangeText={handleSearchChange}
           size="large"
+          autoCapitalize="none"
         >
           {autoCompleteData.map((item, index) => (
             <AutocompleteItem key={index} title={item} style={styles.autoItem} />
