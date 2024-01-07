@@ -11,7 +11,11 @@ function MainNav() {
     <MainStack.Navigator screenOptions={{ headerShown: false }}>
       <MainStack.Screen name="Root Nav" component={BottomNav} />
       <MainStack.Screen name="CreateEvent" component={CreateEvent} />
-      <MainStack.Screen name="Chat" component={Chat} options={{ headerShown: true }} />
+      <MainStack.Screen
+        name="Chat"
+        component={Chat}
+        options={({ route }) => ({ title: route.params.name, headerShown: true })}
+      />
     </MainStack.Navigator>
   );
 }
