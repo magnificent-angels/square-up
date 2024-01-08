@@ -14,7 +14,6 @@ import { Ionicons } from "@expo/vector-icons";
 
 function Profile() {
   const { user } = useContext(UserContext);
-  //console.log(user);
 
   return (
     <>
