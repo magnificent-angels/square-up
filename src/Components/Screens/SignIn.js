@@ -1,10 +1,9 @@
-import React, { useContext, useState } from 'react';
-import { StyleSheet } from 'react-native';
-import { Layout, Input, Button, Card, Text } from '@ui-kitten/components';
+import React, { useContext, useState } from "react";
+import { StyleSheet } from "react-native";
+import { Layout, Input, Button, Card, Text } from "@ui-kitten/components";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
-import { UserContext } from "../../../Context/UserContext";
-import { useNavigation } from "@react-navigation/native";
+import { UserContext } from "../Context/UserContext";
 import { useForm, Controller } from "react-hook-form";
 
 function SignIn() {
@@ -20,14 +19,12 @@ function SignIn() {
   });
 
   const { setUser } = useContext(UserContext);
-  const nav = useNavigation();
 
   const onSubmit = ({ email, password }) => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const userCred = userCredential.user;
         setUser(userCred);
-        nav.navigate("Profile");
       })
       .catch((error) => {
         console.error(error);
@@ -37,14 +34,16 @@ function SignIn() {
   return (
     <Layout style={styles.container}>
       <Card disabled={true} style={styles.card}>
-        <Text category='h1' style={styles.formHeader}>Log In</Text>
+        <Text category="h1" style={styles.formHeader}>
+          Log In
+        </Text>
 
         <Controller
           control={control}
           name="email"
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              label='Email'
+              label="Email"
               placeholder="Enter your email"
               onBlur={onBlur}
               onChangeText={onChange}
@@ -60,7 +59,7 @@ function SignIn() {
           name="password"
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              label='Password'
+              label="Password"
               placeholder="Enter your password"
               onBlur={onBlur}
               onChangeText={onChange}
@@ -85,18 +84,18 @@ export default SignIn;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f7f9fc',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f7f9fc",
   },
   card: {
-    width: '90%',
+    width: "90%",
     maxWidth: 400,
     padding: 16,
   },
   formHeader: {
     marginBottom: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   input: {
     marginBottom: 10,
@@ -105,8 +104,8 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   error: {
-    color: 'red',
-    textAlign: 'center',
+    color: "red",
+    textAlign: "center",
     marginBottom: 10,
   },
 });

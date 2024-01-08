@@ -3,11 +3,10 @@ import { useState } from "react";
 import GameScreen from "./GameScreen";
 import Map from "./Map";
 
-
 function Home() {
   return (
     <>
-    <Map/>
+      <Map />
     </>
   );
 }

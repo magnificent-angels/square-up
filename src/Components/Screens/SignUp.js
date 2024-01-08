@@ -1,7 +1,7 @@
-import React from 'react';
+import React from "react";
 import { StyleSheet } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { Layout, Text, Card, Input, Button } from '@ui-kitten/components';
+import { Layout, Text, Card, Input, Button } from "@ui-kitten/components";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from '../../firebase'
 import { setDoc, doc } from 'firebase/firestore'
@@ -75,22 +75,15 @@ function SignUp() {
   };
 
   return (
-
-    <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Card style={styles.form} status="primary" >
-        <Text >Sign Up</Text>
+    <Layout style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <Card style={styles.form} status="primary">
+        <Text>Sign Up</Text>
 
         <Controller
           control={control}
           rules={{ required: "Full name is required" }}
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              placeholder="Full Name"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              label={"Full Name"}
-            />
+            <Input placeholder="Full Name" onBlur={onBlur} onChangeText={onChange} value={value} label={"Full Name"} />
           )}
           name="fullName"
         />
@@ -116,13 +109,7 @@ function SignUp() {
           control={control}
           rules={emailValidation}
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              placeholder="Email"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              label={"Email"}
-            />
+            <Input placeholder="Email" onBlur={onBlur} onChangeText={onChange} value={value} label={"Email"} />
           )}
           name='email'
         />
@@ -162,7 +149,7 @@ function SignUp() {
         />
         {errors.confirmPassword && <Text style={styles.error}>{errors.confirmPassword.message}</Text>}
 
-        <Button onPress={handleSubmit(onSubmit)} style={{paddingTop: '10px'}}>
+        <Button onPress={handleSubmit(onSubmit)} style={{ paddingTop: "10px" }}>
           Sign Up
         </Button>
       </Card>
