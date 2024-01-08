@@ -3,9 +3,9 @@ import { StyleSheet } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { Layout, Text, Card, Input, Button } from "@ui-kitten/components";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from '../../firebase'
-import { setDoc, doc } from 'firebase/firestore'
-import { useNavigation } from "@react-navigation/native"
+import { auth, db } from "../../firebase";
+import { setDoc, doc } from "firebase/firestore";
+import { useNavigation } from "@react-navigation/native";
 
 function SignUp() {
   const {
@@ -23,21 +23,18 @@ function SignUp() {
     },
   });
 
-  const nav = useNavigation()
+  const nav = useNavigation();
 
   const onSubmit = ({ email, password, username, fullName }) => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed up
         const user = userCredential.user;
-        const userUid = doc(db, "users", user.uid)
+        const userUid = doc(db, "users", user.uid);
         setDoc(userUid, {
           username: username,
-          name: fullName
-        })
-      })
-      .then(() => {
-        nav.navigate('Profile')
+          name: fullName,
+        });
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -83,15 +80,23 @@ function SignUp() {
           control={control}
           rules={{ required: "Full name is required" }}
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input placeholder="Full Name" onBlur={onBlur} onChangeText={onChange} value={value} label={"Full Name"} />
+            <Input
+              placeholder="Full Name"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              label={"Full Name"}
+            />
           )}
           name="fullName"
         />
-        {errors.fullName && <Text style={styles.error}>{errors.fullName.message}</Text>}
+        {errors.fullName && (
+          <Text style={styles.error}>{errors.fullName.message}</Text>
+        )}
 
         <Controller
           control={control}
-          rules={{required: true, message: "Username is required"}}
+          rules={{ required: true, message: "Username is required" }}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
               placeholder="Username"
@@ -103,17 +108,27 @@ function SignUp() {
           )}
           name="username"
         />
-        {errors.username && <Text style={styles.error}>{errors.username.message}</Text>}
+        {errors.username && (
+          <Text style={styles.error}>{errors.username.message}</Text>
+        )}
 
         <Controller
           control={control}
           rules={emailValidation}
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input placeholder="Email" onBlur={onBlur} onChangeText={onChange} value={value} label={"Email"} />
+            <Input
+              placeholder="Email"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              label={"Email"}
+            />
           )}
-          name='email'
+          name="email"
         />
-        {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
+        {errors.email && (
+          <Text style={styles.error}>{errors.email.message}</Text>
+        )}
 
         <Controller
           control={control}
@@ -130,7 +145,9 @@ function SignUp() {
           )}
           name="password"
         />
-        {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
+        {errors.password && (
+          <Text style={styles.error}>{errors.password.message}</Text>
+        )}
 
         <Controller
           control={control}
@@ -147,7 +164,9 @@ function SignUp() {
           )}
           name="confirmPassword"
         />
-        {errors.confirmPassword && <Text style={styles.error}>{errors.confirmPassword.message}</Text>}
+        {errors.confirmPassword && (
+          <Text style={styles.error}>{errors.confirmPassword.message}</Text>
+        )}
 
         <Button onPress={handleSubmit(onSubmit)} style={{ paddingTop: "10px" }}>
           Sign Up
@@ -173,15 +192,15 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   error: {
-    color: 'red',
+    color: "red",
     marginBottom: 10,
   },
-  formHeader:{
+  formHeader: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    alignSelf: 'center',
-  }
+    alignSelf: "center",
+  },
 });
 
 export default SignUp;

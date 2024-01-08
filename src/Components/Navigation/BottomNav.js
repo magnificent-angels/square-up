@@ -1,9 +1,10 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Profile from "../Screens/Profile";
 import { Ionicons } from "@expo/vector-icons";
-import Map from "../Screens/Map";
+// import Map from "../Screens/Map";
 import SearchScreen from "../Screens/SearchScreen";
 import Messages from "../Screens/Messages";
+import EventList from "../Screens/EventList";
 
 const Tab = createBottomTabNavigator();
 
@@ -28,7 +29,7 @@ function BottomNav() {
         },
       })}
     >
-      <Tab.Screen name="Home" component={Map} />
+      <Tab.Screen name="Home" component={EventList} />
       <Tab.Screen
         name="Search"
         component={SearchScreen}
