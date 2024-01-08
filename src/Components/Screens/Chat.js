@@ -39,6 +39,7 @@ const Chat = (props) => {
           })
         );
         setMessages(msgs);
+        scrollViewRef.current.scrollToEnd({ animated: false });
       });
 
       return () => unsubscribe();
@@ -78,14 +79,18 @@ const Chat = (props) => {
 
           return (
             <Card key={index} style={message.senderId === user.uid ? styles.sent : styles.received}>
-              <Image
-                source={message.senderId === user.uid ? { uri: user.photoURL } : { uri: otherUser.avatarUrl }}
-                style={{ height: 50, width: 50, borderRadius: 50 }}
-              />
-              <Text>{message.content}</Text>
-              <Text style={styles.dateTime}>
-                {timeString}, {dateString}
-              </Text>
+              <Layout style={styles.content}>
+                <Image
+                  source={message.senderId === user.uid ? { uri: user.photoURL } : { uri: otherUser.avatarUrl }}
+                  style={styles.img}
+                />
+                <Layout style={styles.textContainer}>
+                  <Text style={styles.message}>{message.content}</Text>
+                  <Text style={styles.dateTime}>
+                    {timeString}, {dateString}
+                  </Text>
+                </Layout>
+              </Layout>
             </Card>
           );
         })}
@@ -141,6 +146,27 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderTopWidth: 1,
     borderTopColor: "gray",
+  },
+  img: {
+    height: 50,
+    width: 50,
+    borderRadius: 50,
+  },
+  content: {
+    width: "100%",
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    backgroundColor: "transparent",
+  },
+  textContainer: {
+    backgroundColor: "transparent",
+    width: "80%",
+    marginLeft: 10,
+    justifyContent: "space-between",
+  },
+  message: {
+    marginBottom: 10,
   },
   inputView: {
     width: "100%",
