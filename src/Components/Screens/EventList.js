@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native";
-import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
+import { StyleSheet, Image, SafeAreaView } from "react-native";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase";
 import {
   Layout,
@@ -21,7 +20,6 @@ const EventList = () => {
   const [eventsList, setEventsList] = useState([]);
 
   const fetchEventList = async () => {
-    console.log("option", option, "order", order);
     const eventsRef = collection(db, "events");
     const listQuery = query(eventsRef, orderBy(option, order));
     const eventsSnapshot = await getDocs(listQuery);
@@ -65,24 +63,42 @@ const EventList = () => {
     setOrder(selectedOrder);
   };
 
-  const renderItem = ({ item, index }) => (
-    <Button
-      key={index}
-      appearance="ghost"
-      onPress={() => {
-        console.log("selected an event");
-        console.log(eventsList);
-      }}
-    >
-      <Text>{item.gameName}</Text>
-    </Button>
-  );
+  const renderItem = ({ item, index }) => {
+    const imageRender = () => {
+      return <Image source={{ uri: item.imageUrl }} style={styles.image} />;
+    };
+    return (
+      <Button
+        key={index}
+        appearance="ghost"
+        onPress={() => {
+          console.log("selected an event");
+          console.log(eventsList);
+        }}
+        style={styles.button}
+        accessoryLeft={imageRender}
+      >
+        <Layout style={styles.listContainer}>
+          <Layout style={styles.textContainer}>
+            <Text style={styles.titleText}>Event: {item.eventName}</Text>
+            <Text>Game: {item.gameName}</Text>
+            <Text>Min Players: {item.minPlayers}</Text>
+            <Text>Max Players: {item.maxPlayers}</Text>
+            <Text>Playing Time: {item.playingTime} minutes</Text>
+            <Text>Organiser: {item.organiserUsername}</Text>
+          </Layout>
+        </Layout>
+      </Button>
+    );
+  };
 
   return (
     <SafeAreaView>
-      <Layout style={styles.container}>
+      <Layout style={styles.header}>
         <Text category="h1">Games Around Me</Text>
-        <Text category="h5">Filter</Text>
+        <Text category="h5" style={styles.headerFilter}>
+          Filter
+        </Text>
       </Layout>
 
       <Layout style={styles.dropDown}>
@@ -92,18 +108,19 @@ const EventList = () => {
           placeholder="Options"
           style={styles.selectItem}
         >
-          <SelectItem title="Min Players" />
-          <SelectItem title="Max Players" />
-          <SelectItem title="Playing Time" />
+          <SelectItem title="Min Players" style={styles.title} />
+          <SelectItem title="Max Players" style={styles.title} />
+          <SelectItem title="Playing Time" style={styles.title} />
         </Select>
         <Select
           value={orderIndex}
           onSelect={handleOrder}
           placeholder="Order"
           style={styles.selectItem}
+          size="giant"
         >
-          <SelectItem title="Asc" />
-          <SelectItem title="Desc" />
+          <SelectItem title="Asc" style={styles.title} />
+          <SelectItem title="Desc" style={styles.title} />
         </Select>
       </Layout>
       <Layout>
@@ -118,18 +135,43 @@ const EventList = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  header: {
     alignItems: "center",
     justifyContent: "center",
     padding: 30,
+  },
+  headerFilter: {
+    paddingTop: 30,
   },
   dropDown: {
     minHeight: 10,
     flexDirection: "row",
     justifyContent: "center",
+    paddingBottom: 30,
   },
   selectItem: {
-    minWidth: 140,
+    minWidth: 180,
+  },
+  title: {
+    textAlign: "center",
+  },
+  listContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 20,
+  },
+  textContainer: {
+    flex: 1,
+    width: 220,
+    margin: 20,
+  },
+  titleText: {
+    fontWeight: "bold",
+  },
+  image: {
+    height: 100,
+    aspectRatio: 1,
+    resizeMode: "contain",
   },
 });
 
