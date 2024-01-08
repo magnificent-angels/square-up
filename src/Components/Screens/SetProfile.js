@@ -17,7 +17,7 @@ function SetupProfileScreen() {
     const pagerRef = useRef(null);
 
     const { control, handleSubmit, formState: { errors }, getValues } = useForm({
-        defaultValues: { 
+        defaultValues: {
             avatar: "",
             postcode: ""
         }
@@ -28,7 +28,7 @@ function SetupProfileScreen() {
         setLoading(true);
         updateProfile(user, { photoURL: avatar })
             .then(() => {
-               return getLatLong(postcode)
+                return getLatLong(postcode)
             })
             .then((result) => {
                 const { latitude, longitude } = result
@@ -57,7 +57,7 @@ function SetupProfileScreen() {
 
     if (loading) return (
         <Layout style={styles.container}>
-            <Spinner size='giant'/>
+            <Spinner size='giant' />
         </Layout>
     );
 

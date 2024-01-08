@@ -31,10 +31,6 @@ function SignUp() {
           username: username,
           name: fullName
         });
-        nav.reset({
-          index: 2,
-          routes: [{ name: 'SetupProfile', screen: 'SetProfileScreen' }],
-        });
       })
       .then(() => {
         updateProfile(auth.currentUser, {
@@ -46,6 +42,10 @@ function SignUp() {
       })
       .finally(() => {
         setTimeout(() => {
+          nav.reset({
+            index: 2,
+            routes: [{ name: 'SetupProfile', screen: 'SetupProfileScreen' }],
+          });
           setLoading(false);
         }, 500);
       });
