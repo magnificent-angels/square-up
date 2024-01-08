@@ -34,7 +34,8 @@
     "react-native-web": "~0.19.6",
     "react-native-xml2js": "^1.0.3",
     "lottie-react-native": "5.1.6",
-    "react-xml-parser": "^1.1.8"
+    "react-xml-parser": "^1.1.8",
+    "react-native-pager-view": "6.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

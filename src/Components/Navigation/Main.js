@@ -6,8 +6,6 @@ import { UserContext } from '../../../Context/UserContext'
 
 
 const Main = () => {
-    const [loading, setLoading] = useState();
-
     const { user } = useContext(UserContext)
 
 
