@@ -4,7 +4,7 @@ import { Layout, Text, Button, Input, Spinner } from '@ui-kitten/components';
 import { useForm, Controller } from "react-hook-form";
 import PagerView from 'react-native-pager-view';
 import { updateProfile } from 'firebase/auth'
-import { UserContext } from '../../../Context/UserContext';
+import { UserContext } from '../Context/UserContext';
 import { useNavigation } from "@react-navigation/native";
 import { getLatLong } from '../../utils/postcodeLookup';
 import { GeoPoint, setDoc, doc } from 'firebase/firestore';

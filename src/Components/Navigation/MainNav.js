@@ -11,12 +11,12 @@ function MainNav() {
   return (
     <MainStack.Navigator screenOptions={{ headerShown: false }}>
       <MainStack.Screen name="Root Nav" component={BottomNav} />
+      <MainStack.Screen name="SetupProfile" component={SetupProfileScreen} />
       <MainStack.Screen
         name="Chat"
         component={Chat}
         options={({ route }) => ({ title: route.params.name, headerShown: true })}
       />
-      <MainStack.Screen name="SetupProfile" component={SetupProfileScreen} />
     </MainStack.Navigator>
   );
 }

@@ -1,7 +1,6 @@
-import React, { useContext, useContext, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Layout, Text, Button } from '@ui-kitten/components';
 import { useNavigation } from '@react-navigation/native';
-import { UserContext } from '../../../Context/UserContext';
 import { Dimensions, StyleSheet } from 'react-native';
 import LottieView from 'lottie-react-native';
 
