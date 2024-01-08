@@ -31,15 +31,15 @@ function CreateEvent({game, setEventBeingCreated, setEventCreated}) {
   const onSubmit = () => {
     getLatLong(postcode)
     .then(({latitude, longitude}) => {
-      setLatitude(latitude)
-      setLongitude(longitude)
+      // setLatitude(latitude)
+      // setLongitude(longitude)
       const dateTime = handleDates(eventDate)
       const eventDeadline = handleDates(deadline)
-      return [dateTime, eventDeadline]
+      return [dateTime, eventDeadline, latitude, longitude]
     })
-    .then(([dateTime, eventDeadline]) => {
+    .then(([dateTime, eventDeadline, latitude, longitude]) => {
       addDoc(collection(db, "events"), {
-        location: [latitude, longitude],
+        location: new GeoPoint(latitude, longitude),
         eventName,
         dateTime,
         eventDeadline,
