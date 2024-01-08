@@ -1,21 +1,43 @@
-import { View, StyleSheet } from "react-native";
-import { useContext } from "react";
+import { View, StyleSheet, Image, FlatList, List } from "react-native";
+import { useContext, useEffect } from "react";
 import { UserContext } from "../Context/UserContext";
 import SignOut from "./SignOut";
 import { Layout, Card, Text, Button, Avatar, Divider } from "@ui-kitten/components";
 import { Ionicons } from "@expo/vector-icons";
+import { db } from "../../firebase";
+import { getDoc, doc } from "firebase/firestore";
 
 function Profile() {
-  const { user } = useContext(UserContext);
+  const { user, wishlist, setWishlist, owned, setOwned, events, setEvents } = useContext(UserContext);
+  const { photoURL, displayName, uid } = user
+
+  useEffect(() => {
+    const docRef = doc(db, "users", uid);
+    getDoc(docRef)
+    .then((result) => {
+      const userData = result.data()
+      setWishlist(userData.wishlist)
+      setOwned(userData.owned)
+      setEvents(userData.events)
+    })
+  }, [])
+
+  const renderListItem = ({ item }) => (
+    <View>
+        <Text style={styles.listItem}>{item.name}</Text>
+        <Image source={{ uri: item.url }} style={styles.listImage} />
+    </View>
+);
+
 
   return (
     <>
       <View style={styles.container}>
         <SignOut />
         <Card style={styles.profileContainer}>
-          <Avatar size="giant" source={require("../../../assets/avatars/Avatar3.png")} style={styles.content} />
+          <Avatar size="giant" source={{ uri: `${photoURL}`}} style={styles.content} />
           <Text category="h1" status="info">
-            John Doe
+            {displayName}
           </Text>
           <Divider />
           <Text category="s1" style={styles.content}>
@@ -28,11 +50,14 @@ function Profile() {
             Edit
           </Text>
           <Text category="h5">Favourite Games</Text>
-
           <Divider />
-          <Text category="s1" style={styles.content}>
-            No Favourite Games
-          </Text>
+          <FlatList
+              style={styles.listItem}
+              data={wishlist}
+              renderItem={renderListItem}
+              keyExtractor={item => item.name}
+              ListEmptyComponent={<Text>No favourited games</Text>}
+              />
         </Card>
         <Card style={styles.contentContainer}>
           <Text category="s2" style={styles.createDescription}>
@@ -46,15 +71,19 @@ function Profile() {
           />
           <Text category="h5">Owned Games</Text>
           <Divider />
-          <Text category="s1" style={styles.content}>
-            No Owned Games
-          </Text>
+            <FlatList
+              style={styles.list}
+              data={owned}
+              renderItem={renderListItem}
+              keyExtractor={item => item.name}
+              ListEmptyComponent={<Text>No owned games</Text>}
+              />
         </Card>
         <Card style={styles.contentContainer}>
           <Text category="h5">Joined Events</Text>
           <Divider />
           <Text category="s1" style={styles.content}>
-            No Events Joined
+            {events.length === 0 ? "No Events Joined" : console.log(events)}
           </Text>
         </Card>
       </View>
@@ -118,4 +147,13 @@ const styles = StyleSheet.create({
     right: -50,
     position: "absolute",
   },
+  listItem: {
+    padding: 5,
+    fontSize: 18,
+  },
+  listImage: {
+    padding: 5,
+    width: 25,
+    height: 25
+  }
 });

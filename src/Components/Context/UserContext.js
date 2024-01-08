@@ -6,6 +6,9 @@ export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [wishlist, setWishlist] = useState([])
+  const [owned, setOwned] = useState([])
+  const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,6 +24,12 @@ export const UserProvider = ({ children }) => {
       value={{
         user,
         setUser,
+        wishlist,
+        setWishlist,
+        owned,
+        setOwned,
+        events,
+        setEvents
       }}
     >
       {children}
