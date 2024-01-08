@@ -104,5 +104,13 @@ function CreateEvent({game, setEventBeingCreated, setEventCreated}) {
   );  
 }
 
+const styles = StyleSheet.create({
+  label: {
+    fontSize: 16
+  },
+  input: {
+    marginBottom: 10
+  }
+})
 
 export default CreateEvent
