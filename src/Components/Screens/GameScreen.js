@@ -1,9 +1,12 @@
 import { Layout, Text } from "@ui-kitten/components";
 import getGame from "../../utils/gamesApi";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { View, Image, Button, StyleSheet, ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import CreateEvent from "./CreateEvent";
+import { auth, db } from '../../firebase'
+import { setDoc, doc, onSnapshot, collection, query, where, updateDoc } from 'firebase/firestore'
+import { UserContext } from "../Context/UserContext";
 
 const Error = (props) => {
   const { msg } = props;
@@ -21,6 +24,8 @@ function GameScreen({ search }) {
     const [isError, setIsError] = useState(false)
     const [eventBeingCreated, setEventBeingCreated] = useState(false)
     const [eventCreated, setEventCreated] = useState(false)
+    const [wishlist, setWishlist] = useState([])
+    const { user } = useContext(UserContext);
 
     useEffect(() => {
         setIsError(false)
@@ -35,6 +40,24 @@ function GameScreen({ search }) {
                 setIsLoading(false)
             })
     }, [search])
+
+const uid = user.uid
+const userUid = doc(db, "users", user.uid)
+
+
+
+
+    function addToWishlist(game) {
+       setWishlist((currentValues) => {
+        return [...currentValues, game.name]
+       })
+        updateDoc(userUid, {
+            wishlist: wishlist
+        }).then(() => {
+            console.log(wishlist)
+
+        })
+        }
 
     if (isError) return <Error msg="Game not found" />
 
@@ -54,7 +77,7 @@ function GameScreen({ search }) {
                     <Text>{minPlayers} - {maxPlayers} players</Text>
                     <Text>Approximate play time: {playingTime} minutes</Text>
                     <Button title="I own this game"></Button>
-                    <Button title="Add to wishlist"></Button>
+                    <Button onPress={() => {addToWishlist(game)}} title="Add to wishlist"></Button>
                     <Button onPress={() => {setEventBeingCreated(true)}} title="Create event" ></Button>
                     { eventBeingCreated ? <CreateEvent game={game} setEventCreated={setEventCreated} setEventBeingCreated={setEventBeingCreated} /> : null }
                     { eventCreated ? <Text>Your event has been created!</Text> : null}
