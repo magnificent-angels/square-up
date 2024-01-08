@@ -3,8 +3,7 @@ import { StyleSheet, TouchableWithoutFeedback, TouchableOpacity, View, Keyboard 
 import { Layout, Input, Button, Card, Text } from '@ui-kitten/components';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
-import { UserContext } from "../../../Context/UserContext";
-import { useNavigation } from "@react-navigation/native";
+import { UserContext } from "../Context/UserContext";
 import { useForm, Controller } from "react-hook-form";
 
 function SignIn() {
@@ -20,7 +19,6 @@ function SignIn() {
   });
 
   const { setUser } = useContext(UserContext);
-  const nav = useNavigation();
 
   const onSubmit = ({ email, password }) => {
     signInWithEmailAndPassword(auth, email, password)
@@ -93,7 +91,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   card: {
-    width: '90%',
+    width: "90%",
     maxWidth: 400,
     padding: 16,
   },

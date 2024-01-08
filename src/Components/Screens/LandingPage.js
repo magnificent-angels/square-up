@@ -1,8 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useContext, useContext, useRef } from 'react';
 import { Layout, Text, Button } from '@ui-kitten/components';
 import { useNavigation } from '@react-navigation/native';
+import { UserContext } from '../../../Context/UserContext';
 import { Dimensions, StyleSheet } from 'react-native';
 import LottieView from 'lottie-react-native';
+
 
 function LandingPage() {
   const [isTopReversed, setIsTopReversed] = useState(false);
@@ -80,6 +82,24 @@ const styles = StyleSheet.create({
     height: 'auto',
     bottom: 0,
   },
+  topAnimation: {
+    position: 'absolute',
+    width: Dimensions.get('window').width,
+    height: 'auto',
+    top: 0,
+  },
+  boardGameAnimation: {
+    width: 350,
+    height: 'auto',
+    left: 8.5,
+    top: -2.5,
+  },
+  bottomAnimation: {
+    position: 'absolute',
+    width: Dimensions.get('window').width,
+    height: 'auto',
+    bottom: 0,
+  },
   button: {
     paddingVertical: 10,
     marginVertical: 4,
@@ -88,7 +108,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   landingHeader: {
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 50,
   },
 });

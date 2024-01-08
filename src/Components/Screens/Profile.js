@@ -1,15 +1,8 @@
 import { View, StyleSheet } from "react-native";
 import { useContext } from "react";
-import { UserContext } from "../../../Context/UserContext";
+import { UserContext } from "../Context/UserContext";
 import SignOut from "./SignOut";
-import {
-  Layout,
-  Card,
-  Text,
-  Button,
-  Avatar,
-  Divider,
-} from "@ui-kitten/components";
+import { Layout, Card, Text, Button, Avatar, Divider } from "@ui-kitten/components";
 import { Ionicons } from "@expo/vector-icons";
 
 function Profile() {
@@ -20,11 +13,7 @@ function Profile() {
       <View style={styles.container}>
         <SignOut />
         <Card style={styles.profileContainer}>
-          <Avatar
-            size="giant"
-            source={require("../../../assets/avatars/Avatar3.png")}
-            style={styles.content}
-          />
+          <Avatar size="giant" source={require("../../../assets/avatars/Avatar3.png")} style={styles.content} />
           <Text category="h1" status="info">
             John Doe
           </Text>
@@ -34,12 +23,7 @@ function Profile() {
           </Text>
         </Card>
         <Card style={styles.contentContainer}>
-          <Ionicons
-            name="create"
-            style={styles.editIcon}
-            size={25}
-            onPress={console.log("edit favourites")}
-          />
+          <Ionicons name="create" style={styles.editIcon} size={25} onPress={console.log("edit favourites")} />
           <Text category="s2" style={styles.editDescription}>
             Edit
           </Text>
@@ -110,11 +94,13 @@ const styles = StyleSheet.create({
     borderTopWidth: 4,
     boxShadow: "0px 0px 5px 5px rgba(0,0,0,0.9)",
     position: "relative",
+    padding: 5,
   },
   editIcon: {
     top: 2,
     right: -60,
     position: "absolute",
+    color: "white",
   },
   editDescription: {
     top: 8,
@@ -125,6 +111,7 @@ const styles = StyleSheet.create({
     top: 1,
     right: -75,
     position: "absolute",
+    color: "white",
   },
   createDescription: {
     top: 5,

@@ -4,9 +4,7 @@ import SignUp from "../Screens/SignUp";
 import SignIn from "../Screens/SignIn";
 import LandingPage from "../Screens/LandingPage";
 
-
 const Stack = createNativeStackNavigator();
-
 
 function AuthNav() {
   return (
@@ -18,7 +16,4 @@ function AuthNav() {
   );
 }
 
-
-
 export default AuthNav;
-

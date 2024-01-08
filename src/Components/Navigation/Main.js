@@ -1,25 +1,21 @@
-import { View, Text, SafeAreaView, StatusBar, StyleSheet } from 'react-native'
-import React, { useContext, useState } from 'react'
-import AuthNav from './AuthNav'
-import MainNav from './MainNav'
-import { UserContext } from '../../../Context/UserContext'
-
+import { View, Text, SafeAreaView, StatusBar, StyleSheet } from "react-native";
+import React, { useContext, useState } from "react";
+import AuthNav from "./AuthNav";
+import MainNav from "./MainNav";
+import { UserContext } from "../Context/UserContext";
 
 const Main = () => {
-    const { user } = useContext(UserContext)
+  const [loading, setLoading] = useState();
 
+  const { user } = useContext(UserContext);
 
-    return (
-        <>
-            {user ? <MainNav /> : <AuthNav />}
-        </>
-    )
-}
+  return <>{user ? <MainNav /> : <AuthNav />}</>;
+};
 
-export default Main
+export default Main;
 
 const styles = StyleSheet.create({
-    container: {
-        paddingTop: StatusBar.currentHeight || 0
-    }
-})
+  container: {
+    paddingTop: StatusBar.currentHeight || 0,
+  },
+});

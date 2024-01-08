@@ -1,17 +1,17 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import { SearchBar } from "@rneui/themed";
 import GameScreen from './GameScreen';
 import { StatusBar, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 function SearchScreen() {
-    const [search, setSearch] = useState("");
-    const [editSearch, setEditSearch] = useState("");
+  const [search, setSearch] = useState("");
+  const [editSearch, setEditSearch] = useState("");
 
-    function onSubmit() {
-        setSearch(editSearch);
-        setEditSearch("");
-    }
+  function onSubmit() {
+    setSearch(editSearch);
+    setEditSearch("");
+  }
 
     return (
         <>

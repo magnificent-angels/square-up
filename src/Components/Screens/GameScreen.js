@@ -1,10 +1,9 @@
 import { Layout, Text } from "@ui-kitten/components";
-import getGame from "../../utils/gamesApi"
-import { useState, useEffect } from 'react'
-import { View, Image, Button, StyleSheet } from 'react-native'
-import { useNavigation } from "@react-navigation/native"
-import CreateEvent from "./CreateEvent"
-import { SafeAreaView } from "react-native-safe-area-context";
+import getGame from "../../utils/gamesApi";
+import { useState, useEffect } from "react";
+import { View, Image, Button, StyleSheet, ScrollView } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import CreateEvent from "./CreateEvent";import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "react-native";
 
 
@@ -18,11 +17,12 @@ const Error = (props) => {
 };
 
 function GameScreen({ search }) {
-  const nav = useNavigation()
-  const [game, setGame] = useState({})
-  const [isLoading, setIsLoading] = useState(true)
-  const [isError, setIsError] = useState(false)
-  const [isPressed, setIsPressed] = useState(false)
+    const nav = useNavigation()
+    const [game, setGame] = useState({})
+    const [isLoading, setIsLoading] = useState(true)
+    const [isError, setIsError] = useState(false)
+    const [eventBeingCreated, setEventBeingCreated] = useState(false)
+    const [eventCreated, setEventCreated] = useState(false)
 
     useEffect(() => {
         setIsError(false)
@@ -38,41 +38,35 @@ function GameScreen({ search }) {
             })
     }, [search])
 
-  useEffect(() => {
-    setIsError(false);
-    setIsLoading(true);
-    getGame(search)
-      .then((gameData) => {
-        setGame(gameData);
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setIsError(true);
-        setIsLoading(false);
-      });
-  }, [search]);
+    if (isError) return <Error msg="Game not found" />
 
-  if (isError) return <Error msg="Game not found" />;
-
-  const { name, description, minPlayers, maxPlayers, playingTime, imageUrl } =
-    game;
+    const { name, description, minPlayers, maxPlayers, playingTime, imageUrl } = game
 
     return (
-        <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container}>
+        <ScrollView
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps={"handled"}
+            alwaysBounceVertical={false}
+            contentContainerStyle={styles.container}
+        >
             {isLoading ? <Text>Loading...</Text> :
                 <View style={styles.container}>
                     <Text style={styles.name}>{name}</Text>
                     <Image source={{ uri: `${imageUrl}` }} style={{ width: 100, height: 100 }}></Image>
                     <Text>{minPlayers} - {maxPlayers} players</Text>
                     <Text>Approximate play time: {playingTime} minutes</Text>
-                    <Button  title="I own this game"></Button>
-                    <Button  title="Add to wishlist"></Button>
-                    <Button onPress={() => setIsPressed(true)} title="Create event" ></Button>
+                    <Button title="I own this game"></Button>
+                    <Button title="Add to wishlist"></Button>
+                    <Button onPress={() => {setEventBeingCreated(true)}} title="Create event" ></Button>
+                    { eventBeingCreated ? <CreateEvent game={game} setEventCreated={setEventCreated} setEventBeingCreated={setEventBeingCreated} /> : null }
+                    { eventCreated ? <Text>Your event has been created!</Text> : null}
                 </View>
-                }
-                {isPressed ? <CreateEvent game={game}/> : null}
-            </SafeAreaView>
-        )
+            }
+        </ScrollView>
+        </SafeAreaView>
+    )
+
 }
 
 const styles = StyleSheet.create({
