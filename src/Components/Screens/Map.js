@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react';
-import { StyleSheet } from 'react-native';
-import MapView from 'react-native-maps';
+import React, { useRef, useState } from "react";
+import { StyleSheet } from "react-native";
+import MapView from "react-native-maps";
 
 function Map() {
   const mapRef = useRef(null);

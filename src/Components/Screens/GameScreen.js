@@ -1,9 +1,9 @@
 import { Layout, Text } from "@ui-kitten/components";
-import getGame from "../../utils/gamesApi"
-import { useState, useEffect } from 'react'
-import { View, Text, Image, Button, StyleSheet, ScrollView } from 'react-native'
-import { useNavigation } from "@react-navigation/native"
-import CreateEvent from "./CreateEvent"
+import getGame from "../../utils/gamesApi";
+import { useState, useEffect } from "react";
+import { View, Image, Button, StyleSheet, ScrollView } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import CreateEvent from "./CreateEvent";
 
 const Error = (props) => {
   const { msg } = props;
