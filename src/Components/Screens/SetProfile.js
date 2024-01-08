@@ -36,7 +36,10 @@ function SetupProfileScreen() {
                 setDoc(userUid, {
                     username: user.displayName,
                     avatarUrl: user.photoURL,
-                    location: new GeoPoint(latitude, longitude)
+                    location: new GeoPoint(latitude, longitude),
+                    owned: [],
+                    wishlist: [],
+                    events: []
                 });
             })
             .catch((error) => console.error(error))
