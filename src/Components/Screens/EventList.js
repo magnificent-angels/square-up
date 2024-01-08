@@ -14,24 +14,17 @@ import {
 } from "@ui-kitten/components";
 
 const EventList = () => {
-  const [optionIndex, setOptionIndex] = useState("");
-  const [orderIndex, setOrderIndex] = useState("");
+  const [optionIndex, setOptionIndex] = useState(0);
+  const [orderIndex, setOrderIndex] = useState(0);
+  const [order, setOrder] = useState("asc");
+  const [option, setOption] = useState("playingTime");
   const [eventsList, setEventsList] = useState([]);
 
   const fetchEventList = async () => {
-    // if (optionIndex && orderIndex == 0)
-    //  {
-    // const eventsSnapshot = await getDocs(collection(db, "events"));
-    // const eventsArray = [];
-    // eventsSnapshot.forEach((list) => {
-    //   const data = list.data();
-    //   eventsArray.push(data);
-    // });
-    // setEventsList(eventsArray);
-    // } else {
+    console.log("option", option, "order", order);
     const eventsRef = collection(db, "events");
-    const query = query(eventsRef, orderBy(optionIndex, orderIndex));
-    const eventsSnapshot = await getDocs(query);
+    const listQuery = query(eventsRef, orderBy(option, order));
+    const eventsSnapshot = await getDocs(listQuery);
     const eventsArray = [];
     eventsSnapshot.forEach((list) => {
       const data = list.data();
@@ -42,30 +35,34 @@ const EventList = () => {
 
   useEffect(() => {
     fetchEventList();
-  }, []);
+  }, [option, order]);
 
-  const handleOption = (selectIndex) => {
-    console.log(`selected options ${index}`);
+  const handleOption = (index) => {
     let selectedOption;
-    if (selectIndex === 1) {
+    if (index.row === 0) {
       selectedOption = "minPlayers";
-    } else if (selectIndex === 2) {
+      setOptionIndex("Min Players");
+    } else if (index.row === 1) {
       selectedOption = "maxPlayers";
+      setOptionIndex("Max Players");
     } else {
       selectedOption = "playingTime";
+      setOptionIndex("Playing Time");
     }
-    setOptionIndex(selectedOption);
+
+    setOption(selectedOption);
   };
 
-  const handleOrder = (orderIndex) => {
-    console.log(`selected oder ${index}`);
+  const handleOrder = (index) => {
     let selectedOrder;
-    if (orderIndex === 2) {
+    if (index.row === 1) {
       selectedOrder = "desc";
+      setOrderIndex("Desc");
     } else {
       selectedOrder = "asc";
+      setOrderIndex("Asc");
     }
-    setOrderIndex(selectedOrder);
+    setOrder(selectedOrder);
   };
 
   const renderItem = ({ item, index }) => (
@@ -90,7 +87,7 @@ const EventList = () => {
 
       <Layout style={styles.dropDown}>
         <Select
-          selectedIndex={optionIndex}
+          value={optionIndex}
           onSelect={handleOption}
           placeholder="Options"
           style={styles.selectItem}
@@ -100,8 +97,8 @@ const EventList = () => {
           <SelectItem title="Playing Time" />
         </Select>
         <Select
-          selectedIndex={orderIndex}
-          onOrder={handleOrder}
+          value={orderIndex}
+          onSelect={handleOrder}
           placeholder="Order"
           style={styles.selectItem}
         >
