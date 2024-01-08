@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { SearchBar } from "@rneui/themed";
-import GameScreen from "./GameScreen";
-import { Layout } from "@ui-kitten/components";
-import { StyleSheet } from "react-native";
+import GameScreen from './GameScreen';
+import { StatusBar, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 function SearchScreen() {
   const [search, setSearch] = useState("");
@@ -13,26 +13,27 @@ function SearchScreen() {
     setEditSearch("");
   }
 
-  return (
-    <Layout style={styles.container}>
-      <SearchBar
-        placeholder="Type Here..."
-        onChangeText={(input) => {
-          setEditSearch(input);
-        }}
-        value={editSearch}
-        onSubmitEditing={onSubmit}
-      />
-      {search ? <GameScreen search={search} /> : null}
-    </Layout>
-  );
+    return (
+        <>
+            <SafeAreaView>
+                <SearchBar
+                    placeholder="Type Here..."
+                    onChangeText={(input) => {
+                        setEditSearch(input);
+                    }}
+                    value={editSearch}
+                    onSubmitEditing={onSubmit}
+                />
+                {search ? <GameScreen search={search} /> : null}
+            </SafeAreaView>
+        </>
+    )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    height: "100%",
-  },
-});
+export default SearchScreen
 
-export default SearchScreen;
+const styles = StyleSheet.create({
+    container: {
+        paddingTop: StatusBar.currentHeight || 0
+    }
+})

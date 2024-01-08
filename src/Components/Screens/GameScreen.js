@@ -3,7 +3,9 @@ import getGame from "../../utils/gamesApi";
 import { useState, useEffect } from "react";
 import { View, Image, Button, StyleSheet, ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import CreateEvent from "./CreateEvent";
+import CreateEvent from "./CreateEvent";import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "react-native";
+
 
 const Error = (props) => {
   const { msg } = props;
@@ -41,6 +43,7 @@ function GameScreen({ search }) {
     const { name, description, minPlayers, maxPlayers, playingTime, imageUrl } = game
 
     return (
+      <SafeAreaView style={styles.container}>
         <ScrollView
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps={"handled"}
@@ -61,21 +64,25 @@ function GameScreen({ search }) {
                 </View>
             }
         </ScrollView>
+        </SafeAreaView>
     )
 
 }
 
 const styles = StyleSheet.create({
-    container: {
-        justifyContent: "center",
-        alignItems: "center",
-        marginTop: 70,
-        marginBottom: 70
-    },
-    name: {
-        fontSize: 40,
-        justifyContent: "center",
-    }
-})
+  container: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 200,
+    height: 200,
+    marginTop: 70,
+    marginHorizontal: 80,
+    paddingTop: StatusBar.currentHeight || 0,
+  },
+  name: {
+    fontSize: 40,
+    justifyContent: "center",
+  },
+});
 
 export default GameScreen;

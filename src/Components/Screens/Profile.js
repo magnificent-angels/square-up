@@ -4,7 +4,6 @@ import { UserContext } from "../Context/UserContext";
 import SignOut from "./SignOut";
 import { Layout, Card, Text, Button, Avatar, Divider } from "@ui-kitten/components";
 import { Ionicons } from "@expo/vector-icons";
-import { Controller } from "react-hook-form";
 
 function Profile() {
   const { user } = useContext(UserContext);

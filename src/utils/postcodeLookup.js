@@ -1,4 +1,4 @@
-import axios from "axios"
+import axios from 'axios'
 
 export const getLatLong = (postcode) => {
     return axios.get(`http://api.postcodes.io/postcodes/${postcode}`)

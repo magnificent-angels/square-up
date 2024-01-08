@@ -8,6 +8,7 @@ import { useContext } from "react";
 function SignOut() {
   const { user, setUser } = useContext(UserContext);
   const nav = useNavigation();
+
   return (
     <View>
       <Pressable
@@ -15,7 +16,6 @@ function SignOut() {
           signOut(auth)
             .then(() => {
               nav.navigate("LandingPage");
-              // setUser(null);
             })
             .catch((error) => {
               console.log(error);

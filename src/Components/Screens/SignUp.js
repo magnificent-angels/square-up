@@ -1,19 +1,15 @@
-import React from "react";
-import { StyleSheet } from "react-native";
+import React, { useState } from 'react';
+import { StyleSheet, TouchableWithoutFeedback, TouchableOpacity, View, Keyboard } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { Layout, Text, Card, Input, Button } from "@ui-kitten/components";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from '../../firebase'
-import { setDoc, doc } from 'firebase/firestore'
-import { useNavigation } from "@react-navigation/native"
+import { Layout, Text, Input, Button, Spinner } from '@ui-kitten/components';
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth, db } from '../../firebase';
+import { setDoc, doc } from 'firebase/firestore';
+import { useNavigation } from "@react-navigation/native";
 
 function SignUp() {
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    getValues,
-  } = useForm({
+  const [loading, setLoading] = useState(false);
+  const { control, handleSubmit, formState: { errors }, getValues } = useForm({
     defaultValues: {
       fullName: "",
       username: "",
@@ -23,26 +19,35 @@ function SignUp() {
     },
   });
 
-  const nav = useNavigation()
+  const nav = useNavigation();
 
   const onSubmit = ({ email, password, username, fullName }) => {
+    setLoading(true);
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Signed up
         const user = userCredential.user;
-        const userUid = doc(db, "users", user.uid)
+        const userUid = doc(db, "users", user.uid);
         setDoc(userUid, {
           username: username,
           name: fullName
-        })
+        });
+        nav.reset({
+          index: 2,
+          routes: [{ name: 'SetupProfile', screen: 'SetProfileScreen' }],
+        });
       })
       .then(() => {
-        nav.navigate('Profile')
+        updateProfile(auth.currentUser, {
+          displayName: username,
+        });
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(error);
+        console.log(error); 
+      })
+      .finally(() => {
+        setTimeout(() => {
+          setLoading(false);
+        }, 500);
       });
   };
 
@@ -74,113 +79,160 @@ function SignUp() {
     },
   };
 
+  if (loading) {
+    return (
+      <Layout style={styles.container}>
+        <Spinner size='giant'/>
+      </Layout>
+    );
+  }
+
   return (
-    <Layout style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Card style={styles.form} status="primary">
-        <Text>Sign Up</Text>
-
-        <Controller
-          control={control}
-          rules={{ required: "Full name is required" }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input placeholder="Full Name" onBlur={onBlur} onChangeText={onChange} value={value} label={"Full Name"} />
-          )}
-          name="fullName"
-        />
-        {errors.fullName && <Text style={styles.error}>{errors.fullName.message}</Text>}
-
-        <Controller
-          control={control}
-          rules={{required: true, message: "Username is required"}}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              placeholder="Username"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              label={"Username"}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <Layout style={styles.container}>
+          <View style={styles.formContainer}>
+            <Text style={styles.formHeader}>Sign Up</Text>
+            <Controller
+              control={control}
+              rules={{ required: "Full name is required" }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  style={styles.input}
+                  placeholder="Full Name"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  label="Full Name"
+                />
+              )}
+              name="fullName"
             />
-          )}
-          name="username"
-        />
-        {errors.username && <Text style={styles.error}>{errors.username.message}</Text>}
+            {errors.fullName && <Text style={styles.error}>{errors.fullName.message}</Text>}
 
-        <Controller
-          control={control}
-          rules={emailValidation}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input placeholder="Email" onBlur={onBlur} onChangeText={onChange} value={value} label={"Email"} />
-          )}
-          name='email'
-        />
-        {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
-
-        <Controller
-          control={control}
-          rules={passwordValidation}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              placeholder="Password"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              secureTextEntry
-              label={"Password"}
+            <Controller
+              control={control}
+              rules={{ required: "Username is required" }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  style={styles.input}
+                  placeholder="Username"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  label="Username"
+                />
+              )}
+              name="username"
             />
-          )}
-          name="password"
-        />
-        {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
+            {errors.username && <Text style={styles.error}>{errors.username.message}</Text>}
 
-        <Controller
-          control={control}
-          rules={confirmPasswordValidation}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              placeholder="Confirm Password"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              secureTextEntry
-              label={"Confirm Password"}
+            <Controller
+              control={control}
+              rules={emailValidation}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  style={styles.input}
+                  placeholder="Email"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  label="Email"
+                />
+              )}
+              name="email"
             />
-          )}
-          name="confirmPassword"
-        />
-        {errors.confirmPassword && <Text style={styles.error}>{errors.confirmPassword.message}</Text>}
+            {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
 
-        <Button onPress={handleSubmit(onSubmit)} style={{ paddingTop: "10px" }}>
-          Sign Up
-        </Button>
-      </Card>
-    </Layout>
+            <Controller
+              control={control}
+              rules={passwordValidation}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  style={styles.input}
+                  placeholder="Password"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  secureTextEntry
+                  label="Password"
+                />
+              )}
+              name="password"
+            />
+            {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
+
+            <Controller
+              control={control}
+              rules={confirmPasswordValidation}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  style={styles.input}
+                  placeholder="Confirm Password"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  secureTextEntry
+                  label="Confirm Password"
+                />
+              )}
+              name="confirmPassword"
+            />
+            {errors.confirmPassword && <Text style={styles.error}>{errors.confirmPassword.message}</Text>}
+
+            <Button onPress={handleSubmit(onSubmit)} style={styles.button}>
+              Sign Up
+            </Button>
+            <TouchableOpacity onPress={() => nav.navigate('SignIn')}>
+              <Text style={styles.link}>Have an account? Log in</Text>
+            </TouchableOpacity>
+          </View>
+        </Layout>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
   },
-  form: {
-    width: "80%",
+  pagerView: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+  },
+  page: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  formContainer: {
+    width: '90%',
+    justifyContent: 'center',
+    padding: 10,
   },
   input: {
-    borderColor: "gray",
-    borderWidth: 1,
+    marginBottom: 15,
     borderRadius: 5,
+  },
+  button: {
+    marginTop: 15,
   },
   error: {
     color: 'red',
     marginBottom: 10,
   },
-  formHeader:{
+  formHeader: {
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 20,
     alignSelf: 'center',
+  },
+  link: {
+    alignSelf: 'center',
+    marginTop: 15,
+    fontSize: 16,
   }
 });
 
