@@ -60,9 +60,13 @@ function Profile() {
           </Text>
           <Text category="h5">My wishlist</Text>
           <Divider />
-          
+          {wishlistItem ? (
             <WishList wishListItem={wishlistItem} />
-          
+          ) : (
+            <Text category="s1" style={styles.content}>
+              No WishList
+            </Text>
+          )}
         </Card>
         <Card style={styles.contentContainer}>
           <Text category="s2" style={styles.createDescription}>
