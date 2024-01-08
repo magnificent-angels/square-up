@@ -33,7 +33,6 @@ function GameScreen({ search }) {
   const [isError, setIsError] = useState(false);
   const [eventBeingCreated, setEventBeingCreated] = useState(false);
   const [eventCreated, setEventCreated] = useState(false);
-  const [wishlist, setWishlist] = useState([]);
   const { user } = useContext(UserContext);
 
   useEffect(() => {
@@ -51,17 +50,12 @@ function GameScreen({ search }) {
   }, [search]);
 
   const uid = user.uid;
-  const userUid = doc(db, "users", user.uid);
+  const userUid = doc(db, "users", uid);
 
   function addToWishlist(game) {
-    setWishlist((currentValues) => {
-      return [...currentValues, game.name];
-    });
     updateDoc(userUid, {
-      wishlist: arrayUnion(game.name),
-    }).then(() => {
-      console.log(wishlist);
-    });
+      wishlist: arrayUnion({name: game.name, url: game.imageUrl}),
+    })
   }
 
   if (isError) return <Error msg="Game not found" />;

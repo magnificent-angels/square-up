@@ -1,20 +1,45 @@
 import { View, StyleSheet } from "react-native";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../Context/UserContext";
 import SignOut from "./SignOut";
-import { Layout, Card, Text, Button, Avatar, Divider } from "@ui-kitten/components";
+import {
+  Layout,
+  Card,
+  Text,
+  Button,
+  Avatar,
+  Divider,
+} from "@ui-kitten/components";
 import { Ionicons } from "@expo/vector-icons";
 import { Controller } from "react-hook-form";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase";
+import WishList from "./Wishlist";
 
 function Profile() {
+  const [loading, setLoading] = useState(true);
+  const [wishlistItem, setWishListItem] = useState([]);
   const { user } = useContext(UserContext);
+  useEffect(() => {
+    const userUid = doc(db, "users", user.uid);
+    getDoc(userUid).then((docs) => {
+      setLoading(false);
+      setWishListItem(docs.data().wishlist);
+      console.log(wishlistItem, "wishlist in use effect");
+    });
+  }, [user]);
 
+  console.log(wishlistItem, "wishlist");
   return (
     <>
       <View style={styles.container}>
         <SignOut />
         <Card style={styles.profileContainer}>
-          <Avatar size="giant" source={require("../../../assets/avatars/Avatar3.png")} style={styles.content} />
+          <Avatar
+            size="giant"
+            source={require("../../../assets/avatars/Avatar3.png")}
+            style={styles.content}
+          />
           <Text category="h1" status="info">
             John Doe
           </Text>
@@ -24,16 +49,20 @@ function Profile() {
           </Text>
         </Card>
         <Card style={styles.contentContainer}>
-          <Ionicons name="create" style={styles.editIcon} size={25} onPress={console.log("edit favourites")} />
+          <Ionicons
+            name="create"
+            style={styles.editIcon}
+            size={25}
+            onPress={console.log("edit favourites")}
+          />
           <Text category="s2" style={styles.editDescription}>
             Edit
           </Text>
-          <Text category="h5">Favourite Games</Text>
-
+          <Text category="h5">My wishlist</Text>
           <Divider />
-          <Text category="s1" style={styles.content}>
-            No Favourite Games
-          </Text>
+          
+            <WishList wishListItem={wishlistItem} />
+          
         </Card>
         <Card style={styles.contentContainer}>
           <Text category="s2" style={styles.createDescription}>
