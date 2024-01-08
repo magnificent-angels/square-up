@@ -1,3 +1,4 @@
+import { Layout, Text } from "@ui-kitten/components";
 import getGame from "../../utils/gamesApi"
 import { useState, useEffect } from 'react'
 import { View, Text, Image, Button, StyleSheet, ScrollView } from 'react-native'
@@ -5,14 +6,13 @@ import { useNavigation } from "@react-navigation/native"
 import CreateEvent from "./CreateEvent"
 
 const Error = (props) => {
-    const { msg } = props
-    return (
-        <View>
-            <Text>{msg}</Text>
-        </View>
-    )
-}
-
+  const { msg } = props;
+  return (
+    <View>
+      <Text>{msg}</Text>
+    </View>
+  );
+};
 
 function GameScreen({ search }) {
     const nav = useNavigation()
@@ -78,5 +78,4 @@ const styles = StyleSheet.create({
     }
 })
 
-
-export default GameScreen
+export default GameScreen;

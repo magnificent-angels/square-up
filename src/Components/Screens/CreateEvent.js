@@ -14,8 +14,6 @@ function CreateEvent({game, setEventBeingCreated, setEventCreated}) {
   const [eventDate, setEventDate] = useState(dayjs())
   const [deadline, setDeadline] = useState(dayjs())
   const [postcode, setPostcode] = useState('')
-  const [latitude, setLatitude] = useState('')
-  const [longitude, setLongitude] = useState('')
   const [isLoading, setIsLoading] = useState(true)
 
   
@@ -31,8 +29,6 @@ function CreateEvent({game, setEventBeingCreated, setEventCreated}) {
   const onSubmit = () => {
     getLatLong(postcode)
     .then(({latitude, longitude}) => {
-      // setLatitude(latitude)
-      // setLongitude(longitude)
       const dateTime = handleDates(eventDate)
       const eventDeadline = handleDates(deadline)
       return [dateTime, eventDeadline, latitude, longitude]
@@ -57,8 +53,6 @@ function CreateEvent({game, setEventBeingCreated, setEventCreated}) {
       setEventDate(dayjs())
       setDeadline(dayjs())
       setPostcode('')
-      setLatitude('')
-      setLongitude('')
       setEventCreated(true)
       setEventBeingCreated(false)
     })
@@ -110,34 +104,5 @@ function CreateEvent({game, setEventBeingCreated, setEventCreated}) {
   );  
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  form: {
-    width: "80%",
-  },
-  label : {
-    fontSize: 16
-  },
-  input: {
-    borderColor: "gray",
-    borderWidth: 1,
-    borderRadius: 5,
-  },
-  error: {
-    color: "red",
-    marginBottom: 10,
-  },
-  formHeader: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 20,
-    alignSelf: "center",
-  },
-});
 
 export default CreateEvent
