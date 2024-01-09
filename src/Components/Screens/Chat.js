@@ -95,7 +95,7 @@ const Chat = (props) => {
           );
         })}
       </ScrollView>
-      <View style={styles.inputView}>
+      <Layout style={styles.inputView}>
         <Input
           style={styles.input}
           placeholder="Message..."
@@ -115,7 +115,7 @@ const Chat = (props) => {
             setContent("");
           }}
         />
-      </View>
+      </Layout>
     </Layout>
   );
 };
@@ -170,7 +170,6 @@ const styles = StyleSheet.create({
   },
   inputView: {
     width: "100%",
-    backgroundColor: "#222B45",
     flexDirection: "row",
     padding: 5,
     justifyContent: "space-between",

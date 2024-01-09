@@ -10,7 +10,7 @@ export default function App() {
   return (
     <UserProvider>
       <IconRegistry icons={EvaIconsPack} />
-      <ApplicationProvider {...eva} theme={{ ...eva.light, ...Theme }}>
+      <ApplicationProvider {...eva} theme={{ ...eva.dark, ...Theme }}>
         <NavigationContainer>
           <Main />
         </NavigationContainer>

@@ -242,7 +242,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     justifyContent: "flex-start",
-    backgroundColor: "#222B45",
     height: 95,
   },
   content: {
