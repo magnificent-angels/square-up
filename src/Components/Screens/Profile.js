@@ -23,8 +23,10 @@ import { db } from "../../firebase";
 import { getDoc, doc } from "firebase/firestore";
 import { Ionicons } from "@expo/vector-icons";
 import { Controller } from "react-hook-form";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+import WishList from "./Wishlist";
+import { SafeAreaView } from 'react-native-safe-area-context';
+import EventDetails from './EventDetails';
+
 
 const Profile = () => {
   const { user, wishlist, setWishlist, owned, setOwned, events, setEvents } =
@@ -119,24 +121,19 @@ const Profile = () => {
           />
         </Layout>
 
-        <Layout style={styles.section} level="2">
-          <Text category="h4" style={styles.sectionTitle}>
-            Joined Events
-          </Text>
-          <Divider style={styles.divider}></Divider>
-          <FlatList
-            data={events}
-            renderItem={renderGameItem}
-            keyExtractor={(item) => item.name}
-            numColumns={2}
-            scrollEnabled={false}
-            ListEmptyComponent={
-              <Text category="h6" style={styles.emptyList}>
-                No events joined...
-              </Text>
-            }
-          />
-        </Layout>
+      <Layout style={styles.section} level='2'>
+        <Text category="h4" style={styles.sectionTitle}>Joined Events</Text>
+        <Divider style={styles.divider}></Divider>
+        <FlatList
+          data={events}
+          renderItem={renderGameItem}
+          keyExtractor={item => item.name}
+          numColumns={2}
+          scrollEnabled={false}
+          ListEmptyComponent={<Text category='h6' style={styles.emptyList}>No events joined...</Text>}
+        />
+      </Layout>
+      <EventDetails />
       </ScrollView>
     </SafeAreaView>
   );
