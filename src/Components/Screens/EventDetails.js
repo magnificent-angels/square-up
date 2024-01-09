@@ -17,6 +17,8 @@ function EventDetails() {
   const [eventData, setEventData] = useState({})
   const [formattedDate, setFormattedDate] = useState('')
   const [formattedDeadline, setFormattedDeadline] = useState('')
+  const [isFull, setIsFull] = useState(false)
+  const [isPast, setIsPast] = useState(false)
   const notFoundAnimation = useRef(null);
   const { user } = useContext(UserContext);
 
@@ -30,6 +32,15 @@ function EventDetails() {
         setEventData(result)
         setFormattedDate(new Date(result.dateTime).toUTCString())
         setFormattedDeadline(new Date(result.eventDeadline).toUTCString())
+        if ((result.attendees.length + 1) >= result.maxPlayers) {
+            setIsFull(true)
+        }
+        const checkDate = new Date(result.dateTime);
+        const deadlineDate = new Date(result.eventDeadline)
+        const currentDate = new Date();
+        if (checkDate < currentDate || deadlineDate < currentDate) {
+            setIsPast(true)
+        }
     })
     .then(() => {
         setIsLoading(false)
@@ -50,6 +61,13 @@ function EventDetails() {
         })
         }
 
+    function checkIsPast () {
+
+    }
+
+    function checkIsFull () {
+
+    }
 
   if (isError) return (
       <Layout style={styles.notFoundContainer}>
@@ -92,20 +110,23 @@ function EventDetails() {
               style={styles.details}
             >Sign up by: {formattedDeadline}</Text>
             <Layout style={styles.buttonContainer}>
-              <Button
-                onPress={() => {joinEvent(user)}}
-                style={styles.button}
-                status="info"
-              >
-                Join Event
-              </Button>
-              <Button
-                onPress={() => {joinWaitlist(user)}}
-                style={styles.button}
-                status="info"
-              >
-                Join Waitlist
-              </Button>
+                { isPast && <Text appearance="hint" style={styles.details}>Too late buddy!</Text> }
+                { isFull && <>
+                            <Text appearance="hint" style={styles.details}>This event is full! Join the waitlist by clicking below: </Text>
+                            <Button
+                            onPress={() => {joinWaitlist(user)}}
+                            style={styles.button}
+                            status="info">
+                            Join Waitlist
+                            </Button>
+                            </> }
+                { !isPast && !isFull &&
+                        <Button
+                            onPress={() => {joinEvent(user)}}
+                            style={styles.button}
+                            status="info">  
+                            Join Event
+                            </Button> } 
             </Layout>
           </Layout>
         </KeyboardAvoidingView>

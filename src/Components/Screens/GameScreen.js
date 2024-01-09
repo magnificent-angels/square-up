@@ -32,7 +32,7 @@ function GameScreen({ search }) {
   const notFoundAnimation = useRef(null);
   const nav = useNavigation();
   const [eventBeingCreated, setEventBeingCreated] = useState(false);
-  const { user } = useContext(UserContext);
+  const { user, wishlist, setWishlist, owned, setOwned } = useContext(UserContext);
 
   useEffect(() => {
     setIsError(false);
@@ -70,6 +70,7 @@ function GameScreen({ search }) {
   const userUid = doc(db, "users", uid);
 
   function addToWishlist(game) {
+    setWishlist([...wishlist, game])
     updateDoc(userUid, {
       wishlist: arrayUnion({name: game.name, url: game.imageUrl}),
     })
