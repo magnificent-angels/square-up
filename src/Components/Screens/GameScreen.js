@@ -1,87 +1,189 @@
-import { Layout, Text } from "@ui-kitten/components";
-import getGame from "../../utils/gamesApi";
-import { useState, useEffect } from "react";
-import { View, Image, Button, StyleSheet, ScrollView } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import CreateEvent from "./CreateEvent";import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "react-native";
+import React, { useState, useEffect, useRef } from 'react';
+import { ScrollView, Image, StyleSheet, Dimensions, KeyboardAvoidingView } from 'react-native';
+import { Layout, Text, Button, Spinner, Modal } from '@ui-kitten/components';
+import getGame from '../../utils/gamesApi';
+import CreateEvent from './CreateEvent';
+import LottieView from 'lottie-react-native';
 
 
-const Error = (props) => {
-  const { msg } = props;
-  return (
-    <View>
-      <Text>{msg}</Text>
-    </View>
-  );
-};
+const Error = ({ msg }) => (
+  <Text category='h6'>{msg}</Text>
+);
 
 function GameScreen({ search }) {
-    const nav = useNavigation()
-    const [game, setGame] = useState({})
-    const [isLoading, setIsLoading] = useState(true)
-    const [isError, setIsError] = useState(false)
-    const [eventBeingCreated, setEventBeingCreated] = useState(false)
-    const [eventCreated, setEventCreated] = useState(false)
+  const [game, setGame] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [eventCreated, setEventCreated] = useState(false);
 
-    useEffect(() => {
-        setIsError(false)
-        setIsLoading(true)
-        getGame(search)
-            .then((gameData) => {
-                setGame(gameData)
-                setIsLoading(false)
-            })
-            .catch(() => {
-                setIsError(true)
-                setIsLoading(false)
-            })
-    }, [search])
+  const notFoundAnimation = useRef(null);
 
-    if (isError) return <Error msg="Game not found" />
+  useEffect(() => {
+    setIsError(false);
+    setIsLoading(true);
+    getGame(search)
+      .then((gameData) => {
+        setGame(gameData);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setIsError(true);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [search]);
 
-    const { name, description, minPlayers, maxPlayers, playingTime, imageUrl } = game
+  if (isError) return (
+      <Layout style={styles.notFoundContainer}>
+      <LottieView
+        autoPlay
+        ref={notFoundAnimation}
+        style={styles.notFound}
+        source={require('../../../assets/animations/404.json')}
+        speed={1}
+        loop={true}
+      />
+        <Error msg='Sorry, we couldn’t find that game :(' />
+      </Layout>
+  );
 
-    return (
-      <SafeAreaView style={styles.container}>
-        <ScrollView
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps={"handled"}
-            alwaysBounceVertical={false}
-            contentContainerStyle={styles.container}
-        >
-            {isLoading ? <Text>Loading...</Text> :
-                <View style={styles.container}>
-                    <Text style={styles.name}>{name}</Text>
-                    <Image source={{ uri: `${imageUrl}` }} style={{ width: 100, height: 100 }}></Image>
-                    <Text>{minPlayers} - {maxPlayers} players</Text>
-                    <Text>Approximate play time: {playingTime} minutes</Text>
-                    <Button title="I own this game"></Button>
-                    <Button title="Add to wishlist"></Button>
-                    <Button onPress={() => {setEventBeingCreated(true)}} title="Create event" ></Button>
-                    { eventBeingCreated ? <CreateEvent game={game} setEventCreated={setEventCreated} setEventBeingCreated={setEventBeingCreated} /> : null }
-                    { eventCreated ? <Text>Your event has been created!</Text> : null}
-                </View>
-            }
-        </ScrollView>
-        </SafeAreaView>
-    )
+  const { name, description, minPlayers, maxPlayers, playingTime, imageUrl } = game;
 
+  return (
+    <Layout style={styles.container}>
+      {isLoading ? (
+        <Layout style={styles.loadingContainer}>
+          <Spinner size='giant' />
+        </Layout>
+      ) : (
+        <KeyboardAvoidingView>
+        <Layout style={styles.gameInfo}>
+          <Image source={{ uri: imageUrl }} style={styles.image} />
+          <Text category='h5' style={styles.name}>{name}</Text>
+          <Text appearance='hint' style={styles.details}>{`${minPlayers} - ${maxPlayers} players, ${playingTime} min play time`}</Text>
+
+          <Layout style={styles.buttonContainer}>
+            <Button style={styles.button} status='success'>I own this game</Button>
+            <Button style={styles.button} status='info'>Add to wishlist</Button>
+            <Button style={styles.button} status='primary' onPress={() => setModalVisible(true)}>
+              Create event
+            </Button>
+          </Layout>
+
+          <Modal
+            visible={isModalVisible}
+            backdropStyle={styles.backdrop}
+              onBackdropPress={() => setModalVisible(false)}
+              animationType='fade'
+            >
+            <CreateEvent
+              game={game}
+              setEventCreated={setEventCreated}
+              setEventBeingCreated={setModalVisible}
+            />
+          </Modal>
+
+          {eventCreated && <Text>Your event has been created!</Text>}
+            </Layout>
+            </KeyboardAvoidingView>
+      )}
+    </Layout>
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: "center",
-    alignItems: "center",
-    width: 200,
-    height: 200,
-    marginTop: 70,
-    marginHorizontal: 80,
-    paddingTop: StatusBar.currentHeight || 0,
+    flex: 1,
+  },
+  contentContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  gameInfo: {
+    minWidth: '90%',
+    padding: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   name: {
-    fontSize: 40,
-    justifyContent: "center",
+    marginBottom: 4,
+    fontWeight: 'bold',
+  },
+  image: {
+    width: 200,
+    height: 200,
+    resizeMode: 'cover',
+    borderRadius: 10,
+    marginBottom: 8,
+    marginTop: 20,
+  },
+  buttonContainer: {
+    width: '100%',
+    marginTop: 16,
+  },
+  gameInfo: {
+    minWidth: '90%',
+    padding: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+  },
+  name: {
+    marginBottom: 4,
+    fontWeight: 'bold',
+  },
+  details: {
+    marginBottom: 10,
+  },
+  image: {
+    width: 300,
+    height: 300,
+    resizeMode: 'contain',
+    borderRadius: 10,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    overflow: 'hidden',
+  },
+  button: {
+    marginVertical: 4,
+  },
+  backdrop: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  notFound: {
+    alignSelf: 'center',
+    justifySelf: 'center',
+    width: 225,
+    height: 225,
+  },
+  notFoundContainer: {
+    flex: 1,
+    gap: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 100,
   },
 });
 

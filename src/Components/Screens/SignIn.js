@@ -1,12 +1,14 @@
 import React, { useContext, useState } from 'react';
 import { StyleSheet, TouchableWithoutFeedback, TouchableOpacity, View, Keyboard } from "react-native";
-import { Layout, Input, Button, Card, Text } from '@ui-kitten/components';
+import { Layout, Input, Button, Text, Spinner } from '@ui-kitten/components';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 import { UserContext } from "../Context/UserContext";
 import { useForm, Controller } from "react-hook-form";
+import { useNavigation } from "@react-navigation/native";
 
 function SignIn() {
+  const [loading, setLoading] = useState(false);
   const {
     control,
     handleSubmit,
@@ -19,8 +21,9 @@ function SignIn() {
   });
 
   const { setUser } = useContext(UserContext);
-
+  const nav = useNavigation();
   const onSubmit = ({ email, password }) => {
+    setLoading(true);
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const userCred = userCredential.user;
@@ -28,8 +31,17 @@ function SignIn() {
       })
       .catch((error) => {
         console.error(error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
+
+  if (loading) return (
+    <Layout style={styles.container}>
+      <Spinner size='giant'/>
+    </Layout>
+  );
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>

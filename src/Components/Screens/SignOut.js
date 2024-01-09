@@ -1,9 +1,10 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Pressable } from "react-native";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase";
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "../Context/UserContext";
 import { useContext } from "react";
+import { Text } from "@ui-kitten/components";
 
 function SignOut() {
   const { user, setUser } = useContext(UserContext);
