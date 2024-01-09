@@ -60,7 +60,7 @@ const Profile = () => {
 
   if (loading)
     return (
-      <Layout>
+      <Layout style={styles.loadingContainer}>
         <Spinner size="giant" />
       </Layout>
     );
@@ -139,6 +139,11 @@ const Profile = () => {
 };
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
     paddingTop: StatusBar.currentHeight || 0,
