@@ -1,10 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { ScrollView, Image, StyleSheet, Dimensions, KeyboardAvoidingView } from 'react-native';
 import { Layout, Text, Button, Spinner, Modal } from '@ui-kitten/components';
 import getGame from '../../utils/gamesApi';
 import CreateEvent from './CreateEvent';
 import LottieView from 'lottie-react-native';
+import { useNavigation } from "@react-navigation/native";
 
+import { auth, db } from "../../firebase";
+import {
+  setDoc,
+  doc,
+  onSnapshot,
+  collection,
+  query,
+  where,
+  updateDoc,
+  arrayUnion,
+} from "firebase/firestore";
+import { UserContext } from "../Context/UserContext";
 
 const Error = ({ msg }) => (
   <Text category='h6'>{msg}</Text>
@@ -16,8 +29,10 @@ function GameScreen({ search }) {
   const [isError, setIsError] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [eventCreated, setEventCreated] = useState(false);
-
   const notFoundAnimation = useRef(null);
+  const nav = useNavigation();
+  const [eventBeingCreated, setEventBeingCreated] = useState(false);
+  const { user } = useContext(UserContext);
 
   useEffect(() => {
     setIsError(false);
@@ -51,43 +66,77 @@ function GameScreen({ search }) {
 
   const { name, description, minPlayers, maxPlayers, playingTime, imageUrl } = game;
 
+  const uid = user.uid;
+  const userUid = doc(db, "users", uid);
+
+  function addToWishlist(game) {
+    updateDoc(userUid, {
+      wishlist: arrayUnion({name: game.name, url: game.imageUrl}),
+    })
+  }
+
+function handleOnPress(){
+    setModalVisible(true);
+    setEventBeingCreated(true);
+}
+
+
   return (
     <Layout style={styles.container}>
       {isLoading ? (
         <Layout style={styles.loadingContainer}>
-          <Spinner size='giant' />
+          <Spinner size="giant" />
         </Layout>
       ) : (
         <KeyboardAvoidingView>
-        <Layout style={styles.gameInfo}>
-          <Image source={{ uri: imageUrl }} style={styles.image} />
-          <Text category='h5' style={styles.name}>{name}</Text>
-          <Text appearance='hint' style={styles.details}>{`${minPlayers} - ${maxPlayers} players, ${playingTime} min play time`}</Text>
+          <Layout style={styles.gameInfo}>
+            <Image source={{ uri: imageUrl }} style={styles.image} />
+            <Text category="h5" style={styles.name}>
+              {name}
+            </Text>
+            <Text
+              appearance="hint"
+              style={styles.details}
+            >{`${minPlayers} - ${maxPlayers} players, ${playingTime} min play time`}</Text>
 
-          <Layout style={styles.buttonContainer}>
-            <Button style={styles.button} status='success'>I own this game</Button>
-            <Button style={styles.button} status='info'>Add to wishlist</Button>
-            <Button style={styles.button} status='primary' onPress={() => setModalVisible(true)}>
-              Create event
-            </Button>
-          </Layout>
-
-          <Modal
-            visible={isModalVisible}
-            backdropStyle={styles.backdrop}
-              onBackdropPress={() => setModalVisible(false)}
-              animationType='fade'
-            >
-            <CreateEvent
-              game={game}
-              setEventCreated={setEventCreated}
-              setEventBeingCreated={setModalVisible}
-            />
-          </Modal>
-
-          {eventCreated && <Text>Your event has been created!</Text>}
+            <Layout style={styles.buttonContainer}>
+              <Button style={styles.button} status="success">
+                I own this game
+              </Button>
+              <Button
+                onPress={() => {
+                  addToWishlist(game);
+                }}
+                style={styles.button}
+                status="info"
+              >
+                Add to wishlist
+              </Button>
+              <Button
+                style={styles.button}
+                status="primary"
+                onPress={() => handleOnPress() }
+              >
+                Create event
+              </Button>
             </Layout>
-            </KeyboardAvoidingView>
+
+            <Modal
+              visible={isModalVisible}
+              backdropStyle={styles.backdrop}
+              onBackdropPress={() => setModalVisible(false)}
+              animationType="fade"
+            >
+              <CreateEvent
+                game={game}
+                setEventCreated={setEventCreated}
+                setEventBeingCreated={setModalVisible}
+              />
+            </Modal>
+
+            {eventCreated && <Text>Your event has been created!</Text>}
+          </Layout>
+        </KeyboardAvoidingView>
       )}
     </Layout>
   );
