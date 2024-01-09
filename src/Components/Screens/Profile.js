@@ -24,7 +24,7 @@ const Profile = () => {
       setOwned(userData.owned);
       setEvents(userData.events);
     });
-  }, []);
+  }, [wishlist, owned]);
   
   const renderGameItem = ({ item }) => (
     <Card style={styles.gameItemContainer} disabled >
