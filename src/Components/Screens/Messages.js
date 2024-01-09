@@ -1,6 +1,6 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Image } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { collection, addDoc, getDocs, query, where, doc, getDoc, onSnapshot } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where, doc, getDoc, onSnapshot, limit, orderBy } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useNavigation } from "@react-navigation/native";
 
@@ -26,9 +26,10 @@ const Messages = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const nav = useNavigation();
+  const [lastMessages, setLastMessages] = useState([]);
 
   const handleSearchChange = async (newTerm) => {
-    setSearchTerm(newTerm);
+    setSearchTerm(newTerm.toLowerCase());
 
     if (searchTerm !== "" && searchTerm.length <= 10) {
       const newAutoCompleteData = await fetchUsernames(newTerm);
@@ -67,7 +68,9 @@ const Messages = () => {
       return;
     } else {
       const usernames = querySnapshot.docs.map((doc) => {
-        return doc.data().username;
+        if (doc.data().username !== user.username) {
+          return doc.data().username.toLowerCase();
+        }
       });
       setAutoCompleteData(usernames);
     }
@@ -137,6 +140,16 @@ const Messages = () => {
             threads.push(...updatedThreads);
             setMessageThreads(threads); // Move the setMessageThreads call here
           });
+
+          // Get the last message in the thread
+
+          const threadRef = collection(db, "messageThreads", data.id, "messages");
+          const q = query(threadRef, orderBy("timestamp", "desc"), limit(1));
+
+          const unsubscribe = onSnapshot(q, (snapshot) => {
+            const msgs = snapshot.docs.map((doc) => doc.data());
+            data.lastMessage = msgs[0] ? msgs[0].content : "No Messages";
+          });
         });
       },
       (error) => {
@@ -158,23 +171,27 @@ const Messages = () => {
     setIsLoading(false);
   }, [user, setMessageThreads]);
 
-  const renderIcon = (props) => {
-    return <Icon {...props} name="person-outline" />;
-  };
+  const renderItem = ({ item, index }) => {
+    const avatarUrl = item.participants[0].avatarUrl;
 
-  const renderItem = ({ item, index }) => (
-    <Button
-      key={index}
-      style={styles.card}
-      accessoryLeft={renderIcon}
-      appearance="ghost"
-      onPress={() => {
-        nav.navigate("Chat", { threadId: item.id, name: item.participants[0].username });
-      }}
-    >
-      <Text>{item.participants[0].username}</Text>
-    </Button>
-  );
+    return (
+      <Button
+        appearance="ghost"
+        key={index}
+        style={styles.card}
+        onPress={() => {
+          nav.navigate("Chat", { threadId: item.id, name: item.participants[0].username });
+        }}
+      >
+        {avatarUrl && <Image source={{ uri: avatarUrl }} style={styles.img} />}
+        {!avatarUrl && <Icon name="person-outline" fill="white" style={styles.img} />}
+        <Layout style={styles.content}>
+          <Text style={styles.username}>{item.participants[0].username}</Text>
+          <Text style={styles.message}>{item.lastMessage}</Text>
+        </Layout>
+      </Button>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -198,7 +215,7 @@ const Messages = () => {
             <AutocompleteItem key={index} title={item} style={styles.autoItem} />
           ))}
         </Autocomplete>
-        <Button appearance="ghost" onPress={handleSearch} style={styles.button}>
+        <Button appearance="outline" onPress={handleSearch} style={styles.button}>
           Search
         </Button>
         <List style={styles.container} data={messageThreads} renderItem={renderItem} ItemSeparatorComponent={Divider} />
@@ -216,15 +233,37 @@ const styles = StyleSheet.create({
   autocomplete: {
     minWidth: "100%",
     alignSelf: "center",
-    marginTop: 10,
   },
   container: {
     paddingTop: StatusBar.currentHeight || 0,
     height: "100%",
   },
   card: {
-    borderRadius: 0,
-    justifyContent: "left",
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    height: 95,
+  },
+  content: {
+    justifyContent: "center",
+    maxWidth: 300,
+    maxHeight: 90,
+    padding: 10,
+  },
+  img: {
+    height: 50,
+    width: 50,
+    borderRadius: 50,
+  },
+  username: {
+    fontSize: 20,
+    fontWeight: "bold",
+    width: "100%",
+  },
+  message: {
+    fontSize: 16,
+    maxHeight: 50,
+    overflow: "hidden",
   },
 });
 

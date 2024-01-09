@@ -33,7 +33,7 @@ function BottomNav() {
         name="Search"
         component={SearchScreen}
         options={{
-          headerShown: true,
+          headerShown: false,
         }}
       />
       <Tab.Screen name="Profile" component={Profile} />

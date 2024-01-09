@@ -1,155 +1,159 @@
-import { View, StyleSheet } from "react-native";
-import { useContext, useEffect, useState } from "react";
-import { UserContext } from "../Context/UserContext";
-import SignOut from "./SignOut";
-import {
-  Layout,
-  Card,
-  Text,
-  Button,
-  Avatar,
-  Divider,
-} from "@ui-kitten/components";
+import React, { useContext, useEffect, useState } from 'react';
+import { StyleSheet, FlatList, ScrollView, View, StatusBar } from 'react-native';
+import { Layout, Text, Avatar, Divider, Card, Button, Spinner } from '@ui-kitten/components';
+import { UserContext } from '../Context/UserContext';
+import SignOut from './SignOut';
+import { db } from '../../firebase';
+import { getDoc, doc } from 'firebase/firestore';
 import { Ionicons } from "@expo/vector-icons";
 import { Controller } from "react-hook-form";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../firebase";
 import WishList from "./Wishlist";
 
-function Profile() {
+
+const Profile = () => {
+  const { user, wishlist, setWishlist, owned, setOwned, events, setEvents } = useContext(UserContext);
+  const { photoURL, displayName, uid } = user;
   const [loading, setLoading] = useState(true);
-  const [wishlistItem, setWishListItem] = useState([]);
-  const { user } = useContext(UserContext);
+
   useEffect(() => {
-    const userUid = doc(db, "users", user.uid);
-    getDoc(userUid).then((docs) => {
-      setLoading(false);
-      setWishListItem(docs.data().wishlist);
-      console.log(wishlistItem, "wishlist in use effect");
+    const docRef = doc(db, 'users', uid);
+    getDoc(docRef).then((result) => {
+      setLoading(false)
+      const userData = result.data();
+      setWishlist(userData.wishlist);
+      setOwned(userData.owned);
+      setEvents(userData.events);
     });
-  }, [user]);
-
-  console.log(wishlistItem, "wishlist");
-  return (
-    <>
-      <View style={styles.container}>
-        <SignOut />
-        <Card style={styles.profileContainer}>
-          <Avatar
-            size="giant"
-            source={require("../../../assets/avatars/Avatar3.png")}
-            style={styles.content}
-          />
-          <Text category="h1" status="info">
-            John Doe
-          </Text>
-          <Divider />
-          <Text category="s1" style={styles.content}>
-            No Shows: 0
-          </Text>
-        </Card>
-        <Card style={styles.contentContainer}>
-          <Ionicons
-            name="create"
-            style={styles.editIcon}
-            size={25}
-            onPress={console.log("edit favourites")}
-          />
-          <Text category="s2" style={styles.editDescription}>
-            Edit
-          </Text>
-          <Text category="h5">My wishlist</Text>
-          <Divider />
-          {wishlistItem ? (
-            <WishList wishListItem={wishlistItem} />
-          ) : (
-            <Text category="s1" style={styles.content}>
-              No WishList
-            </Text>
-          )}
-        </Card>
-        <Card style={styles.contentContainer}>
-          <Text category="s2" style={styles.createDescription}>
-            Create Event
-          </Text>
-          <Ionicons
-            name="add-circle-outline"
-            style={styles.createIcon}
-            size={25}
-            onPress={console.log("create an event")}
-          />
-          <Text category="h5">Owned Games</Text>
-          <Divider />
-          <Text category="s1" style={styles.content}>
-            No Owned Games
-          </Text>
-        </Card>
-        <Card style={styles.contentContainer}>
-          <Text category="h5">Joined Events</Text>
-          <Divider />
-          <Text category="s1" style={styles.content}>
-            No Events Joined
-          </Text>
-        </Card>
-      </View>
-    </>
+  }, []);
+  
+  const renderGameItem = ({ item }) => (
+    <Card style={styles.gameItemContainer} disabled >
+      <Avatar source={{ uri: item.url }} style={styles.image} />
+      <Text category='c1' style={styles.gameTitle} numberOfLines={1}>{item.name}</Text>
+    </Card>
   );
-}
+  
+  if (loading) return (<Layout><Spinner size='giant'/></Layout>)
 
-export default Profile;
+  return (
+    <Layout style={styles.container} level='4'>
+      <SignOut/>
+      <ScrollView showsVerticalScrollIndicator={false}>
+      <Card style={styles.profileBox} disabled status='primary'>
+        <Avatar size='giant' source={{ uri: photoURL }} style={styles.avatar} />
+        <Text category='h1' style={styles.username}>{displayName}</Text>
+        <Divider style={styles.divider} />
+        <Text style={styles.bio}>Game Attendance Rate (100%)</Text>
+      </Card>
+
+      <Layout style={styles.section} level='2'>
+        <Text category="h4" style={styles.sectionTitle}>Favourite Games</Text>
+        <Divider style={styles.divider}></Divider>
+        <FlatList
+          data={wishlist}
+          renderItem={renderGameItem}
+          keyExtractor={item => item.name}
+          numColumns={2}
+          scrollEnabled={false}
+          ListEmptyComponent={<Text category='h6' style={styles.emptyList}>No items on wishlist...</Text>}
+        />
+      </Layout>
+
+      <Layout style={styles.section} level='2'>
+        <Text category="h4" style={styles.sectionTitle}>Owned Games</Text>
+        <Divider style={styles.divider}></Divider>
+        <FlatList
+          data={owned}
+          renderItem={renderGameItem}
+          keyExtractor={item => item.name}
+          numColumns={2}
+          scrollEnabled={false}
+          ListEmptyComponent={<Text category='h6' style={styles.emptyList}>No owned games...</Text>}
+        />
+      </Layout>
+
+      <Layout style={styles.section} level='2'>
+        <Text category="h4" style={styles.sectionTitle}>Joined Events</Text>
+        <Divider style={styles.divider}></Divider>
+        <FlatList
+          data={events}
+          renderItem={renderGameItem}
+          keyExtractor={item => item.name}
+          numColumns={2}
+          scrollEnabled={false}
+          ListEmptyComponent={<Text category='h6' style={styles.emptyList}>No events joined...</Text>}
+        />
+      </Layout>
+
+      </ScrollView>
+    </Layout>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
+    paddingTop: StatusBar.currentHeight || 0,
   },
-  profileContainer: {
-    width: "90%",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
-    borderColor: "#2766f9",
-    borderTopColor: "#2766f9",
-    borderTopWidth: 8,
-    boxShadow: "0px 0px 5px 5px rgba(0,0,0,0.9)",
+  profileBox: {
+    status: 'primary',
+    alignItems: 'center',
+    padding: 16,
+    marginBottom: 16,
+    marginTop: 16,
+    margin: 16,
   },
-  content: {
-    alignSelf: "center",
+  avatar: {
+    alignSelf: 'center',
+    marginBottom: 8,
+    width: 100,
+    height: 100,
   },
-  contentContainer: {
-    width: "90%",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
-    borderColor: "#2766f9",
-    borderTopColor: "#2766f9",
-    borderTopWidth: 4,
-    boxShadow: "0px 0px 5px 5px rgba(0,0,0,0.9)",
-    position: "relative",
-    padding: 5,
+  username: {
+    marginBottom: 4,
+    alignSelf: 'center',
   },
-  editIcon: {
-    top: 2,
-    right: -60,
-    position: "absolute",
-    color: "white",
+  bio: {
+    textAlign: 'center',
+    marginBottom: 8,
   },
-  editDescription: {
-    top: 8,
-    right: -35,
-    position: "absolute",
+  divider: {
+    marginBottom: 16,
+    backgroundColor: '#00d6a0',
   },
-  createIcon: {
-    top: 1,
-    right: -75,
-    position: "absolute",
-    color: "white",
+  section: {
+    width: '90%',
+    marginBottom: 16,
+    borderRadius: 8,
+    alignSelf: 'center',
   },
-  createDescription: {
-    top: 5,
-    right: -50,
-    position: "absolute",
+  sectionTitle: {
+    textAlign: 'center',
+    margin: 8,
+  },
+  gameItemContainer: {
+    flex: 1,
+    margin: 10,
+    padding: 0,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  gameTitle: {
+    marginTop: 4,
+    alignSelf: 'center',
+    fontWeight: 'bold',
+  },
+  image: {
+    width: 100,
+    height: 100,
+    resizeMode: 'cover',
+    borderRadius: 10,
+  },
+  emptyList: {
+    alignSelf: 'center',
+    margin: 16,
   },
 });
+
+export default Profile;
