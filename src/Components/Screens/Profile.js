@@ -32,6 +32,7 @@ const Profile = () => {
   const { photoURL, displayName, uid } = user;
   const [loading, setLoading] = useState(true);
   const nav = useNavigation();
+  console.log(wishlist)
 
   useEffect(() => {
     const docRef = doc(db, "users", uid);
@@ -42,7 +43,7 @@ const Profile = () => {
       setOwned(userData.owned);
       setEvents(userData.events);
     });
-  }, [owned]);
+  }, []);
 
   const renderGameItem = ({ item }) => (
     <TouchableOpacity onPress={() => nav.navigate("GameScreen")}>

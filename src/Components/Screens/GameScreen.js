@@ -33,6 +33,8 @@ function GameScreen({ search }) {
   const nav = useNavigation();
   const [eventBeingCreated, setEventBeingCreated] = useState(false);
   const { user } = useContext(UserContext);
+  const [wishlistAdded, setWishlistAdded] = useState(false);
+  const [ownedAdded, setOwnedAdded] = useState(false);
 
   useEffect(() => {
     setIsError(false);
@@ -73,6 +75,7 @@ function GameScreen({ search }) {
     updateDoc(userUid, {
       wishlist: arrayUnion({name: game.name, url: game.imageUrl}),
     })
+    setWishlistAdded(true);
   }
 
 
@@ -80,6 +83,7 @@ function GameScreen({ search }) {
     updateDoc(userUid, {
       owned: arrayUnion({name: game.name, url: game.imageUrl}),
     })
+    setOwnedAdded(true);
   }
 
 function handleOnPress(){
@@ -90,6 +94,16 @@ function handleOnPress(){
 
   return (
     <Layout style={styles.container}>
+      {wishlistAdded && (
+        <Text >
+          Added to Wishlist!
+        </Text>
+      )}
+      {ownedAdded && (
+        <Text >
+          Added to Owned List!
+        </Text>
+      )}
       {isLoading ? (
         <Layout style={styles.loadingContainer}>
           <Spinner size="giant" />
@@ -107,9 +121,13 @@ function handleOnPress(){
             >{`${minPlayers} - ${maxPlayers} players, ${playingTime} min play time`}</Text>
 
             <Layout style={styles.buttonContainer}>
-              <Button onPress={() => {
-                addToOwnedList(game)
-              }} style={styles.button} status="success">
+              <Button
+                onPress={() => {
+                  addToOwnedList(game);
+                }}
+                style={styles.button}
+                status="success"
+              >
                 I own this game
               </Button>
               <Button
