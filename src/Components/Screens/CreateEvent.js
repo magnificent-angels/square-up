@@ -31,11 +31,14 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
             eventDeadline,
             organiserUsername: userData.username,
             organiserUid: user.uid,
+            organiserAvatar: user.photoURL,
             gameName: name,
             minPlayers: +minPlayers,
             maxPlayers: +maxPlayers,
             playingTime: +playingTime,
             imageUrl,
+            attendees: [],
+            waitlist: []
           });
         })
         .then(() => {

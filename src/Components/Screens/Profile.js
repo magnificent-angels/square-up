@@ -9,6 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Controller } from "react-hook-form";
 import WishList from "./Wishlist";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import EventDetails from './EventDetails';
 
 
 const Profile = () => {
@@ -85,7 +86,7 @@ const Profile = () => {
           ListEmptyComponent={<Text category='h6' style={styles.emptyList}>No events joined...</Text>}
         />
       </Layout>
-
+      <EventDetails />
       </ScrollView>
     </SafeAreaView>
   );
