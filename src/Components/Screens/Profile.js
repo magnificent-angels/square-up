@@ -23,9 +23,9 @@ import { db } from "../../firebase";
 import { getDoc, doc } from "firebase/firestore";
 import { Ionicons } from "@expo/vector-icons";
 import { Controller } from "react-hook-form";
-import WishList from "./Wishlist";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EventDetails from './EventDetails';
+import { useNavigation } from "@react-navigation/native"
 
 
 const Profile = () => {
@@ -34,7 +34,6 @@ const Profile = () => {
   const { photoURL, displayName, uid } = user;
   const [loading, setLoading] = useState(true);
   const nav = useNavigation();
-  console.log(wishlist)
 
   useEffect(() => {
     const docRef = doc(db, "users", uid);
