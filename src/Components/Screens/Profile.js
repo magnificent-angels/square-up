@@ -7,7 +7,6 @@ import { db } from '../../firebase';
 import { getDoc, doc } from 'firebase/firestore';
 import { Ionicons } from "@expo/vector-icons";
 import { Controller } from "react-hook-form";
-import WishList from "./Wishlist";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 
@@ -48,7 +47,7 @@ const Profile = () => {
       </Card>
 
       <Layout style={styles.section} level='2'>
-        <Text category="h4" style={styles.sectionTitle}>Favourite Games</Text>
+        <Text category="h4" style={styles.sectionTitle}>Wishlist</Text>
         <Divider style={styles.divider}></Divider>
         <FlatList
           data={wishlist}

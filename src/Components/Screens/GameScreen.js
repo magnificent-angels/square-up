@@ -75,6 +75,13 @@ function GameScreen({ search }) {
     })
   }
 
+
+  function addToOwnedList(game) {
+    updateDoc(userUid, {
+      owned: arrayUnion({name: game.name, url: game.imageUrl}),
+    })
+  }
+
 function handleOnPress(){
     setModalVisible(true);
     setEventBeingCreated(true);
@@ -100,7 +107,9 @@ function handleOnPress(){
             >{`${minPlayers} - ${maxPlayers} players, ${playingTime} min play time`}</Text>
 
             <Layout style={styles.buttonContainer}>
-              <Button style={styles.button} status="success">
+              <Button onPress={() => {
+                addToOwnedList(game)
+              }} style={styles.button} status="success">
                 I own this game
               </Button>
               <Button
