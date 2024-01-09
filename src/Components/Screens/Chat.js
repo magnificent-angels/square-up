@@ -101,28 +101,30 @@ const Chat = (props) => {
           const timeString = timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
           const dateString = timestamp.toLocaleDateString([], { year: "2-digit", month: "2-digit", day: "2-digit" });
           return (
-            <Card key={index} style={message.senderId === user.uid ? styles.sent : styles.received}>
-              <Layout style={styles.content}>
-                <Image
-                  source={message.senderId === user.uid ? { uri: user.photoURL } : { uri: otherUser.avatarUrl }}
-                  style={styles.img}
-                />
-                <Layout style={styles.textContainer}>
-                  <Text style={styles.message}>{message.content}</Text>
-                  {message.senderId === user.uid && (
-                    <Icon
-                      name="trash-outline"
-                      fill="#222B45"
-                      onPress={() => deleteMessage(message.id)}
-                      style={styles.trash}
-                    />
-                  )}
-                  <Text style={styles.dateTime}>
-                    {timeString}, {dateString}
-                  </Text>
+            <Layout key={index}>
+              <Card style={message.senderId === user.uid ? styles.sent : styles.received}>
+                <Layout style={styles.content}>
+                  <Image
+                    source={message.senderId === user.uid ? { uri: user.photoURL } : { uri: otherUser.avatarUrl }}
+                    style={styles.img}
+                  />
+                  <Layout style={styles.textContainer}>
+                    <Text style={styles.message}>{message.content}</Text>
+                    {message.senderId === user.uid && (
+                      <Icon
+                        name="trash-outline"
+                        fill="#222B45"
+                        onPress={() => deleteMessage(message.id)}
+                        style={styles.trash}
+                      />
+                    )}
+                  </Layout>
                 </Layout>
-              </Layout>
-            </Card>
+              </Card>
+              <Text style={styles.dateTime}>
+                {timeString}, {dateString}
+              </Text>
+            </Layout>
           );
         })}
       </ScrollView>
@@ -166,7 +168,6 @@ const styles = StyleSheet.create({
     width: "85%",
     alignSelf: "flex-end",
     backgroundColor: "rgba(51, 255, 102, 0.48)",
-    marginBottom: 10,
     borderTopWidth: 1,
     borderTopColor: "gray",
   },
@@ -174,7 +175,6 @@ const styles = StyleSheet.create({
     width: "85%",
     alignSelf: "flex-start",
     backgroundColor: "rgba(51, 102, 255, 0.48)",
-    marginBottom: 10,
     borderTopWidth: 1,
     borderTopColor: "gray",
   },
@@ -182,6 +182,7 @@ const styles = StyleSheet.create({
     height: 50,
     width: 50,
     borderRadius: 50,
+    alignSelf: "center",
   },
   content: {
     width: "100%",
@@ -224,7 +225,9 @@ const styles = StyleSheet.create({
   dateTime: {
     fontSize: 10,
     textAlign: "right",
-    color: "#222B45",
+    color: "#000000",
+    marginTop: 2,
+    marginBottom: 10,
   },
 });
 

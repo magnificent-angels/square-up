@@ -16,7 +16,7 @@ import {
   Spinner,
 } from "@ui-kitten/components";
 
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "../Context/UserContext";
 
 const Messages = () => {
@@ -29,12 +29,6 @@ const Messages = () => {
 
   const handleSearchChange = async (newTerm) => {
     setSearchTerm(newTerm);
-
-    if (searchTerm !== "" && searchTerm.length <= 10) {
-      const newAutoCompleteData = await fetchUsernames(newTerm);
-    } else {
-      setAutoCompleteData(["No Users Found"]);
-    }
   };
 
   const handleSearch = async () => {
@@ -57,25 +51,44 @@ const Messages = () => {
     }
   };
 
-  const fetchUsernames = async (searchTerm) => {
-    const q = query(collection(db, "users"), where("username", ">=", searchTerm));
+  useEffect(() => {
+    let isMounted = true;
 
-    const querySnapshot = await getDocs(q);
+    const fetchUsernames = async (searchTerm) => {
+      const q = query(collection(db, "users"), where("username", ">=", searchTerm));
 
-    if (querySnapshot.empty) {
-      console.log("No users found");
-      return;
-    } else {
-      const usernames = [];
+      const querySnapshot = await getDocs(q);
 
-      querySnapshot.docs.forEach((doc) => {
-        if (doc.data().username !== user.displayName) {
-          usernames.push(doc.data().username);
+      if (querySnapshot.empty) {
+        console.log("No users found");
+        return;
+      } else {
+        const usernames = [];
+
+        querySnapshot.docs.forEach((doc) => {
+          if (doc.data().username !== user.displayName) {
+            usernames.push(doc.data().username);
+          }
+        });
+
+        if (isMounted) {
+          setAutoCompleteData(usernames);
         }
-      });
-      setAutoCompleteData(usernames);
+      }
+    };
+
+    if (searchTerm !== "" && searchTerm.length <= 12) {
+      fetchUsernames(searchTerm);
+    } else {
+      if (isMounted) {
+        setAutoCompleteData(["No Users Found"]);
+      }
     }
-  };
+
+    return () => {
+      isMounted = false;
+    };
+  }, [searchTerm]); // This will run every time searchTerm changes
 
   const createMessageThread = async (user1Id, user2Id) => {
     // Check if a thread already exists between the two users
@@ -138,14 +151,13 @@ const Messages = () => {
           const threadRef = collection(db, "messageThreads", data.id, "messages");
           const q = query(threadRef, orderBy("timestamp", "desc"), limit(1));
 
-          await onSnapshot(q, (snapshot) => {
+          onSnapshot(q, (snapshot) => {
             const msgs = snapshot.docs.map((doc) => doc.data());
             data.lastMessage = msgs[0] ? msgs[0].content : "No Messages";
           });
 
           threads.push(data);
         }
-
         setMessageThreads(threads);
       },
       (error) => {
@@ -173,7 +185,7 @@ const Messages = () => {
           unsubscribe();
         }
       };
-    }, [user, setMessageThreads])
+    }, [user])
   );
 
   const renderItem = ({ item, index }) => {
@@ -240,7 +252,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   button: {
-    width: "90%",
+    width: "80%",
     alignSelf: "center",
     marginTop: 5,
   },
@@ -256,7 +268,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     justifyContent: "flex-start",
-    height: 97,
+    height: 90,
   },
   content: {
     backgroundColor: "transparent",
@@ -274,7 +286,6 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 16,
-    maxHeight: 50,
     overflow: "hidden",
   },
 });
