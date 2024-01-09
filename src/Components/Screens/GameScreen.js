@@ -32,7 +32,9 @@ function GameScreen({ search }) {
   const notFoundAnimation = useRef(null);
   const nav = useNavigation();
   const [eventBeingCreated, setEventBeingCreated] = useState(false);
-  const { user } = useContext(UserContext);
+  const [wishlistAdded, setWishlistAdded] = useState(false)
+  const [ownedAdded, setOwnedAdded] = useState(false)
+  const { user, wishlist, setWishlist, owned, setOwned } = useContext(UserContext);
 
   useEffect(() => {
     setIsError(false);
@@ -70,9 +72,19 @@ function GameScreen({ search }) {
   const userUid = doc(db, "users", uid);
 
   function addToWishlist(game) {
+    setWishlist([...wishlist, game])
     updateDoc(userUid, {
       wishlist: arrayUnion({name: game.name, url: game.imageUrl}),
     })
+    setWishlistAdded(true);
+  }
+
+
+  function addToOwnedList(game) {
+    updateDoc(userUid, {
+      owned: arrayUnion({name: game.name, url: game.imageUrl}),
+    })
+    setOwnedAdded(true);
   }
 
 function handleOnPress(){
@@ -83,6 +95,16 @@ function handleOnPress(){
 
   return (
     <Layout style={styles.container}>
+      {wishlistAdded && (
+        <Text >
+          Added to Wishlist!
+        </Text>
+      )}
+      {ownedAdded && (
+        <Text >
+          Added to Owned List!
+        </Text>
+      )}
       {isLoading ? (
         <Layout style={styles.loadingContainer}>
           <Spinner size="giant" />
@@ -100,7 +122,13 @@ function handleOnPress(){
             >{`${minPlayers} - ${maxPlayers} players, ${playingTime} min play time`}</Text>
 
             <Layout style={styles.buttonContainer}>
-              <Button style={styles.button} status="success">
+              <Button
+                onPress={() => {
+                  addToOwnedList(game);
+                }}
+                style={styles.button}
+                status="success"
+              >
                 I own this game
               </Button>
               <Button
