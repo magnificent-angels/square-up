@@ -157,13 +157,20 @@ const Messages = () => {
 
   useEffect(() => {
     setIsLoading(true);
+    let unsubscribe;
     const createThreads = async () => {
       if (!user) return;
-      await getUserThreads();
+      unsubscribe = await getUserThreads();
     };
 
     createThreads();
     setIsLoading(false);
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [user, setMessageThreads]);
 
   const renderItem = ({ item, index }) => {

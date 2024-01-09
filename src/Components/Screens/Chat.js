@@ -15,7 +15,8 @@ const Chat = (props) => {
   const [otherUser, setOtherUser] = useState(null);
 
   useEffect(() => {
-    getMessages();
+    const unsubscribe = getMessages();
+    return () => unsubscribe();
   }, [threadId]);
 
   const getUserInfo = async (userId) => {
@@ -24,8 +25,7 @@ const Chat = (props) => {
     return userSnap.data();
   };
 
-  const getMessages = async () => {
-    // Original Query getting messages from thread in correct order:
+  const getMessages = () => {
     const threadRef = collection(db, "messageThreads", threadId, "messages");
     const q = query(threadRef, orderBy("timestamp", "asc"));
 
@@ -33,23 +33,18 @@ const Chat = (props) => {
       const msgs = await Promise.all(
         querySnapshot.docs.map(async (doc) => {
           const data = doc.data();
-
           data.id = doc.id;
-
           if (data.senderId !== user.uid) {
             const oUser = await getUserInfo(data.senderId);
-
             setOtherUser(oUser);
           }
-
           return data;
         })
       );
-
       setMessages(msgs);
     });
 
-    return () => unsubscribe();
+    return unsubscribe;
   };
 
   const sendMessageToThread = async (threadId, senderId, content) => {
