@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { UserContext } from "../Context/UserContext";
 import { Layout, Text, Card, Input, Icon, Button } from "@ui-kitten/components";
-import { StyleSheet, ScrollView, View } from "react-native";
-import { collection, addDoc, onSnapshot, orderBy, query } from "firebase/firestore";
+import { StyleSheet, ScrollView, View, Image } from "react-native";
+import { collection, addDoc, onSnapshot, orderBy, query, doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { StatusBar } from "expo-status-bar";
 
@@ -12,18 +12,36 @@ const Chat = (props) => {
   const [content, setContent] = useState("");
   const { threadId } = props.route.params;
   const scrollViewRef = useRef();
+  const [otherUser, setOtherUser] = useState();
 
   useEffect(() => {
+    const getUserInfo = async (userId) => {
+      const userRef = doc(db, "users", userId);
+      const userSnap = await getDoc(userRef);
+      return userSnap.data();
+    };
+
     const getMessages = () => {
       const threadRef = collection(db, "messageThreads", threadId, "messages");
       const q = query(threadRef, orderBy("timestamp", "asc"));
 
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const msgs = snapshot.docs.map((doc) => doc.data());
+      const unsubscribe = onSnapshot(q, async (snapshot) => {
+        const msgs = await Promise.all(
+          snapshot.docs.map(async (doc) => {
+            const data = doc.data();
+
+            if (data.senderId !== user.uid) {
+              const oUser = await getUserInfo(data.senderId);
+              setOtherUser(oUser);
+            }
+
+            return data;
+          })
+        );
         setMessages(msgs);
+        scrollViewRef.current.scrollToEnd({ animated: false });
       });
 
-      // Clean up the listener when the component unmounts
       return () => unsubscribe();
     };
 
@@ -55,9 +73,24 @@ const Chat = (props) => {
     <Layout style={styles.section}>
       <ScrollView style={styles.msgs} ref={scrollViewRef}>
         {messages.map((message, index) => {
+          const timestamp = message.timestamp.toDate();
+          const timeString = timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          const dateString = timestamp.toLocaleDateString([], { year: "2-digit", month: "2-digit", day: "2-digit" });
+
           return (
             <Card key={index} style={message.senderId === user.uid ? styles.sent : styles.received}>
-              <Text>{message.content}</Text>
+              <Layout style={styles.content}>
+                <Image
+                  source={message.senderId === user.uid ? { uri: user.photoURL } : { uri: otherUser.avatarUrl }}
+                  style={styles.img}
+                />
+                <Layout style={styles.textContainer}>
+                  <Text style={styles.message}>{message.content}</Text>
+                  <Text style={styles.dateTime}>
+                    {timeString}, {dateString}
+                  </Text>
+                </Layout>
+              </Layout>
             </Card>
           );
         })}
@@ -114,6 +147,27 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "gray",
   },
+  img: {
+    height: 50,
+    width: 50,
+    borderRadius: 50,
+  },
+  content: {
+    width: "100%",
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    backgroundColor: "transparent",
+  },
+  textContainer: {
+    backgroundColor: "transparent",
+    width: "80%",
+    marginLeft: 10,
+    justifyContent: "space-between",
+  },
+  message: {
+    marginBottom: 10,
+  },
   inputView: {
     width: "100%",
     backgroundColor: "#222B45",
@@ -131,6 +185,11 @@ const styles = StyleSheet.create({
   send: {
     width: "10%",
     height: 40,
+  },
+  dateTime: {
+    fontSize: 10,
+    textAlign: "right",
+    color: "gray",
   },
 });
 
