@@ -113,7 +113,7 @@ const EventList = () => {
             <SelectItem title="Desc" style={styles.title} />
           </Select>
         </Layout>
-        <Layout>
+        <Layout style={styles.listLayout}>
           <List data={eventsList} renderItem={renderItem} ItemSeparatorComponent={Divider} />
         </Layout>
       </SafeAreaView>
@@ -141,6 +141,9 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: "center",
+  },
+  listLayout: {
+    height: "74%",
   },
   listContainer: {
     flexDirection: "row",

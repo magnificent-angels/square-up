@@ -109,7 +109,14 @@ const Chat = (props) => {
                 />
                 <Layout style={styles.textContainer}>
                   <Text style={styles.message}>{message.content}</Text>
-                  <Icon name="trash-2-outline" onPress={() => deleteMessage(message.id)} style={styles.trash} />
+                  {message.senderId === user.uid && (
+                    <Icon
+                      name="trash-outline"
+                      fill="#222B45"
+                      onPress={() => deleteMessage(message.id)}
+                      style={styles.trash}
+                    />
+                  )}
                   <Text style={styles.dateTime}>
                     {timeString}, {dateString}
                   </Text>
@@ -184,8 +191,8 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   trash: {
-    width: "8%",
-    height: 30,
+    width: "7%",
+    height: 20,
     alignSelf: "flex-end",
   },
   textContainer: {

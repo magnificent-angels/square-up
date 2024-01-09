@@ -2,7 +2,7 @@ import { StyleSheet, Image } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { collection, addDoc, getDocs, query, where, doc, getDoc, onSnapshot, limit, orderBy } from "firebase/firestore";
 import { db } from "../../firebase";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
 import {
   Icon,
@@ -16,7 +16,7 @@ import {
   Spinner,
 } from "@ui-kitten/components";
 
-import { useEffect, useState, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { UserContext } from "../Context/UserContext";
 
 const Messages = () => {
@@ -26,10 +26,9 @@ const Messages = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const nav = useNavigation();
-  const [lastMessages, setLastMessages] = useState([]);
 
   const handleSearchChange = async (newTerm) => {
-    setSearchTerm(newTerm.toLowerCase());
+    setSearchTerm(newTerm);
 
     if (searchTerm !== "" && searchTerm.length <= 10) {
       const newAutoCompleteData = await fetchUsernames(newTerm);
@@ -67,9 +66,11 @@ const Messages = () => {
       console.log("No users found");
       return;
     } else {
-      const usernames = querySnapshot.docs.map((doc) => {
-        if (doc.data().username !== user.username) {
-          return doc.data().username.toLowerCase();
+      const usernames = [];
+
+      querySnapshot.docs.forEach((doc) => {
+        if (doc.data().username !== user.displayName) {
+          usernames.push(doc.data().username);
         }
       });
       setAutoCompleteData(usernames);
@@ -155,23 +156,25 @@ const Messages = () => {
     return unsubscribe;
   };
 
-  useEffect(() => {
-    setIsLoading(true);
-    let unsubscribe;
-    const createThreads = async () => {
-      if (!user) return;
-      unsubscribe = await getUserThreads();
-    };
+  useFocusEffect(
+    React.useCallback(() => {
+      setIsLoading(true);
+      let unsubscribe;
+      const createThreads = async () => {
+        if (!user) return;
+        unsubscribe = await getUserThreads();
+      };
 
-    createThreads();
-    setIsLoading(false);
+      createThreads();
+      setIsLoading(false);
 
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  }, [user, setMessageThreads]);
+      return () => {
+        if (unsubscribe) {
+          unsubscribe();
+        }
+      };
+    }, [user, setMessageThreads])
+  );
 
   const renderItem = ({ item, index }) => {
     const avatarUrl = item.participants[0].avatarUrl;
@@ -203,7 +206,7 @@ const Messages = () => {
     );
   } else {
     return (
-      <Layout>
+      <Layout style={styles.container}>
         <Autocomplete
           style={styles.autocomplete}
           placeholder="Search User..."
@@ -217,34 +220,43 @@ const Messages = () => {
             <AutocompleteItem key={index} title={item} style={styles.autoItem} />
           ))}
         </Autocomplete>
-        <Button appearance="outline" onPress={handleSearch} style={styles.button}>
+        <Button onPress={handleSearch} style={styles.button}>
           Search
         </Button>
-        <List style={styles.container} data={messageThreads} renderItem={renderItem} ItemSeparatorComponent={Divider} />
+        <List style={styles.list} data={messageThreads} renderItem={renderItem} ItemSeparatorComponent={Divider} />
       </Layout>
     );
   }
 };
 
 const styles = StyleSheet.create({
+  container: {
+    paddingTop: StatusBar.currentHeight || 0,
+    height: "100%",
+  },
   loading: {
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
   },
+  button: {
+    width: "90%",
+    alignSelf: "center",
+    marginTop: 5,
+  },
   autocomplete: {
     minWidth: "100%",
     alignSelf: "center",
+    borderWidth: 5,
   },
-  container: {
-    paddingTop: StatusBar.currentHeight || 0,
-    height: "100%",
+  list: {
+    backgroundColor: "transparent",
   },
   card: {
     flex: 1,
     flexDirection: "row",
     justifyContent: "flex-start",
-    height: 95,
+    height: 97,
   },
   content: {
     backgroundColor: "transparent",
