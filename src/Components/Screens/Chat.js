@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { UserContext } from "../Context/UserContext";
 import { Layout, Text, Card, Input, Icon, Button } from "@ui-kitten/components";
-import { StyleSheet, ScrollView, View, Image } from "react-native";
-import { collection, addDoc, onSnapshot, orderBy, query, doc, getDoc } from "firebase/firestore";
+import { StyleSheet, ScrollView, Image, Alert } from "react-native";
+import { collection, addDoc, onSnapshot, orderBy, query, doc, getDoc, Timestamp, deleteDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { StatusBar } from "expo-status-bar";
 
@@ -12,46 +12,50 @@ const Chat = (props) => {
   const [content, setContent] = useState("");
   const { threadId } = props.route.params;
   const scrollViewRef = useRef();
-  const [otherUser, setOtherUser] = useState();
+  const [otherUser, setOtherUser] = useState(null);
 
   useEffect(() => {
-    const getUserInfo = async (userId) => {
-      const userRef = doc(db, "users", userId);
-      const userSnap = await getDoc(userRef);
-      return userSnap.data();
-    };
-
-    const getMessages = () => {
-      const threadRef = collection(db, "messageThreads", threadId, "messages");
-      const q = query(threadRef, orderBy("timestamp", "asc"));
-
-      const unsubscribe = onSnapshot(q, async (snapshot) => {
-        const msgs = await Promise.all(
-          snapshot.docs.map(async (doc) => {
-            const data = doc.data();
-
-            if (data.senderId !== user.uid) {
-              const oUser = await getUserInfo(data.senderId);
-              setOtherUser(oUser);
-            }
-
-            return data;
-          })
-        );
-        setMessages(msgs);
-        scrollViewRef.current.scrollToEnd({ animated: false });
-      });
-
-      return () => unsubscribe();
-    };
-
     getMessages();
   }, [threadId]);
+
+  const getUserInfo = async (userId) => {
+    const userRef = doc(db, "users", userId);
+    const userSnap = await getDoc(userRef);
+    return userSnap.data();
+  };
+
+  const getMessages = async () => {
+    // Original Query getting messages from thread in correct order:
+    const threadRef = collection(db, "messageThreads", threadId, "messages");
+    const q = query(threadRef, orderBy("timestamp", "asc"));
+
+    const unsubscribe = onSnapshot(q, async (querySnapshot) => {
+      const msgs = await Promise.all(
+        querySnapshot.docs.map(async (doc) => {
+          const data = doc.data();
+
+          data.id = doc.id;
+
+          if (data.senderId !== user.uid) {
+            const oUser = await getUserInfo(data.senderId);
+
+            setOtherUser(oUser);
+          }
+
+          return data;
+        })
+      );
+
+      setMessages(msgs);
+    });
+
+    return () => unsubscribe();
+  };
 
   const sendMessageToThread = async (threadId, senderId, content) => {
     const threadRef = collection(db, "messageThreads", threadId, "messages");
 
-    setMessages((prevMessages) => [...prevMessages, { senderId, content, timestamp: new Date() }]);
+    setMessages([...messages, { senderId, content, timestamp: Timestamp.now() }]);
 
     try {
       await addDoc(threadRef, {
@@ -64,7 +68,32 @@ const Chat = (props) => {
       scrollViewRef.current.scrollToEnd({ animated: true });
     } catch (error) {
       console.error("Error sending message to thread:", error);
+      setMessages((messages) => {
+        messages.pop();
+        return messages;
+      });
     }
+
+    scrollViewRef.current?.scrollToEnd({ animated: true });
+  };
+
+  const deleteMessage = (messageId) => {
+    Alert.alert("Delete Message", "Are you sure you want to delete this message?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      { text: "OK", onPress: () => deleteMessageFromDB(messageId) },
+    ]);
+  };
+
+  const deleteMessageFromDB = async (messageId) => {
+    const messageRef = doc(db, "messageThreads", threadId, "messages", messageId);
+
+    setMessages((currMessages) => currMessages.filter((message) => message.id !== messageId));
+
+    await deleteDoc(messageRef);
+    getMessages();
   };
 
   const renderIcon = (props) => <Icon {...props} name="paper-plane-outline" />;
@@ -76,7 +105,6 @@ const Chat = (props) => {
           const timestamp = message.timestamp.toDate();
           const timeString = timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
           const dateString = timestamp.toLocaleDateString([], { year: "2-digit", month: "2-digit", day: "2-digit" });
-
           return (
             <Card key={index} style={message.senderId === user.uid ? styles.sent : styles.received}>
               <Layout style={styles.content}>
@@ -86,6 +114,7 @@ const Chat = (props) => {
                 />
                 <Layout style={styles.textContainer}>
                   <Text style={styles.message}>{message.content}</Text>
+                  <Icon name="trash-2-outline" onPress={() => deleteMessage(message.id)} style={styles.trash} />
                   <Text style={styles.dateTime}>
                     {timeString}, {dateString}
                   </Text>
@@ -159,6 +188,11 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     backgroundColor: "transparent",
   },
+  trash: {
+    width: "8%",
+    height: 30,
+    alignSelf: "flex-end",
+  },
   textContainer: {
     backgroundColor: "transparent",
     width: "80%",
@@ -188,7 +222,7 @@ const styles = StyleSheet.create({
   dateTime: {
     fontSize: 10,
     textAlign: "right",
-    color: "gray",
+    color: "#222B45",
   },
 });
 

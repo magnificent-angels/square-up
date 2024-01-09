@@ -113,10 +113,10 @@ const Messages = () => {
 
     const unsubscribe = onSnapshot(
       threadsQuery,
-      (querySnapshot) => {
+      async (querySnapshot) => {
         const threads = [];
 
-        querySnapshot.forEach((document) => {
+        for (const document of querySnapshot.docs) {
           const data = document.data();
           data.id = document.id;
           const participants = data.participants;
@@ -125,32 +125,27 @@ const Messages = () => {
             return participantId !== user.uid;
           });
 
-          data.participants = [];
-
-          Promise.all(
+          data.participants = await Promise.all(
             otherParticipants.map(async (participantId) => {
               const userRef = doc(db, "users", participantId);
               const userData = await getDoc(userRef);
-
-              data.participants.push(userData.data());
-
-              return data;
+              return userData.data();
             })
-          ).then((updatedThreads) => {
-            threads.push(...updatedThreads);
-            setMessageThreads(threads); // Move the setMessageThreads call here
-          });
+          );
 
           // Get the last message in the thread
-
           const threadRef = collection(db, "messageThreads", data.id, "messages");
           const q = query(threadRef, orderBy("timestamp", "desc"), limit(1));
 
-          const unsubscribe = onSnapshot(q, (snapshot) => {
+          await onSnapshot(q, (snapshot) => {
             const msgs = snapshot.docs.map((doc) => doc.data());
             data.lastMessage = msgs[0] ? msgs[0].content : "No Messages";
           });
-        });
+
+          threads.push(data);
+        }
+
+        setMessageThreads(threads);
       },
       (error) => {
         console.error("Error fetching user threads:", error);
@@ -245,9 +240,7 @@ const styles = StyleSheet.create({
     height: 95,
   },
   content: {
-    justifyContent: "center",
-    maxWidth: 300,
-    maxHeight: 90,
+    backgroundColor: "transparent",
     padding: 10,
   },
   img: {
