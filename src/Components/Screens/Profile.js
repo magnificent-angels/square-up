@@ -23,9 +23,9 @@ import { db } from "../../firebase";
 import { getDoc, doc } from "firebase/firestore";
 import { Ionicons } from "@expo/vector-icons";
 import { Controller } from "react-hook-form";
-import WishList from "./Wishlist";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EventDetails from './EventDetails';
+import { useNavigation } from "@react-navigation/native"
 
 
 const Profile = () => {
@@ -34,7 +34,6 @@ const Profile = () => {
   const { photoURL, displayName, uid } = user;
   const [loading, setLoading] = useState(true);
   const nav = useNavigation();
-  console.log(wishlist)
 
   useEffect(() => {
     const docRef = doc(db, "users", uid);
@@ -58,13 +57,8 @@ const Profile = () => {
       </Card>
     </TouchableOpacity>
   );
-
-  if (loading)
-    return (
-      <Layout>
-        <Spinner size="giant" />
-      </Layout>
-    );
+  
+  if (loading) return (<Layout style={styles.loadingContainer}><Spinner size='giant'/></Layout>)
 
   return (
     <SafeAreaView style={styles.container} level="4">
@@ -140,6 +134,11 @@ const Profile = () => {
 };
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
     paddingTop: StatusBar.currentHeight || 0,

@@ -32,6 +32,8 @@ function GameScreen({ search }) {
   const notFoundAnimation = useRef(null);
   const nav = useNavigation();
   const [eventBeingCreated, setEventBeingCreated] = useState(false);
+  const [wishlistAdded, setWishlistAdded] = useState(false)
+  const [ownedAdded, setOwnedAdded] = useState(false)
   const { user, wishlist, setWishlist, owned, setOwned } = useContext(UserContext);
 
   useEffect(() => {
