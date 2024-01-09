@@ -57,13 +57,8 @@ const Profile = () => {
       </Card>
     </TouchableOpacity>
   );
-
-  if (loading)
-    return (
-      <Layout style={styles.loadingContainer}>
-        <Spinner size="giant" />
-      </Layout>
-    );
+  
+  if (loading) return (<Layout style={styles.loadingContainer}><Spinner size='giant'/></Layout>)
 
   return (
     <SafeAreaView style={styles.container} level="4">

@@ -1,11 +1,11 @@
 import { Layout, Text, Input, Button, Spinner, RangeCalendar } from '@ui-kitten/components';
 import { useState, useEffect } from 'react';
-import DateTimePicker from 'react-native-ui-datepicker';
 import dayjs from 'dayjs';
 import { getLatLong } from '../../utils/postcodeLookup';
 import { auth, db } from '../../firebase';
 import { doc, getDoc, GeoPoint, addDoc, collection } from 'firebase/firestore';
 import { StyleSheet } from 'react-native';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
   const [userData, setUserData] = useState(null);
@@ -13,23 +13,79 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
   const [postcode, setPostcode] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [eventDate, setEventDate] = useState(dayjs())
+  const [eventTime, setEventTime] = useState('')
   const [deadline, setDeadline] = useState(dayjs())
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [isDeadlinePickerVisible, setDeadlinePickerVisibility] = useState(false);
+  const [isTimePickerVisible, setTimePickerVisibility] = useState(false)
 
   const user = auth.currentUser;
   const { name, minPlayers, maxPlayers, playingTime, imageUrl } = game;
 
-  const handleDates = (dateString) => {
-    const date = new Date(dateString)
-    const milliseconds = date.getTime()
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const showTimePicker = () => {
+    setTimePickerVisibility(true);
+  };
+
+  const hideTimePicker = () => {
+    setTimePickerVisibility(false);
+  };
+
+
+  const showDeadlinePicker = () => {
+    setDeadlinePickerVisibility(true);
+  };
+
+  const hideDeadlinePicker = () => {
+    setDeadlinePickerVisibility(false);
+  };
+
+  const handleDateConfirm = (date) => {
+    setEventDate(date)
+    hideDatePicker();
+  };
+
+  const handleTimeConfirm = (time) => {
+    setEventTime(time)
+    hideTimePicker();
+  };
+
+  const handleDeadlineConfirm = (date) => {
+    setDeadline(date)
+    hideDeadlinePicker();
+  };
+
+
+  const handleDates = () => {
+    const dateString = eventDate.toISOString()
+    const timeString = eventTime.toISOString()
+    const newDateString = dateString.slice(0, 11).concat(timeString.slice(11))
+    const newDate = new Date(newDateString)
+    const milliseconds = newDate.getTime()
+    return milliseconds
+  }
+
+  const handleDeadline = () => {
+    const dateString = deadline.toISOString()
+    const timeString = eventTime.toISOString()
+    const newDateString = dateString.slice(0, 11).concat(timeString.slice(11))
+    const newDate = new Date(newDateString)
+    const milliseconds = newDate.getTime()
     return milliseconds
   }
 
   const onSubmit = () => {
-    if (dateRange.startDate && dateRange.endDate) {
       getLatLong(postcode)
         .then(({ latitude, longitude }) => {
           const dateTime = handleDates(eventDate)
-          const eventDeadline = handleDates(deadline)
+          const eventDeadline = handleDeadline(deadline)
           return [dateTime, eventDeadline, latitude, longitude];
         })
         .then(([dateTime, eventDeadline, latitude, longitude]) => {
@@ -52,6 +108,7 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
         })
         .then(() => {
           setEventName('')
+          setEventTime('')
           setEventDate(dayjs())
           setDeadline(dayjs())
           setPostcode('')
@@ -61,7 +118,6 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
         .catch((err) => {
           console.log(err);
         });
-    }
   };
 
   useEffect(() => {
@@ -89,14 +145,27 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
         label={"Enter a name for the event:"}
       />
       <Text>Select the date and time for your event: </Text>
-      <DateTimePicker 
-        value={eventDate}
-        onValueChange={(date) => setEventDate(handleDates(date))}
-      />    
+      <Button title="Show Date Picker" onPress={showDatePicker}>Select the date</Button>
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={handleDateConfirm}
+        onCancel={hideDatePicker}
+      />
+      <Button title="Show Time Picker" onPress={showTimePicker}>Select the time</Button>
+      <DateTimePickerModal
+        isVisible={isTimePickerVisible}
+        mode="time"
+        onConfirm={handleTimeConfirm}
+        onCancel={hideTimePicker}
+      />
       <Text>What is the deadline for signing up?</Text>
-      <DateTimePicker 
-        value={deadline}
-        onValueChange={(date) => setDeadline(date)}
+      <Button title="Show Deadline Picker" onPress={showDeadlinePicker}>Deadline date for signup</Button>
+      <DateTimePickerModal
+        isVisible={isDeadlinePickerVisible}
+        mode="date"
+        onConfirm={handleDeadlineConfirm}
+        onCancel={hideDeadlinePicker}
       />
       <Input
         placeholder="eg M1 7ED"
