@@ -210,6 +210,8 @@ const Messages = () => {
     );
   };
 
+  const SearchIcon = (props) => <Icon {...props} name="search-outline" />;
+
   if (isLoading) {
     return (
       <Layout style={styles.loading}>
@@ -227,6 +229,7 @@ const Messages = () => {
           onChangeText={handleSearchChange}
           size="large"
           autoCapitalize="none"
+          accessoryRight={SearchIcon}
         >
           {autoCompleteData.map((item, index) => (
             <AutocompleteItem key={index} title={item} style={styles.autoItem} />

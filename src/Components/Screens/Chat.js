@@ -121,7 +121,7 @@ const Chat = (props) => {
                   </Layout>
                 </Layout>
               </Card>
-              <Text style={styles.dateTime}>
+              <Text style={message.senderId === user.uid ? styles.timeSent : styles.timeReceived}>
                 {timeString}, {dateString}
               </Text>
             </Layout>
@@ -222,12 +222,20 @@ const styles = StyleSheet.create({
     width: "10%",
     height: 40,
   },
-  dateTime: {
+  timeSent: {
     fontSize: 10,
     textAlign: "right",
     color: "#000000",
     marginTop: 2,
     marginBottom: 10,
+  },
+  timeReceived: {
+    fontSize: 10,
+    textAlign: "right",
+    color: "#000000",
+    marginTop: 2,
+    marginBottom: 10,
+    marginRight: "15%",
   },
 });
 
