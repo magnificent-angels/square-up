@@ -4,6 +4,7 @@ import { Layout, Text, Button, Spinner, Modal } from '@ui-kitten/components';
 import getGame from '../../utils/gamesApi';
 import CreateEvent from './CreateEvent';
 import LottieView from 'lottie-react-native';
+import { useNavigation } from "@react-navigation/native";
 
 import { auth, db } from "../../firebase";
 import {

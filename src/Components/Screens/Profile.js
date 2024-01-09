@@ -8,6 +8,7 @@ import { getDoc, doc } from 'firebase/firestore';
 import { Ionicons } from "@expo/vector-icons";
 import { Controller } from "react-hook-form";
 import WishList from "./Wishlist";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 const Profile = () => {
@@ -36,7 +37,7 @@ const Profile = () => {
   if (loading) return (<Layout><Spinner size='giant'/></Layout>)
 
   return (
-    <Layout style={styles.container} level='4'>
+    <SafeAreaView style={styles.container} level='4'>
       <SignOut/>
       <ScrollView showsVerticalScrollIndicator={false}>
       <Card style={styles.profileBox} disabled status='primary'>
@@ -86,7 +87,7 @@ const Profile = () => {
       </Layout>
 
       </ScrollView>
-    </Layout>
+    </SafeAreaView>
   );
 };
 
