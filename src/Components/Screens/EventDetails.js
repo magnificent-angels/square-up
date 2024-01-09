@@ -2,9 +2,8 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Image, StyleSheet, KeyboardAvoidingView } from 'react-native';
 import { Layout, Text, Button, Spinner, Modal } from '@ui-kitten/components';
 import LottieView from 'lottie-react-native';
-
 import { db } from "../../firebase";
-import { doc, getDoc, Timestamp } from "firebase/firestore";
+import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
 import { UserContext } from "../Context/UserContext";
 
 const Error = ({ msg }) => (
@@ -26,15 +25,31 @@ function EventDetails() {
     setIsLoading(true);
     const docRef = doc(db, 'events', eventId);
     getDoc(docRef)
-    .then((result) => {
-      setIsLoading(false)
-      setEventData(result.data());
+    .then((res) => {
+        const result = res.data()
+        setEventData(result)
+        setFormattedDate(new Date(result.dateTime).toUTCString())
+        setFormattedDeadline(new Date(result.eventDeadline).toUTCString())
     })
     .then(() => {
-        setFormattedDate(new Date(eventData.dateTime).toUTCString())
-        setFormattedDeadline(new Date(eventData.eventDeadline).toUTCString())
+        setIsLoading(false)
     })
   }, []);
+
+    function joinEvent(user) {
+        const eventRef = doc(db, "events", eventId);
+        updateDoc(eventRef, {
+        attendees: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
+        })
+        }
+
+    function joinWaitlist(user) {
+        const eventRef = doc(db, "events", eventId);
+        updateDoc(eventRef, {
+            waitlist: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
+        })
+        }
+
 
   if (isError) return (
       <Layout style={styles.notFoundContainer}>
@@ -60,7 +75,6 @@ function EventDetails() {
       ) : (
           <KeyboardAvoidingView>
           <Layout style={styles.eventInfo}>
-            {console.log(eventData)}
             <Image source={{ uri: eventData.imageUrl }} style={styles.image} />
             <Text category="h5" style={styles.name}>
               {eventData.eventName}
@@ -79,13 +93,18 @@ function EventDetails() {
             >Sign up by: {formattedDeadline}</Text>
             <Layout style={styles.buttonContainer}>
               <Button
-                onPress={() => {
-                //   addToWishlist(game);
-                }}
+                onPress={() => {joinEvent(user)}}
                 style={styles.button}
                 status="info"
               >
-                Placeholder button
+                Join Event
+              </Button>
+              <Button
+                onPress={() => {joinWaitlist(user)}}
+                style={styles.button}
+                status="info"
+              >
+                Join Waitlist
               </Button>
             </Layout>
           </Layout>
