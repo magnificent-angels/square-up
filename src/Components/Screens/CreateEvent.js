@@ -1,5 +1,7 @@
 import { Layout, Text, Input, Button, Spinner, RangeCalendar } from '@ui-kitten/components';
 import { useState, useEffect } from 'react';
+import DateTimePicker from 'react-native-ui-datepicker';
+import dayjs from 'dayjs';
 import { getLatLong } from '../../utils/postcodeLookup';
 import { auth, db } from '../../firebase';
 import { doc, getDoc, GeoPoint, addDoc, collection } from 'firebase/firestore';
@@ -8,19 +10,26 @@ import { StyleSheet } from 'react-native';
 function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
   const [userData, setUserData] = useState(null);
   const [eventName, setEventName] = useState('');
-  const [dateRange, setDateRange] = useState({});
   const [postcode, setPostcode] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [eventDate, setEventDate] = useState(dayjs())
+  const [deadline, setDeadline] = useState(dayjs())
 
   const user = auth.currentUser;
   const { name, minPlayers, maxPlayers, playingTime, imageUrl } = game;
+
+  const handleDates = (dateString) => {
+    const date = new Date(dateString)
+    const milliseconds = date.getTime()
+    return milliseconds
+  }
 
   const onSubmit = () => {
     if (dateRange.startDate && dateRange.endDate) {
       getLatLong(postcode)
         .then(({ latitude, longitude }) => {
-          const dateTime = dateRange.startDate.getTime();
-          const eventDeadline = dateRange.endDate.getTime();
+          const dateTime = handleDates(eventDate)
+          const eventDeadline = handleDates(deadline)
           return [dateTime, eventDeadline, latitude, longitude];
         })
         .then(([dateTime, eventDeadline, latitude, longitude]) => {
@@ -39,11 +48,12 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
           });
         })
         .then(() => {
-          setEventName('');
-          setDateRange({});
-          setPostcode('');
-          setEventCreated(true);
-          setEventBeingCreated(false);
+          setEventName('')
+          setEventDate(dayjs())
+          setDeadline(dayjs())
+          setPostcode('')
+          setEventCreated(true)
+          setEventBeingCreated(false)
         })
         .catch((err) => {
           console.log(err);
@@ -75,10 +85,15 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
         style={styles.input}
         label={"Enter a name for the event:"}
       />
-      <Text>Select the date range for your event:</Text>
-      <RangeCalendar
-        range={dateRange}
-        onSelect={setDateRange}
+      <Text>Select the date and time for your event: </Text>
+      <DateTimePicker 
+        value={eventDate}
+        onValueChange={(date) => setEventDate(handleDates(date))}
+      />    
+      <Text>What is the deadline for signing up?</Text>
+      <DateTimePicker 
+        value={deadline}
+        onValueChange={(date) => setDeadline(date)}
       />
       <Input
         placeholder="eg M1 7ED"
