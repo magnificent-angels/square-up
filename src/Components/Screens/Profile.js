@@ -34,7 +34,7 @@ const Profile = () => {
     </Card>
   );
   
-  if (loading) return (<Layout><Spinner size='giant'/></Layout>)
+  if (loading) return (<Layout style={styles.loadingContainer}><Spinner size='giant'/></Layout>)
 
   return (
     <SafeAreaView style={styles.container} level='4'>
@@ -92,6 +92,11 @@ const Profile = () => {
 };
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
     paddingTop: StatusBar.currentHeight || 0,
