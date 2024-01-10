@@ -2,9 +2,18 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, Image, SafeAreaView } from "react-native";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase";
-import { Layout, Text, Select, SelectItem, List, Divider, Button } from "@ui-kitten/components";
+import {
+  Layout,
+  Text,
+  Select,
+  SelectItem,
+  List,
+  Divider,
+  Button,
+} from "@ui-kitten/components";
 import FocusAwareStatusBar from "../../utils/StatusBar";
 import { useNavigation } from "@react-navigation/native";
+import { formatDate } from "../../utils/dateFormat";
 
 const EventList = () => {
   const [optionIndex, setOptionIndex] = useState(0);
@@ -70,20 +79,22 @@ const EventList = () => {
         appearance="ghost"
         onPress={() => {
           navigation.navigate("EventDetails", { eventId: item.id });
-          console.log("selected an event");
-          console.log(eventsList);
         }}
         style={styles.button}
         accessoryLeft={imageRender}
       >
         <Layout style={styles.listContainer}>
           <Layout style={styles.textContainer}>
-            <Text style={styles.titleText}>Event: {item.eventName}</Text>
+            <Text style={styles.titleText} category="h6">
+              {item.eventName}
+            </Text>
+            <Text>Date: {formatDate(item.dateTime)}</Text>
             <Text>Game: {item.gameName}</Text>
-            <Text>Min Players: {item.minPlayers}</Text>
-            <Text>Max Players: {item.maxPlayers}</Text>
-            <Text>Playing Time: {item.playingTime} minutes</Text>
+            <Text>
+              Players: {item.minPlayers} - {item.maxPlayers}
+            </Text>
             <Text>Organiser: {item.organiserUsername}</Text>
+            <Text>Duration: {item.playingTime} minutes</Text>
           </Layout>
         </Layout>
       </Button>
@@ -102,7 +113,12 @@ const EventList = () => {
         </Layout>
 
         <Layout style={styles.dropDown}>
-          <Select value={optionIndex} onSelect={handleOption} placeholder="Options" style={styles.selectItem}>
+          <Select
+            value={optionIndex}
+            onSelect={handleOption}
+            placeholder="Options"
+            style={styles.selectItem}
+          >
             <SelectItem title="Min Players" style={styles.title} />
             <SelectItem title="Max Players" style={styles.title} />
             <SelectItem title="Playing Time" style={styles.title} />
@@ -119,7 +135,11 @@ const EventList = () => {
           </Select>
         </Layout>
         <Layout style={styles.listLayout}>
-          <List data={eventsList} renderItem={renderItem} ItemSeparatorComponent={Divider} />
+          <List
+            data={eventsList}
+            renderItem={renderItem}
+            ItemSeparatorComponent={Divider}
+          />
         </Layout>
       </SafeAreaView>
     </>

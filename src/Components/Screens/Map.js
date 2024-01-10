@@ -9,6 +9,7 @@ import * as Device from "expo-device";
 const customMapStyle = require("../../../assets/DarkMaps.json");
 import { Button } from "@ui-kitten/components";
 import { useNavigation } from "@react-navigation/native";
+import { formatDate } from "../../utils/dateFormat";
 
 function Map() {
   const [loading, setLoading] = useState(true);
@@ -23,7 +24,9 @@ function Map() {
   useEffect(() => {
     (async () => {
       if (Platform.OS === "android" && !Device.isDevice) {
-        setErrorMsg("This will not work on an Android emulator. Try it on your device.");
+        setErrorMsg(
+          "This will not work on an Android emulator. Try it on your device."
+        );
         setLoading(false);
         return;
       }
@@ -60,10 +63,6 @@ function Map() {
       </Layout>
     );
 
-  const formatDate = (epoch) => {
-    return new Date(epoch).toLocaleString();
-  };
-
   return (
     <SafeAreaView style={styles.safeView}>
       <MapView
@@ -85,10 +84,19 @@ function Map() {
                 longitude: eventMarker.location.longitude,
               }}
             >
-              <Callout tooltip onPress={() => navigation.navigate("EventDetails", { eventId: eventMarker.id })}>
+              <Callout
+                tooltip
+                onPress={() =>
+                  navigation.navigate("EventDetails", {
+                    eventId: eventMarker.id,
+                  })
+                }
+              >
                 <Layout style={styles.calloutView} level="4">
                   <Text style={styles.eventName}>{eventMarker.eventName}</Text>
-                  <Text style={styles.gameName}>Game: {eventMarker.gameName}</Text>
+                  <Text style={styles.gameName}>
+                    Game: {eventMarker.gameName}
+                  </Text>
                   <Text>
                     <Image
                       style={styles.image}
@@ -97,12 +105,18 @@ function Map() {
                       resizeMode="contain"
                     />
                   </Text>
-                  <Text style={styles.details}>Date: {formatDate(eventMarker.dateTime)}</Text>
+                  <Text style={styles.details}>
+                    Date: {formatDate(eventMarker.dateTime)}
+                  </Text>
                   <Text style={styles.details}>
                     Players: {eventMarker.minPlayers} - {eventMarker.maxPlayers}
                   </Text>
-                  <Text style={styles.details}>Organizer: {eventMarker.organiserUsername}</Text>
-                  <Text style={styles.details}>Duration: {eventMarker.playingTime} mins</Text>
+                  <Text style={styles.details}>
+                    Organiser: {eventMarker.organiserUsername}
+                  </Text>
+                  <Text style={styles.details}>
+                    Duration: {eventMarker.playingTime} mins
+                  </Text>
                 </Layout>
               </Callout>
             </Marker>

@@ -14,7 +14,7 @@ export default function App() {
       <ApplicationProvider {...eva} theme={{ ...eva.dark, ...Theme }}>
         <NavigationContainer>
           <Main />
-          <StatusBar backgroundColor={"#3EE6AA"} style="dark"/>
+          <StatusBar backgroundColor={"#3EE6AA"} style="dark" />
         </NavigationContainer>
       </ApplicationProvider>
     </UserProvider>

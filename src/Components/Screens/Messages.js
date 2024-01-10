@@ -1,6 +1,17 @@
 import { StyleSheet, Image } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { collection, addDoc, getDocs, query, where, doc, getDoc, onSnapshot, limit, orderBy } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  doc,
+  getDoc,
+  onSnapshot,
+  limit,
+  orderBy,
+} from "firebase/firestore";
 import { db } from "../../firebase";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
@@ -14,6 +25,7 @@ import {
   Autocomplete,
   AutocompleteItem,
   Spinner,
+  Avatar,
 } from "@ui-kitten/components";
 
 import React, { useState, useEffect, useContext } from "react";
@@ -32,7 +44,10 @@ const Messages = () => {
   };
 
   const handleSearch = async () => {
-    const q = query(collection(db, "users"), where("username", ">=", searchTerm));
+    const q = query(
+      collection(db, "users"),
+      where("username", ">=", searchTerm)
+    );
 
     const querySnapshot = await getDocs(q);
 
@@ -46,7 +61,10 @@ const Messages = () => {
       const threadId = await createMessageThread(user.uid, userId);
 
       if (threadId) {
-        nav.navigate("Chat", { threadId: threadId, name: userDoc.data().username });
+        nav.navigate("Chat", {
+          threadId: threadId,
+          name: userDoc.data().username,
+        });
       }
     }
   };
@@ -55,7 +73,10 @@ const Messages = () => {
     let isMounted = true;
 
     const fetchUsernames = async (searchTerm) => {
-      const q = query(collection(db, "users"), where("username", ">=", searchTerm));
+      const q = query(
+        collection(db, "users"),
+        where("username", ">=", searchTerm.toLowerCase())
+      );
 
       const querySnapshot = await getDocs(q);
 
@@ -92,15 +113,26 @@ const Messages = () => {
 
   const createMessageThread = async (user1Id, user2Id) => {
     // Check if a thread already exists between the two users
-    const queryUser1 = query(collection(db, "messageThreads"), where("participants", "array-contains", user1Id));
+    const queryUser1 = query(
+      collection(db, "messageThreads"),
+      where("participants", "array-contains", user1Id)
+    );
 
-    const queryUser2 = query(collection(db, "messageThreads"), where("participants", "array-contains", user2Id));
+    const queryUser2 = query(
+      collection(db, "messageThreads"),
+      where("participants", "array-contains", user2Id)
+    );
 
     try {
-      const [resultUser1, resultUser2] = await Promise.all([getDocs(queryUser1), getDocs(queryUser2)]);
+      const [resultUser1, resultUser2] = await Promise.all([
+        getDocs(queryUser1),
+        getDocs(queryUser2),
+      ]);
 
       // Check for an intersection of threads
-      const commonThreads = resultUser1.docs.filter((doc) => resultUser2.docs.some((d) => d.id === doc.id));
+      const commonThreads = resultUser1.docs.filter((doc) =>
+        resultUser2.docs.some((d) => d.id === doc.id)
+      );
 
       if (commonThreads.length > 0) {
         const existingThread = commonThreads[0];
@@ -123,7 +155,10 @@ const Messages = () => {
   };
 
   const getUserThreads = async () => {
-    const threadsQuery = query(collection(db, "messageThreads"), where("participants", "array-contains", user.uid));
+    const threadsQuery = query(
+      collection(db, "messageThreads"),
+      where("participants", "array-contains", user.uid)
+    );
 
     const unsubscribe = onSnapshot(
       threadsQuery,
@@ -148,7 +183,12 @@ const Messages = () => {
           );
 
           // Get the last message in the thread
-          const threadRef = collection(db, "messageThreads", data.id, "messages");
+          const threadRef = collection(
+            db,
+            "messageThreads",
+            data.id,
+            "messages"
+          );
           const q = query(threadRef, orderBy("timestamp", "desc"), limit(1));
 
           onSnapshot(q, (snapshot) => {
@@ -197,14 +237,21 @@ const Messages = () => {
         key={index}
         style={styles.card}
         onPress={() => {
-          nav.navigate("Chat", { threadId: item.id, name: item.participants[0].username });
+          nav.navigate("Chat", {
+            threadId: item.id,
+            name: item.participants[0].username,
+          });
         }}
       >
-        {avatarUrl && <Image source={{ uri: avatarUrl }} style={styles.img} />}
-        {!avatarUrl && <Icon name="person-outline" fill="white" style={styles.img} />}
+        {avatarUrl && <Avatar source={{ uri: avatarUrl }} style={styles.img} />}
+
         <Layout style={styles.content}>
           <Text style={styles.username}>{item.participants[0].username}</Text>
-          <Text style={styles.message}>{item.lastMessage}</Text>
+          <Text style={styles.message} numberOfLines={1}>
+            {item.lastMessage && item.lastMessage.length > 25
+              ? `${item.lastMessage.slice(0, 25)}...`
+              : item.lastMessage}
+          </Text>
         </Layout>
       </Button>
     );
@@ -220,7 +267,7 @@ const Messages = () => {
     );
   } else {
     return (
-      <Layout style={styles.container}>
+      <Layout style={styles.container} level="4">
         <Autocomplete
           style={styles.autocomplete}
           placeholder="Search User..."
@@ -232,13 +279,23 @@ const Messages = () => {
           accessoryRight={SearchIcon}
         >
           {autoCompleteData.map((item, index) => (
-            <AutocompleteItem key={index} title={item} style={styles.autoItem} />
+            <AutocompleteItem
+              key={index}
+              title={item}
+              style={styles.autoItem}
+              level="4"
+            />
           ))}
         </Autocomplete>
         <Button onPress={handleSearch} style={styles.button}>
           Search
         </Button>
-        <List style={styles.list} data={messageThreads} renderItem={renderItem} ItemSeparatorComponent={Divider} />
+        <List
+          style={styles.list}
+          data={messageThreads}
+          renderItem={renderItem}
+          ItemSeparatorComponent={Divider}
+        />
       </Layout>
     );
   }
