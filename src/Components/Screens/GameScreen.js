@@ -110,7 +110,9 @@ function GameScreen({ search }) {
     } else if (wishlistAdded) {
       setWishlistAdded(false)
       setWishlistButtonText('Add to favourites')
-      setWishlist(wishlist.filter((wishlistGame) => wishlistGame.name !== game.name))
+      const updatedWishlist = wishlist.filter((wishlistGame) => wishlistGame.name !== game.name)
+      setWishlist(updatedWishlist)
+      updateDoc(userUid, { wishlist: updatedWishlist })
     }
   }
 
@@ -126,7 +128,10 @@ function GameScreen({ search }) {
     } else if (ownedAdded) {
       setOwnedAdded(false)
       setOwnedButtonText('Add to Owned Games')
-      setOwned(owned.filter((ownedGame) => ownedGame.name !== game.name))
+      const updatedOwned = owned.filter((ownedGame) => ownedGame.name !== game.name)
+      setOwned(updatedOwned)
+      updateDoc(userUid, { owned: updatedOwned})
+      
     }
   }
 
