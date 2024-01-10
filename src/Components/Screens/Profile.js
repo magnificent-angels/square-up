@@ -55,7 +55,7 @@ const Profile = () => {
 
         <Layout style={styles.section} level="2">
           <Text category="h4" style={styles.sectionTitle}>
-            Wishlist
+            Favourites
           </Text>
           <Divider style={styles.divider}></Divider>
           <FlatList
@@ -66,7 +66,7 @@ const Profile = () => {
             scrollEnabled={false}
             ListEmptyComponent={
               <Text category="h6" style={styles.emptyList}>
-                No items on wishlist...
+                No favourite games...
               </Text>
             }
           />
