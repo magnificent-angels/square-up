@@ -4,6 +4,7 @@ import BottomNav from "./BottomNav";
 import Chat from "../Screens/Chat";
 import EventList from "../Screens/EventList";
 import SetupProfileScreen from "../Screens/SetProfile";
+import EventDetails from "../Screens/EventDetails";
 const MainStack = createNativeStackNavigator();
 
 function MainNav() {
@@ -29,6 +30,7 @@ function MainNav() {
           headerTintColor: "#fff",
         }}
       />
+      <MainStack.Screen name="EventDetails" component={EventDetails} />
     </MainStack.Navigator>
   );
 }

@@ -10,10 +10,9 @@ const Error = ({ msg }) => (
   <Text category='h6'>{msg}</Text>
 );
 
-function EventDetails() {
+function EventDetails({ route }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
-  const [eventId, setEventId] = useState('kTUYzkNTIILGRV3amvV9')
   const [eventData, setEventData] = useState({})
   const [formattedDate, setFormattedDate] = useState('')
   const [formattedDeadline, setFormattedDeadline] = useState('')
@@ -22,55 +21,57 @@ function EventDetails() {
   const notFoundAnimation = useRef(null);
   const { user } = useContext(UserContext);
 
+  const { eventId } = route.params;
+
   useEffect(() => {
     setIsError(false);
     setIsLoading(true);
     const docRef = doc(db, 'events', eventId);
     getDoc(docRef)
-    .then((res) => {
+      .then((res) => {
         const result = res.data()
         setEventData(result)
         setFormattedDate(new Date(result.dateTime).toUTCString())
         setFormattedDeadline(new Date(result.eventDeadline).toUTCString())
         if ((result.attendees.length + 1) >= result.maxPlayers) {
-            setIsFull(true)
+          setIsFull(true)
         }
         const checkDate = new Date(result.dateTime);
         const deadlineDate = new Date(result.eventDeadline)
         const currentDate = new Date();
         if (checkDate < currentDate || deadlineDate < currentDate) {
-            setIsPast(true)
+          setIsPast(true)
         }
-    })
-    .then(() => {
+      })
+      .then(() => {
         setIsLoading(false)
-    })
+      })
   }, []);
 
-    function joinEvent(user) {
-        const eventRef = doc(db, "events", eventId);
-        updateDoc(eventRef, {
-        attendees: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
-        })
-        }
+  function joinEvent(user) {
+    const eventRef = doc(db, "events", eventId);
+    updateDoc(eventRef, {
+      attendees: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
+    })
+  }
 
-    function joinWaitlist(user) {
-        const eventRef = doc(db, "events", eventId);
-        updateDoc(eventRef, {
-            waitlist: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
-        })
-        }
+  function joinWaitlist(user) {
+    const eventRef = doc(db, "events", eventId);
+    updateDoc(eventRef, {
+      waitlist: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
+    })
+  }
 
-    function checkIsPast () {
+  function checkIsPast() {
 
-    }
+  }
 
-    function checkIsFull () {
+  function checkIsFull() {
 
-    }
+  }
 
   if (isError) return (
-      <Layout style={styles.notFoundContainer}>
+    <Layout style={styles.notFoundContainer}>
       <LottieView
         autoPlay
         ref={notFoundAnimation}
@@ -79,19 +80,19 @@ function EventDetails() {
         speed={1}
         loop={true}
       />
-        <Error msg='Sorry, we couldn’t retrieve that event' />
-      </Layout>
+      <Error msg='Sorry, we couldn’t retrieve that event' />
+    </Layout>
   );
 
 
   return (
-      <Layout style={styles.container}>
+    <Layout style={styles.container}>
       {isLoading ? (
-          <Layout style={styles.loadingContainer}>
+        <Layout style={styles.loadingContainer}>
           <Spinner size="giant" />
         </Layout>
       ) : (
-          <KeyboardAvoidingView>
+        <KeyboardAvoidingView>
           <Layout style={styles.eventInfo}>
             <Image source={{ uri: eventData.imageUrl }} style={styles.image} />
             <Text category="h5" style={styles.name}>
@@ -110,23 +111,23 @@ function EventDetails() {
               style={styles.details}
             >Sign up by: {formattedDeadline}</Text>
             <Layout style={styles.buttonContainer}>
-                { isPast && <Text appearance="hint" style={styles.details}>Too late buddy!</Text> }
-                { isFull && <>
-                            <Text appearance="hint" style={styles.details}>This event is full! Join the waitlist by clicking below: </Text>
-                            <Button
-                            onPress={() => {joinWaitlist(user)}}
-                            style={styles.button}
-                            status="info">
-                            Join Waitlist
-                            </Button>
-                            </> }
-                { !isPast && !isFull &&
-                        <Button
-                            onPress={() => {joinEvent(user)}}
-                            style={styles.button}
-                            status="info">  
-                            Join Event
-                            </Button> } 
+              {isPast && <Text appearance="hint" style={styles.details}>Too late buddy!</Text>}
+              {isFull && <>
+                <Text appearance="hint" style={styles.details}>This event is full! Join the waitlist by clicking below: </Text>
+                <Button
+                  onPress={() => { joinWaitlist(user) }}
+                  style={styles.button}
+                  status="info">
+                  Join Waitlist
+                </Button>
+              </>}
+              {!isPast && !isFull &&
+                <Button
+                  onPress={() => { joinEvent(user) }}
+                  style={styles.button}
+                  status="info">
+                  Join Event
+                </Button>}
             </Layout>
           </Layout>
         </KeyboardAvoidingView>
