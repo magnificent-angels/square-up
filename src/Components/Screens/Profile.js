@@ -1,21 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, FlatList, ScrollView, View, StatusBar, Pressable, TouchableOpacity } from "react-native";
-import { Layout, Text, Avatar, Divider, Card, Button, Spinner } from "@ui-kitten/components";
+import { StyleSheet, FlatList, ScrollView, StatusBar } from "react-native";
+import { Layout, Text, Avatar, Divider, Card, Spinner } from "@ui-kitten/components";
 import { UserContext } from "../Context/UserContext";
 import SignOut from "./SignOut";
 import { db } from "../../firebase";
 import { getDoc, doc } from "firebase/firestore";
-import { Ionicons } from "@expo/vector-icons";
-import { Controller } from "react-hook-form";
 import { SafeAreaView } from "react-native-safe-area-context";
-import EventDetails from "./EventDetails";
-import { useNavigation } from "@react-navigation/native";
 
 const Profile = () => {
   const { user, wishlist, setWishlist, owned, setOwned, events, setEvents } = useContext(UserContext);
   const { photoURL, displayName, uid } = user;
   const [loading, setLoading] = useState(true);
-  const nav = useNavigation();
 
   useEffect(() => {
     const docRef = doc(db, "users", uid);
@@ -29,15 +24,13 @@ const Profile = () => {
   }, []);
 
   const renderGameItem = ({ item }) => (
-    <TouchableOpacity onPress={() => nav.navigate("GameScreen")}>
-      <Card style={styles.gameItemContainer} disabled>
-        <Avatar source={{ uri: item.url }} style={styles.image} />
+    <Card style={styles.gameItemContainer} disabled>
+      <Avatar source={{ uri: item.url }} style={styles.image} />
 
-        <Text category="c1" style={styles.gameTitle} numberOfLines={1}>
-          {item.name}
-        </Text>
-      </Card>
-    </TouchableOpacity>
+      <Text category="c1" style={styles.gameTitle} numberOfLines={1}>
+        {item.name}
+      </Text>
+    </Card>
   );
 
   if (loading)
@@ -116,7 +109,6 @@ const Profile = () => {
             }
           />
         </Layout>
-        <EventDetails />
       </ScrollView>
     </SafeAreaView>
   );

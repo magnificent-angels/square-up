@@ -4,6 +4,7 @@ import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase";
 import { Layout, Text, Select, SelectItem, List, Divider, Button } from "@ui-kitten/components";
 import FocusAwareStatusBar from "../../utils/StatusBar";
+import { useNavigation } from "@react-navigation/native";
 
 const EventList = () => {
   const [optionIndex, setOptionIndex] = useState(0);
@@ -12,6 +13,8 @@ const EventList = () => {
   const [option, setOption] = useState("playingTime");
   const [eventsList, setEventsList] = useState([]);
 
+  const navigation = useNavigation();
+
   const fetchEventList = async () => {
     const eventsRef = collection(db, "events");
     const listQuery = query(eventsRef, orderBy(option, order));
@@ -19,6 +22,7 @@ const EventList = () => {
     const eventsArray = [];
     eventsSnapshot.forEach((list) => {
       const data = list.data();
+      data.id = list.id;
       eventsArray.push(data);
     });
     setEventsList(eventsArray);
@@ -65,6 +69,7 @@ const EventList = () => {
         key={index}
         appearance="ghost"
         onPress={() => {
+          navigation.navigate("EventDetails", { eventId: item.id });
           console.log("selected an event");
           console.log(eventsList);
         }}

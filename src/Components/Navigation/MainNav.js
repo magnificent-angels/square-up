@@ -30,7 +30,19 @@ function MainNav() {
           headerTintColor: "#fff",
         }}
       />
-      <MainStack.Screen name="EventDetails" component={EventDetails} />
+      <MainStack.Screen
+        name="EventDetails"
+        component={EventDetails}
+        options={{
+          headerShown: true,
+          headerTitle: "Event List",
+          headerTitleAlign: "center",
+          headerStyle: {
+            backgroundColor: "#000",
+          },
+          headerTintColor: "#fff",
+        }}
+      />
     </MainStack.Navigator>
   );
 }
