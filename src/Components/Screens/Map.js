@@ -18,7 +18,7 @@ function Map() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  const { location, setlocation } = useContext(UserContext);
+  const { location, setLocation, globalEvents, setGlobalEvents } = useContext(UserContext);
 
   useEffect(() => {
     (async () => {
@@ -41,26 +41,10 @@ function Map() {
         longitude: userLocation.coords.longitude,
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
-      });
-
-      //Could change this to define a global object for events
-      //too much data to be passing around and too many calls to the db
-      const eventsCollection = collection(db, "events");
-      getDocs(eventsCollection)
-        .then((querySnapshot) => {
-          const eventsData = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setEventMarkers(eventsData);
-        })
-        .catch((error) => {
-          console.error(error);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+      })
     })();
+    setEventMarkers(globalEvents);
+    setLoading(false);
   }, []);
 
   if (loading) return (
