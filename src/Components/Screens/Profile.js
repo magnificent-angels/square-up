@@ -1,15 +1,31 @@
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, FlatList, ScrollView, StatusBar, TouchableOpacity, View } from "react-native";
-import { Layout, Text, Avatar, Divider, Card, Spinner, Button } from "@ui-kitten/components";
+import {
+  StyleSheet,
+  FlatList,
+  ScrollView,
+  StatusBar,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import {
+  Layout,
+  Text,
+  Avatar,
+  Divider,
+  Card,
+  Spinner,
+  Button,
+} from "@ui-kitten/components";
 import { UserContext } from "../Context/UserContext";
 import SignOut from "./SignOut";
 import { db } from "../../firebase";
-import { getDoc, doc, startAfter } from "firebase/firestore";
+import { getDoc, doc } from "firebase/firestore";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 
 const Profile = () => {
-  const { user, wishlist, setWishlist, owned, setOwned, events, setEvents } = useContext(UserContext);
+  const { user, wishlist, setWishlist, owned, setOwned, events, setEvents } =
+    useContext(UserContext);
   const { photoURL, displayName, uid } = user;
   const [loading, setLoading] = useState(true);
 
@@ -36,7 +52,6 @@ const Profile = () => {
   );
 
   const renderEventItem = ({ item, index }) => {
-    console.log(item);
     return (
       <TouchableOpacity
         style={styles.gameItemContainer}
@@ -74,8 +89,13 @@ const Profile = () => {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
         <Layout level="4">
           <SignOut />
-          <Card style={styles.profileBox} disabled>
-            <Avatar size="giant" source={{ uri: photoURL }} style={styles.avatar} />
+
+          <Card style={styles.profileBox} disabled status="primary">
+            <Avatar
+              size="giant"
+              source={{ uri: photoURL }}
+              style={styles.avatar}
+            />
             <Text category="h1" style={styles.username}>
               {displayName}
             </Text>
