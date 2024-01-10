@@ -81,6 +81,7 @@ function GameScreen({ search }) {
 
 
   function addToOwnedList(game) {
+    setOwned([...owned, game])
     updateDoc(userUid, {
       owned: arrayUnion({name: game.name, url: game.imageUrl}),
     })
@@ -95,6 +96,7 @@ function handleOnPress(){
 
   return (
     <Layout style={styles.container}>
+        <ScrollView showsVerticalScrollIndicator={false}>
       {wishlistAdded && (
         <Text >
           Added to Wishlist!
@@ -166,6 +168,7 @@ function handleOnPress(){
           </Layout>
         </KeyboardAvoidingView>
       )}
+      </ScrollView>
     </Layout>
   );
 }
