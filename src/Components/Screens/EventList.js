@@ -2,16 +2,7 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, Image, SafeAreaView } from "react-native";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase";
-import {
-  Layout,
-  Text,
-  Select,
-  SelectItem,
-  List,
-  Divider,
-  Button,
-} from "@ui-kitten/components";
-import FocusAwareStatusBar from "../../utils/StatusBar";
+import { Layout, Text, Select, SelectItem, List, Divider, Button } from "@ui-kitten/components";
 import { useNavigation } from "@react-navigation/native";
 import { formatDate } from "../../utils/dateFormat";
 
@@ -79,12 +70,10 @@ const EventList = () => {
         appearance="ghost"
         onPress={() => {
           navigation.navigate("EventDetails", { eventId: item.id });
-          
         }}
-        style={styles.button}
         accessoryLeft={imageRender}
       >
-        <Layout style={styles.listContainer}>
+        <Layout style={styles.listContainer} level="2">
           <Layout style={styles.textContainer}>
             <Text style={styles.titleText} category="h6">
               {item.eventName}
@@ -103,47 +92,30 @@ const EventList = () => {
   };
 
   return (
-    <>
-      <FocusAwareStatusBar />
-      <SafeAreaView>
-        <Layout style={styles.header}>
-          <Text category="h1">Games Around Me</Text>
-          <Text category="h5" style={styles.headerFilter}>
-            Filter
-          </Text>
-        </Layout>
+    <Layout style={StyleSheet.absoluteFill}>
+      <Layout style={styles.header}>
+        <Text category="h2">Games Around Me</Text>
+        <Text category="h6" style={styles.headerFilter}>
+          Filters
+        </Text>
+      </Layout>
 
-        <Layout style={styles.dropDown}>
-          <Select
-            value={optionIndex}
-            onSelect={handleOption}
-            placeholder="Options"
-            style={styles.selectItem}
-          >
-            <SelectItem title="Min Players" style={styles.title} />
-            <SelectItem title="Max Players" style={styles.title} />
-            <SelectItem title="Playing Time" style={styles.title} />
-          </Select>
-          <Select
-            value={orderIndex}
-            onSelect={handleOrder}
-            placeholder="Order"
-            style={styles.selectItem}
-            variant="giant"
-          >
-            <SelectItem title="Asc" style={styles.title} />
-            <SelectItem title="Desc" style={styles.title} />
-          </Select>
-        </Layout>
-        <Layout style={styles.listLayout}>
-          <List
-            data={eventsList}
-            renderItem={renderItem}
-            ItemSeparatorComponent={Divider}
-          />
-        </Layout>
-      </SafeAreaView>
-    </>
+      <Layout style={styles.dropDown}>
+        <Select value={optionIndex} onSelect={handleOption} placeholder="Options" style={styles.selectItem}>
+          <SelectItem title="Min Players" style={styles.title} />
+          <SelectItem title="Max Players" style={styles.title} />
+          <SelectItem title="Playing Time" style={styles.title} />
+        </Select>
+        <Select value={orderIndex} onSelect={handleOrder} placeholder="Order" style={styles.selectItem} variant="giant">
+          <SelectItem title="Asc" style={styles.title} />
+          <SelectItem title="Desc" style={styles.title} />
+        </Select>
+      </Layout>
+
+      <Layout style={styles.listLayout}>
+        <List data={eventsList} renderItem={renderItem} ItemSeparatorComponent={Divider} />
+      </Layout>
+    </Layout>
   );
 };
 
@@ -151,25 +123,24 @@ const styles = StyleSheet.create({
   header: {
     alignItems: "center",
     justifyContent: "center",
-    padding: 30,
+    paddingTop: 30,
+    paddingBottom: 10,
   },
   headerFilter: {
-    paddingTop: 30,
+    paddingTop: 20,
+    color: "#bbb",
   },
   dropDown: {
     minHeight: 10,
     flexDirection: "row",
     justifyContent: "center",
-    paddingBottom: 30,
+    paddingBottom: 10,
   },
   selectItem: {
     minWidth: 180,
   },
   title: {
     textAlign: "center",
-  },
-  listLayout: {
-    height: "74%",
   },
   listContainer: {
     flexDirection: "row",
@@ -180,6 +151,8 @@ const styles = StyleSheet.create({
     flex: 1,
     width: 220,
     margin: 20,
+    padding: 10,
+    backgroundColor: "transparent",
   },
   titleText: {
     fontWeight: "bold",
