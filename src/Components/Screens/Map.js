@@ -85,7 +85,7 @@ function Map() {
               longitude: eventMarker.location.longitude,
             }}
           >
-            <Callout tooltip onPress={() => console.log('Go to EventDetails or something')}>
+            <Callout tooltip onPress={() => navigation.navigate('EventDetails', {eventId: eventMarker.id})}>
               <Layout style={styles.calloutView} level="4">
                 <Text style={styles.eventName}>{eventMarker.eventName}</Text>
                 <Text style={styles.gameName}>Game: {eventMarker.gameName}</Text>
