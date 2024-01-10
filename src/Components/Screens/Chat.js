@@ -225,14 +225,14 @@ const styles = StyleSheet.create({
   timeSent: {
     fontSize: 10,
     textAlign: "right",
-    color: "#000000",
+    color: "#aaaaaa",
     marginTop: 2,
     marginBottom: 10,
   },
   timeReceived: {
     fontSize: 10,
     textAlign: "right",
-    color: "#000000",
+    color: "#aaaaaa",
     marginTop: 2,
     marginBottom: 10,
     marginRight: "15%",
