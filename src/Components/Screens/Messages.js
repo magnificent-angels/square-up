@@ -199,7 +199,7 @@ const Messages = () => {
       <Button
         appearance="ghost"
         key={index}
-        style={styles.card}
+        style={styles.thread}
         onPress={() => {
           nav.navigate("Chat", {
             threadId: item.id,
@@ -232,24 +232,26 @@ const Messages = () => {
   } else {
     return (
       <Layout style={styles.container} level="4">
-        <Autocomplete
-          style={styles.autocomplete}
-          placeholder="Search User..."
-          value={searchTerm}
-          onSelect={(index) => setSearchTerm(autoCompleteData[index])}
-          onChangeText={handleSearchChange}
-          size="large"
-          autoCapitalize="none"
-          accessoryRight={SearchIcon}
-        >
-          {autoCompleteData.map((item, index) => (
-            <AutocompleteItem key={index} title={item} style={styles.autoItem} level="4" />
-          ))}
-        </Autocomplete>
-        <Button onPress={handleSearch} style={styles.button}>
-          Search
-        </Button>
-        <List style={styles.list} data={messageThreads} renderItem={renderItem} ItemSeparatorComponent={Divider} />
+        <Layout level="1" style={styles.header}>
+          <Autocomplete
+            style={styles.autocomplete}
+            placeholder="Search User..."
+            value={searchTerm}
+            onSelect={(index) => setSearchTerm(autoCompleteData[index])}
+            onChangeText={handleSearchChange}
+            size="large"
+            autoCapitalize="none"
+            accessoryRight={SearchIcon}
+          >
+            {autoCompleteData.map((item, index) => (
+              <AutocompleteItem key={index} title={item} style={styles.autoItem} level="4" />
+            ))}
+          </Autocomplete>
+          <Button onPress={handleSearch} style={styles.button}>
+            Search
+          </Button>
+        </Layout>
+        <List data={messageThreads} renderItem={renderItem} ItemSeparatorComponent={Divider} />
       </Layout>
     );
   }
@@ -258,8 +260,11 @@ const Messages = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: StatusBar.currentHeight || 60,
+    paddingTop: StatusBar.currentHeight || 0,
     height: "100%",
+  },
+  header: {
+    paddingVertical: 20,
   },
   loading: {
     height: "100%",
@@ -267,19 +272,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   button: {
-    width: "80%",
+    width: "40%",
     alignSelf: "center",
-    marginTop: 5,
+    marginTop: 10,
   },
   autocomplete: {
     minWidth: "100%",
+    paddingHorizontal: 10,
     alignSelf: "center",
-    borderWidth: 5,
+    paddingTop: 2,
+    borderRadius: 0,
+    backgroundColor: "#101426",
   },
-  list: {
-    backgroundColor: "transparent",
-  },
-  card: {
+  thread: {
     flex: 1,
     flexDirection: "row",
     justifyContent: "flex-start",
