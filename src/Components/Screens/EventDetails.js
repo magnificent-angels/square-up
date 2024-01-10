@@ -17,7 +17,7 @@ function EventDetails({ route }) {
   const [isFull, setIsFull] = useState(false);
   const [isPast, setIsPast] = useState(false);
   const notFoundAnimation = useRef(null);
-  const { user } = useContext(UserContext);
+  const { user, events, setEvents } = useContext(UserContext);
 
   const { eventId } = route.params;
 
@@ -47,10 +47,16 @@ function EventDetails({ route }) {
   }, []);
 
   function joinEvent(user) {
+    setEvents([...events, {eventName: eventData.eventName, dateAndTime: eventData.dateTime, image: eventData.imageUrl, gameName: eventData.gameName, eventID: eventId }])
     const eventRef = doc(db, "events", eventId);
     updateDoc(eventRef, {
       attendees: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
-    });
+    }).then(() => {
+      const userRef = doc(db, "users", user.uid)
+      updateDoc(userRef, {
+        events: arrayUnion({eventName: eventData.eventName, dateAndTime: eventData.dateTime, image: eventData.imageUrl, gameName: eventData.gameName, eventID: eventId })
+      })
+    })
   }
 
   function joinWaitlist(user) {
@@ -60,9 +66,6 @@ function EventDetails({ route }) {
     });
   }
 
-  function checkIsPast() {}
-
-  function checkIsFull() {}
 
   if (isError)
     return (

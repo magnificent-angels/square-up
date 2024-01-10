@@ -70,8 +70,7 @@ const EventList = () => {
         appearance="ghost"
         onPress={() => {
           navigation.navigate("EventDetails", { eventId: item.id });
-          console.log("selected an event");
-          console.log(eventsList);
+          
         }}
         style={styles.button}
         accessoryLeft={imageRender}
