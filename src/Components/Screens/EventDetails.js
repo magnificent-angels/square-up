@@ -41,6 +41,8 @@ function EventDetails({ route }) {
     .then((res) => {
       const result = res.data();
       setEventData(result);
+      const waitlistCheck = result.waitlist.some((waitlister) => waitlister.username === user.displayName)
+      setUserWaitlisted(waitlistCheck)
       setFormattedDate(new Date(result.dateTime).toUTCString());
       setFormattedDeadline(new Date(result.eventDeadline).toUTCString());
       if (result.attendees.length >= result.maxPlayers) {
@@ -58,7 +60,7 @@ function EventDetails({ route }) {
     });
   }, []);
 
-  const { eventName, dateTime, imageUrl, gameName, attendees, waitlist } = eventData
+  const { eventName, dateTime, imageUrl, gameName, attendees, waitlist, maxPlayers } = eventData
   const userRef = doc(db, "users", user.uid)
   const eventRef = doc(db, "events", eventId);
 
@@ -204,52 +206,11 @@ function EventDetails({ route }) {
             <Text appearance="hint" style={styles.details}>
               Sign up by: {formattedDeadline}
             </Text>
+            {!isFull ? <Text appearance="hint" style={styles.details}>
+              There are {maxPlayers - attendees.length} spaces left!
+            </Text> : null}
             <Layout style={styles.buttonContainer}>
               <AttendanceButtons />
-              {/* {isPast && (
-                <Text appearance="hint" style={styles.details}>
-                  Too late buddy!
-                </Text>
-              )} */}
-              
-              {/* {isFull && !userGoing && (
-                <>
-                  <Text appearance="hint" style={styles.details}>
-                    This event is full! Join the waitlist by clicking below:{" "}
-                  </Text>
-                  <Button
-                    onPress={() => {
-                      handleWaitlistButton(user);
-                    }}
-                    style={styles.button}
-                    status={ !userWaitlisted ? "primary" : "danger"}
-                  >
-                    Join Waitlist
-                  </Button>
-                </>
-              )} */}
-              {/* {userGoing && (
-                <Button
-                onPress={() => {
-                  handleJoinLeaveButton(user);
-                }}
-                style={styles.button}
-                status={ !userGoing ? "primary" : "danger" }
-              >
-                {joinButtonText}
-              </Button>
-              )} */}
-              {/* {!isPast && !isFull && !userGoing (
-                <Button
-                  onPress={() => {
-                    handleJoinLeaveButton(user);
-                  }}
-                  style={styles.button}
-                  status={ !userGoing ? "primary" : "danger" }
-                >
-                  {joinButtonText} */}
-                {/* </Button>
-              )} */}
             </Layout>
           </Layout>
         </KeyboardAvoidingView>
