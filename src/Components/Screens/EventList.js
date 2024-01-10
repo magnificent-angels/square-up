@@ -79,6 +79,7 @@ const EventList = () => {
         appearance="ghost"
         onPress={() => {
           navigation.navigate("EventDetails", { eventId: item.id });
+          
         }}
         style={styles.button}
         accessoryLeft={imageRender}

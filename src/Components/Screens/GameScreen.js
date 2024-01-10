@@ -41,6 +41,8 @@ function GameScreen({ search }) {
     setIsLoading(true);
     getGame(search)
       .then((gameData) => {
+        setWishlistAdded(false)
+        setOwnedAdded(false)
         setGame(gameData);
         setIsLoading(false);
       })
@@ -71,8 +73,10 @@ function GameScreen({ search }) {
   const uid = user.uid;
   const userUid = doc(db, "users", uid);
 
+
   function addToWishlist(game) {
-    setWishlist([...wishlist, game])
+    const url = game.imageUrl
+    setWishlist([...wishlist, {name: game.name, url: game.imageUrl}])
     updateDoc(userUid, {
       wishlist: arrayUnion({name: game.name, url: game.imageUrl}),
     })
@@ -81,6 +85,7 @@ function GameScreen({ search }) {
 
 
   function addToOwnedList(game) {
+    setOwned([...owned, {name: game.name, url: game.imageUrl}])
     updateDoc(userUid, {
       owned: arrayUnion({name: game.name, url: game.imageUrl}),
     })
@@ -95,6 +100,7 @@ function handleOnPress(){
 
   return (
     <Layout style={styles.container}>
+        <ScrollView showsVerticalScrollIndicator={false}>
       {wishlistAdded && (
         <Text >
           Added to Wishlist!
@@ -166,6 +172,7 @@ function handleOnPress(){
           </Layout>
         </KeyboardAvoidingView>
       )}
+      </ScrollView>
     </Layout>
   );
 }

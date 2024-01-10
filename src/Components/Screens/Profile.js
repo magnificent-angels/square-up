@@ -1,30 +1,19 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  StyleSheet,
-  FlatList,
-  ScrollView,
-  StatusBar,
-  View,
-} from "react-native";
-import {
-  Layout,
-  Text,
-  Avatar,
-  Divider,
-  Card,
-  Spinner,
-} from "@ui-kitten/components";
+import { StyleSheet, FlatList, ScrollView, StatusBar, TouchableOpacity, View } from "react-native";
+import { Layout, Text, Avatar, Divider, Card, Spinner, Button } from "@ui-kitten/components";
 import { UserContext } from "../Context/UserContext";
 import SignOut from "./SignOut";
 import { db } from "../../firebase";
 import { getDoc, doc, startAfter } from "firebase/firestore";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
 
 const Profile = () => {
-  const { user, wishlist, setWishlist, owned, setOwned, events, setEvents } =
-    useContext(UserContext);
+  const { user, wishlist, setWishlist, owned, setOwned, events, setEvents } = useContext(UserContext);
   const { photoURL, displayName, uid } = user;
   const [loading, setLoading] = useState(true);
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     const docRef = doc(db, "users", uid);
@@ -46,6 +35,32 @@ const Profile = () => {
     </Card>
   );
 
+  const renderEventItem = ({ item, index }) => {
+    console.log(item);
+    return (
+      <TouchableOpacity
+        style={styles.gameItemContainer}
+        onPress={() => {
+          navigation.navigate("EventDetails", { eventId: item.eventID });
+        }}
+      >
+        <Card style={styles.gameItemContainer} disabled>
+          <Avatar source={{ uri: item.image }} style={styles.image} />
+
+          <Text category="c1" style={styles.gameTitle} numberOfLines={1}>
+            {item.eventName}
+          </Text>
+          <Text category="c1" style={styles.gameTitle} numberOfLines={1}>
+            {item.gameName}
+          </Text>
+          <Text category="c1" style={styles.gameTitle} numberOfLines={1}>
+            {new Date(item.dateAndTime).toUTCString()}
+          </Text>
+        </Card>
+      </TouchableOpacity>
+    );
+  };
+
   if (loading) {
     return (
       <Layout style={styles.loadingContainer}>
@@ -56,18 +71,11 @@ const Profile = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.contentContainer}
-      >
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
         <Layout style={styles.parentContent} level="4">
           <SignOut />
           <Card style={styles.profileBox} disabled>
-            <Avatar
-              size="giant"
-              source={{ uri: photoURL }}
-              style={styles.avatar}
-            />
+            <Avatar size="giant" source={{ uri: photoURL }} style={styles.avatar} />
             <Text category="h1" style={styles.username}>
               {displayName}
             </Text>
@@ -75,20 +83,20 @@ const Profile = () => {
             <Text style={styles.bio}>Game Attendance Rate (100%)</Text>
           </Card>
 
-          <Section
-            title="Wishlist"
-            data={wishlist}
-            renderItem={renderGameItem}
-          />
-          <Section
-            title="Owned Games"
-            data={owned}
-            renderItem={renderGameItem}
-          />
+          <Section title="Wishlist" data={wishlist} renderItem={renderGameItem} />
+          <Section title="Owned Games" data={owned} renderItem={renderGameItem} />
           <Section
             title="Joined Events"
             data={events}
-            renderItem={renderGameItem}
+            renderItem={renderEventItem}
+            keyExtractor={(item) => item.name}
+            numColumns={2}
+            scrollEnabled={false}
+            ListEmptyComponent={
+              <Text category="h6" style={styles.emptyList}>
+                No events joined...
+              </Text>
+            }
           />
         </Layout>
       </ScrollView>
@@ -108,9 +116,7 @@ const Section = ({ title, data, renderItem }) => (
       keyExtractor={(item) => item.name}
       numColumns={2}
       scrollEnabled={false}
-      ListEmptyComponent={
-        <Text style={styles.emptyList}>No items found...</Text>
-      }
+      ListEmptyComponent={<Text style={styles.emptyList}>No items found...</Text>}
     />
   </Layout>
 );
@@ -206,6 +212,7 @@ const styles = StyleSheet.create({
     height: 100,
     resizeMode: "cover",
     borderRadius: 10,
+    alignSelf: "center",
   },
   emptyList: {
     alignSelf: "center",
