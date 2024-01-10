@@ -5,7 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "../Context/UserContext";
 import { useContext } from "react";
 import { Text } from "@ui-kitten/components";
-import { Layout, Button } from "@ui-kitten/components";
+import { Button } from "@ui-kitten/components";
 
 function SignOut() {
   const { user, setUser } = useContext(UserContext);
@@ -33,6 +33,7 @@ export default SignOut;
 
 const styles = StyleSheet.create({
   pressable: {
+    marginTop: 10,
     maxWidth: "40%",
     alignSelf: "flex-end",
     marginRight: 15,

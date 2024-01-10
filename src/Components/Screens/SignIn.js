@@ -1,11 +1,5 @@
 import React, { useContext, useState } from "react";
-import {
-  StyleSheet,
-  TouchableWithoutFeedback,
-  TouchableOpacity,
-  View,
-  Keyboard,
-} from "react-native";
+import { StyleSheet, TouchableWithoutFeedback, TouchableOpacity, View, Keyboard } from "react-native";
 import { Layout, Input, Button, Text, Spinner } from "@ui-kitten/components";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
@@ -72,9 +66,7 @@ function SignIn() {
               />
             )}
           />
-          {errors.email && (
-            <Text style={styles.error}>{errors.email.message}</Text>
-          )}
+          {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
 
           <Controller
             control={control}
@@ -91,9 +83,7 @@ function SignIn() {
               />
             )}
           />
-          {errors.password && (
-            <Text style={styles.error}>{errors.password.message}</Text>
-          )}
+          {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
 
           <Button onPress={handleSubmit(onSubmit)} style={styles.button}>
             Submit
@@ -101,7 +91,7 @@ function SignIn() {
           <TouchableOpacity onPress={() => nav.navigate("SignUp")}>
             <Text style={styles.link}>Don't have an account? Sign Up</Text>
           </TouchableOpacity>
-          <Text style={styles.link}>Forgotten Password? Reset it</Text>
+          <Text style={styles.forgotten}>Forgotten Password?</Text>
         </View>
       </Layout>
     </TouchableWithoutFeedback>
@@ -140,7 +130,13 @@ const styles = StyleSheet.create({
   },
   link: {
     alignSelf: "center",
-    marginTop: 15,
+    marginTop: 20,
     fontSize: 16,
+  },
+  forgotten: {
+    alignSelf: "center",
+    marginTop: 20,
+    fontSize: 16,
+    color: "#7a7a7a",
   },
 });

@@ -16,7 +16,7 @@ function SearchScreen() {
   };
 
   return (
-    <Layout style={styles.container}>
+    <Layout style={styles.container} level="4">
       <Input
         placeholder="Search for a game..."
         value={editSearch}

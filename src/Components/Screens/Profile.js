@@ -70,9 +70,9 @@ const Profile = () => {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <Layout style={styles.safeArea} level="4">
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
-        <Layout style={styles.parentContent} level="4">
+        <Layout level="4">
           <SignOut />
           <Card style={styles.profileBox} disabled>
             <Avatar size="giant" source={{ uri: photoURL }} style={styles.avatar} />
@@ -100,7 +100,7 @@ const Profile = () => {
           />
         </Layout>
       </ScrollView>
-    </SafeAreaView>
+    </Layout>
   );
 };
 
@@ -125,6 +125,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#141427",
+    paddingTop: StatusBar.currentHeight || 40,
   },
   scrollView: {
     flex: 1,
@@ -152,11 +153,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 10,
     marginBottom: 0,
-  },
-  container: {
-    flex: 1,
-    paddingTop: StatusBar.currentHeight || 5,
-    minHeight: "104%",
   },
   profileBox: {
     status: "primary",
@@ -221,9 +217,6 @@ const styles = StyleSheet.create({
   button: {
     margin: 0,
     backgroundColor: "none",
-  },
-  parentContent: {
-    paddingTop: 10,
   },
 });
 

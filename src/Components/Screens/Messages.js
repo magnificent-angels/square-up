@@ -1,17 +1,6 @@
 import { StyleSheet, Image } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  where,
-  doc,
-  getDoc,
-  onSnapshot,
-  limit,
-  orderBy,
-} from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where, doc, getDoc, onSnapshot, limit, orderBy } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
@@ -44,10 +33,7 @@ const Messages = () => {
   };
 
   const handleSearch = async () => {
-    const q = query(
-      collection(db, "users"),
-      where("username", ">=", searchTerm)
-    );
+    const q = query(collection(db, "users"), where("username", "==", searchTerm));
 
     const querySnapshot = await getDocs(q);
 
@@ -73,10 +59,7 @@ const Messages = () => {
     let isMounted = true;
 
     const fetchUsernames = async (searchTerm) => {
-      const q = query(
-        collection(db, "users"),
-        where("username", ">=", searchTerm.toLowerCase())
-      );
+      const q = query(collection(db, "users"), where("username", ">=", searchTerm.toLowerCase()));
 
       const querySnapshot = await getDocs(q);
 
@@ -113,26 +96,15 @@ const Messages = () => {
 
   const createMessageThread = async (user1Id, user2Id) => {
     // Check if a thread already exists between the two users
-    const queryUser1 = query(
-      collection(db, "messageThreads"),
-      where("participants", "array-contains", user1Id)
-    );
+    const queryUser1 = query(collection(db, "messageThreads"), where("participants", "array-contains", user1Id));
 
-    const queryUser2 = query(
-      collection(db, "messageThreads"),
-      where("participants", "array-contains", user2Id)
-    );
+    const queryUser2 = query(collection(db, "messageThreads"), where("participants", "array-contains", user2Id));
 
     try {
-      const [resultUser1, resultUser2] = await Promise.all([
-        getDocs(queryUser1),
-        getDocs(queryUser2),
-      ]);
+      const [resultUser1, resultUser2] = await Promise.all([getDocs(queryUser1), getDocs(queryUser2)]);
 
       // Check for an intersection of threads
-      const commonThreads = resultUser1.docs.filter((doc) =>
-        resultUser2.docs.some((d) => d.id === doc.id)
-      );
+      const commonThreads = resultUser1.docs.filter((doc) => resultUser2.docs.some((d) => d.id === doc.id));
 
       if (commonThreads.length > 0) {
         const existingThread = commonThreads[0];
@@ -155,10 +127,7 @@ const Messages = () => {
   };
 
   const getUserThreads = async () => {
-    const threadsQuery = query(
-      collection(db, "messageThreads"),
-      where("participants", "array-contains", user.uid)
-    );
+    const threadsQuery = query(collection(db, "messageThreads"), where("participants", "array-contains", user.uid));
 
     const unsubscribe = onSnapshot(
       threadsQuery,
@@ -183,12 +152,7 @@ const Messages = () => {
           );
 
           // Get the last message in the thread
-          const threadRef = collection(
-            db,
-            "messageThreads",
-            data.id,
-            "messages"
-          );
+          const threadRef = collection(db, "messageThreads", data.id, "messages");
           const q = query(threadRef, orderBy("timestamp", "desc"), limit(1));
 
           onSnapshot(q, (snapshot) => {
@@ -279,23 +243,13 @@ const Messages = () => {
           accessoryRight={SearchIcon}
         >
           {autoCompleteData.map((item, index) => (
-            <AutocompleteItem
-              key={index}
-              title={item}
-              style={styles.autoItem}
-              level="4"
-            />
+            <AutocompleteItem key={index} title={item} style={styles.autoItem} level="4" />
           ))}
         </Autocomplete>
         <Button onPress={handleSearch} style={styles.button}>
           Search
         </Button>
-        <List
-          style={styles.list}
-          data={messageThreads}
-          renderItem={renderItem}
-          ItemSeparatorComponent={Divider}
-        />
+        <List style={styles.list} data={messageThreads} renderItem={renderItem} ItemSeparatorComponent={Divider} />
       </Layout>
     );
   }
@@ -303,7 +257,8 @@ const Messages = () => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: StatusBar.currentHeight || 0,
+    flex: 1,
+    paddingTop: StatusBar.currentHeight || 60,
     height: "100%",
   },
   loading: {
