@@ -1,14 +1,14 @@
 import React, { useRef, useState, useEffect, useContext } from "react";
 import { StatusBar, StyleSheet, Platform, Image } from "react-native";
-import { Modal, Layout, Spinner, Text } from "@ui-kitten/components";
+import { Layout, Spinner, Text } from "@ui-kitten/components";
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { UserContext } from "../Context/UserContext";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../firebase";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Location from 'expo-location';
 import * as Device from 'expo-device';
 const customMapStyle = require('../../../assets/DarkMaps.json');
+import { Button } from "@ui-kitten/components";
+
 
 function Map() {
   const mapRef = useRef(null);
@@ -63,7 +63,10 @@ function Map() {
     return new Date(epoch).toLocaleString();
   };
 
+  const nav = useNavigation();
+
   return (
+
     <SafeAreaView style={styles.safeView}>
       <MapView
         ref={mapRef}

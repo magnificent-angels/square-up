@@ -2,7 +2,7 @@ import { StyleSheet, Image } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { collection, addDoc, getDocs, query, where, doc, getDoc, onSnapshot, limit, orderBy } from "firebase/firestore";
 import { db } from "../../firebase";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
 import {
   Icon,
@@ -16,7 +16,7 @@ import {
   Spinner,
 } from "@ui-kitten/components";
 
-import { useEffect, useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "../Context/UserContext";
 
 const Messages = () => {
@@ -26,16 +26,9 @@ const Messages = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const nav = useNavigation();
-  const [lastMessages, setLastMessages] = useState([]);
 
   const handleSearchChange = async (newTerm) => {
-    setSearchTerm(newTerm.toLowerCase());
-
-    if (searchTerm !== "" && searchTerm.length <= 10) {
-      const newAutoCompleteData = await fetchUsernames(newTerm);
-    } else {
-      setAutoCompleteData(["No Users Found"]);
-    }
+    setSearchTerm(newTerm);
   };
 
   const handleSearch = async () => {
@@ -58,23 +51,44 @@ const Messages = () => {
     }
   };
 
-  const fetchUsernames = async (searchTerm) => {
-    const q = query(collection(db, "users"), where("username", ">=", searchTerm));
+  useEffect(() => {
+    let isMounted = true;
 
-    const querySnapshot = await getDocs(q);
+    const fetchUsernames = async (searchTerm) => {
+      const q = query(collection(db, "users"), where("username", ">=", searchTerm));
 
-    if (querySnapshot.empty) {
-      console.log("No users found");
-      return;
-    } else {
-      const usernames = querySnapshot.docs.map((doc) => {
-        if (doc.data().username !== user.username) {
-          return doc.data().username.toLowerCase();
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        console.log("No users found");
+        return;
+      } else {
+        const usernames = [];
+
+        querySnapshot.docs.forEach((doc) => {
+          if (doc.data().username !== user.displayName) {
+            usernames.push(doc.data().username);
+          }
+        });
+
+        if (isMounted) {
+          setAutoCompleteData(usernames);
         }
-      });
-      setAutoCompleteData(usernames);
+      }
+    };
+
+    if (searchTerm !== "" && searchTerm.length <= 12) {
+      fetchUsernames(searchTerm);
+    } else {
+      if (isMounted) {
+        setAutoCompleteData(["No Users Found"]);
+      }
     }
-  };
+
+    return () => {
+      isMounted = false;
+    };
+  }, [searchTerm]); // This will run every time searchTerm changes
 
   const createMessageThread = async (user1Id, user2Id) => {
     // Check if a thread already exists between the two users
@@ -113,10 +127,10 @@ const Messages = () => {
 
     const unsubscribe = onSnapshot(
       threadsQuery,
-      (querySnapshot) => {
+      async (querySnapshot) => {
         const threads = [];
 
-        querySnapshot.forEach((document) => {
+        for (const document of querySnapshot.docs) {
           const data = document.data();
           data.id = document.id;
           const participants = data.participants;
@@ -125,32 +139,26 @@ const Messages = () => {
             return participantId !== user.uid;
           });
 
-          data.participants = [];
-
-          Promise.all(
+          data.participants = await Promise.all(
             otherParticipants.map(async (participantId) => {
               const userRef = doc(db, "users", participantId);
               const userData = await getDoc(userRef);
-
-              data.participants.push(userData.data());
-
-              return data;
+              return userData.data();
             })
-          ).then((updatedThreads) => {
-            threads.push(...updatedThreads);
-            setMessageThreads(threads); // Move the setMessageThreads call here
-          });
+          );
 
           // Get the last message in the thread
-
           const threadRef = collection(db, "messageThreads", data.id, "messages");
           const q = query(threadRef, orderBy("timestamp", "desc"), limit(1));
 
-          const unsubscribe = onSnapshot(q, (snapshot) => {
+          onSnapshot(q, (snapshot) => {
             const msgs = snapshot.docs.map((doc) => doc.data());
             data.lastMessage = msgs[0] ? msgs[0].content : "No Messages";
           });
-        });
+
+          threads.push(data);
+        }
+        setMessageThreads(threads);
       },
       (error) => {
         console.error("Error fetching user threads:", error);
@@ -160,16 +168,25 @@ const Messages = () => {
     return unsubscribe;
   };
 
-  useEffect(() => {
-    setIsLoading(true);
-    const createThreads = async () => {
-      if (!user) return;
-      await getUserThreads();
-    };
+  useFocusEffect(
+    React.useCallback(() => {
+      setIsLoading(true);
+      let unsubscribe;
+      const createThreads = async () => {
+        if (!user) return;
+        unsubscribe = await getUserThreads();
+      };
 
-    createThreads();
-    setIsLoading(false);
-  }, [user, setMessageThreads]);
+      createThreads();
+      setIsLoading(false);
+
+      return () => {
+        if (unsubscribe) {
+          unsubscribe();
+        }
+      };
+    }, [user])
+  );
 
   const renderItem = ({ item, index }) => {
     const avatarUrl = item.participants[0].avatarUrl;
@@ -193,6 +210,8 @@ const Messages = () => {
     );
   };
 
+  const SearchIcon = (props) => <Icon {...props} name="search-outline" />;
+
   if (isLoading) {
     return (
       <Layout style={styles.loading}>
@@ -201,7 +220,7 @@ const Messages = () => {
     );
   } else {
     return (
-      <Layout>
+      <Layout style={styles.container}>
         <Autocomplete
           style={styles.autocomplete}
           placeholder="Search User..."
@@ -210,44 +229,52 @@ const Messages = () => {
           onChangeText={handleSearchChange}
           size="large"
           autoCapitalize="none"
+          accessoryRight={SearchIcon}
         >
           {autoCompleteData.map((item, index) => (
             <AutocompleteItem key={index} title={item} style={styles.autoItem} />
           ))}
         </Autocomplete>
-        <Button appearance="outline" onPress={handleSearch} style={styles.button}>
+        <Button onPress={handleSearch} style={styles.button}>
           Search
         </Button>
-        <List style={styles.container} data={messageThreads} renderItem={renderItem} ItemSeparatorComponent={Divider} />
+        <List style={styles.list} data={messageThreads} renderItem={renderItem} ItemSeparatorComponent={Divider} />
       </Layout>
     );
   }
 };
 
 const styles = StyleSheet.create({
+  container: {
+    paddingTop: StatusBar.currentHeight || 0,
+    height: "100%",
+  },
   loading: {
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
   },
+  button: {
+    width: "80%",
+    alignSelf: "center",
+    marginTop: 5,
+  },
   autocomplete: {
     minWidth: "100%",
     alignSelf: "center",
+    borderWidth: 5,
   },
-  container: {
-    paddingTop: StatusBar.currentHeight || 0,
-    height: "100%",
+  list: {
+    backgroundColor: "transparent",
   },
   card: {
     flex: 1,
     flexDirection: "row",
     justifyContent: "flex-start",
-    height: 95,
+    height: 90,
   },
   content: {
-    justifyContent: "center",
-    maxWidth: 300,
-    maxHeight: 90,
+    backgroundColor: "transparent",
     padding: 10,
   },
   img: {
@@ -262,7 +289,6 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 16,
-    maxHeight: 50,
     overflow: "hidden",
   },
 });

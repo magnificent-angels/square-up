@@ -1,36 +1,18 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  StyleSheet,
-  FlatList,
-  ScrollView,
-  View,
-  StatusBar,
-  Pressable,
-  TouchableOpacity,
-} from "react-native";
-import {
-  Layout,
-  Text,
-  Avatar,
-  Divider,
-  Card,
-  Button,
-  Spinner,
-} from "@ui-kitten/components";
+import { StyleSheet, FlatList, ScrollView, View, StatusBar, Pressable, TouchableOpacity } from "react-native";
+import { Layout, Text, Avatar, Divider, Card, Button, Spinner } from "@ui-kitten/components";
 import { UserContext } from "../Context/UserContext";
 import SignOut from "./SignOut";
 import { db } from "../../firebase";
 import { getDoc, doc } from "firebase/firestore";
 import { Ionicons } from "@expo/vector-icons";
 import { Controller } from "react-hook-form";
-import { SafeAreaView } from 'react-native-safe-area-context';
-import EventDetails from './EventDetails';
-import { useNavigation } from "@react-navigation/native"
-
+import { SafeAreaView } from "react-native-safe-area-context";
+import EventDetails from "./EventDetails";
+import { useNavigation } from "@react-navigation/native";
 
 const Profile = () => {
-  const { user, wishlist, setWishlist, owned, setOwned, events, setEvents } =
-    useContext(UserContext);
+  const { user, wishlist, setWishlist, owned, setOwned, events, setEvents } = useContext(UserContext);
   const { photoURL, displayName, uid } = user;
   const [loading, setLoading] = useState(true);
   const nav = useNavigation();
@@ -57,19 +39,20 @@ const Profile = () => {
       </Card>
     </TouchableOpacity>
   );
-  
-  if (loading) return (<Layout style={styles.loadingContainer}><Spinner size='giant'/></Layout>)
+
+  if (loading)
+    return (
+      <Layout style={styles.loadingContainer}>
+        <Spinner size="giant" />
+      </Layout>
+    );
 
   return (
     <SafeAreaView style={styles.container} level="4">
       <SignOut />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Card style={styles.profileBox} disabled status="primary">
-          <Avatar
-            size="giant"
-            source={{ uri: photoURL }}
-            style={styles.avatar}
-          />
+          <Avatar size="giant" source={{ uri: photoURL }} style={styles.avatar} />
           <Text category="h1" style={styles.username}>
             {displayName}
           </Text>
@@ -115,19 +98,25 @@ const Profile = () => {
           />
         </Layout>
 
-      <Layout style={styles.section} level='2'>
-        <Text category="h4" style={styles.sectionTitle}>Joined Events</Text>
-        <Divider style={styles.divider}></Divider>
-        <FlatList
-          data={events}
-          renderItem={renderGameItem}
-          keyExtractor={item => item.name}
-          numColumns={2}
-          scrollEnabled={false}
-          ListEmptyComponent={<Text category='h6' style={styles.emptyList}>No events joined...</Text>}
-        />
-      </Layout>
-      <EventDetails />
+        <Layout style={styles.section} level="2">
+          <Text category="h4" style={styles.sectionTitle}>
+            Joined Events
+          </Text>
+          <Divider style={styles.divider}></Divider>
+          <FlatList
+            data={events}
+            renderItem={renderGameItem}
+            keyExtractor={(item) => item.name}
+            numColumns={2}
+            scrollEnabled={false}
+            ListEmptyComponent={
+              <Text category="h6" style={styles.emptyList}>
+                No events joined...
+              </Text>
+            }
+          />
+        </Layout>
+        <EventDetails />
       </ScrollView>
     </SafeAreaView>
   );
@@ -136,12 +125,13 @@ const Profile = () => {
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   container: {
     flex: 1,
     paddingTop: StatusBar.currentHeight || 0,
+    minHeight: "104%",
   },
   profileBox: {
     status: "primary",
@@ -203,9 +193,9 @@ const styles = StyleSheet.create({
     margin: 16,
   },
   button: {
-    margin:0,
-  backgroundColor:'none',
-  }
+    margin: 0,
+    backgroundColor: "none",
+  },
 });
 
 export default Profile;
