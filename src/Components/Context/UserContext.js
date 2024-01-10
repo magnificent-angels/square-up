@@ -9,6 +9,7 @@ export const UserProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([])
   const [owned, setOwned] = useState([])
   const [events, setEvents] = useState([])
+  const [location, setLocation] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +30,9 @@ export const UserProvider = ({ children }) => {
         owned,
         setOwned,
         events,
-        setEvents
+        setEvents,
+        location,
+        setLocation,
       }}
     >
       {children}
