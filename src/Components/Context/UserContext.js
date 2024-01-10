@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from "react";
-import { auth } from "../../firebase";
+import { auth, db } from "../../firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { collection, getDocs } from "firebase/firestore";
 
 export const UserContext = createContext();
 
@@ -9,15 +10,33 @@ export const UserProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([])
   const [owned, setOwned] = useState([])
   const [events, setEvents] = useState([])
+  const [globalEvents, setGlobalEvents] = useState([]);
+  const [location, setLocation] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setLoading(false);
-    });
+    })
+    const eventsCollection = collection(db, "events")
+    getDocs(eventsCollection)
+      .then((querySnapshot) => {
+        const eventsData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setGlobalEvents(eventsData);
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        setLoading(false);
+      }
+      );
     return unsubscribe;
   }, []);
+
 
   return (
     <UserContext.Provider
@@ -29,7 +48,11 @@ export const UserProvider = ({ children }) => {
         owned,
         setOwned,
         events,
-        setEvents
+        setEvents,
+        location,
+        setLocation,
+        globalEvents,
+        setGlobalEvents,
       }}
     >
       {children}
