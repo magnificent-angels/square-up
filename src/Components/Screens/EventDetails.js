@@ -18,7 +18,6 @@ function EventDetails({ route }) {
   const [isPast, setIsPast] = useState(false);
   const [userGoing, setUserGoing] = useState(false)
   const [userWaitlisted, setUserWaitlisted] = useState(false)
-  const [joinButtonText, setJoinButtonText] = useState('')
 
   const notFoundAnimation = useRef(null);
 
@@ -36,11 +35,6 @@ function EventDetails({ route }) {
       setEvents(userData.events);
       const goingCheck = events.some((event) => event.eventID === eventId);
       setUserGoing(goingCheck);
-      if (goingCheck) {
-        setJoinButtonText(`Cancel attendance`)
-      } else {
-        setJoinButtonText('Join Event')
-      }
       const docRef = doc(db, "events", eventId);
       return getDoc(docRef)
     })
@@ -49,7 +43,7 @@ function EventDetails({ route }) {
       setEventData(result);
       setFormattedDate(new Date(result.dateTime).toUTCString());
       setFormattedDeadline(new Date(result.eventDeadline).toUTCString());
-      if (result.attendees.length + 1 >= result.maxPlayers) {
+      if (result.attendees.length >= result.maxPlayers) {
         setIsFull(true);
       }
       const checkDate = new Date(result.dateTime);
@@ -64,28 +58,27 @@ function EventDetails({ route }) {
     });
   }, []);
 
+  const { eventName, dateTime, imageUrl, gameName, attendees, waitlist } = eventData
   const userRef = doc(db, "users", user.uid)
   const eventRef = doc(db, "events", eventId);
 
   function handleJoinLeaveButton(user) {
     if (!userGoing) {
       setUserGoing(true)
-      setJoinButtonText(`Cancel attendance`)
-      setEvents([...events, {eventName: eventData.eventName, dateAndTime: eventData.dateTime, image: eventData.imageUrl, gameName: eventData.gameName, eventID: eventId }])
+      setEvents([...events, {eventName, dateAndTime: dateTime, image: imageUrl, gameName, eventID: eventId }])
       updateDoc(eventRef, {
         attendees: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
       })
       .then(() => {
         updateDoc(userRef, {
-          events: arrayUnion({eventName: eventData.eventName, dateAndTime: eventData.dateTime, image: eventData.imageUrl, gameName: eventData.gameName, eventID: eventId })
+          events: arrayUnion({eventName, dateAndTime: dateTime, image: imageUrl, gameName, eventID: eventId })
         })
       })
     } else if (userGoing) {
       setUserGoing(false)
-      setJoinButtonText('Join Event')
       const updatedEvents = events.filter((event) => event.eventID !== eventId)
       setEvents(updatedEvents)
-      const updatedAttendees = eventData.attendees.filter((attendee) => attendee.username !== user.displayName)
+      const updatedAttendees = attendees.filter((attendee) => attendee.username !== user.displayName)
       updateDoc(eventRef, { attendees: updatedAttendees })
       .then(() => {
         updateDoc(userRef, { events: updatedEvents })
@@ -94,9 +87,16 @@ function EventDetails({ route }) {
   }
 
   function handleWaitlistButton(user) {
-    updateDoc(eventRef, {
-      waitlist: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
-    });
+    if(!userWaitlisted) {
+      setUserWaitlisted(true)
+      updateDoc(eventRef, {
+        waitlist: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
+      });
+    } else if (userWaitlisted) {
+      setUserWaitlisted(false)
+      const updatedWaitlist = waitlist.filter((waitlister) => waitlister.username !== user.displayName)
+      updateDoc(eventRef, { waitlist: updatedWaitlist })
+    }
   }
 
 
@@ -115,6 +115,73 @@ function EventDetails({ route }) {
       </Layout>
     );
 
+  const AttendanceButtons = () => {
+    if (isPast) {
+      return (
+        <Text appearance="default" style={styles.details}>
+          Too late buddy!
+        </Text>)
+    } else if (isFull && !userWaitlisted) {
+      return (
+        <>
+          <Text appearance="default" style={styles.details}>
+            This event is full! Join the waitlist by clicking below:{" "}
+          </Text>
+          <Button
+            onPress={() => {
+              handleWaitlistButton(user);
+            }}
+            style={styles.button}
+            status="primary"
+            >
+            Join the waitlist
+          </Button>
+        </>
+      )
+    } else if (isFull && userWaitlisted) {
+      return (
+        <>
+          <Text appearance="default" style={styles.details}>
+            You are currently on the waitlist for this event.
+          </Text>
+          <Button
+            onPress={() => {
+              handleWaitlistButton(user);
+            }}
+            style={styles.button}
+            status="danger"
+            >
+            Remove me from the waitlist
+          </Button>
+        </>
+      )
+    } else if (userGoing) {
+      return (
+        <Button
+          onPress={() => {
+            handleJoinLeaveButton(user);
+          }}
+          style={styles.button}
+          status="danger"
+        >
+          Cancel attendance
+        </Button>
+      )
+    } else {
+      return (
+        <Button
+          onPress={() => {
+            handleJoinLeaveButton(user);
+          }}
+          style={styles.button}
+          status="primary"
+        >
+          Join Event
+        </Button>
+      )
+    }
+  }
+
   return (
     <Layout style={styles.container}>
       {isLoading ? (
@@ -128,7 +195,7 @@ function EventDetails({ route }) {
             <Text category="h5" style={styles.name}>
               {eventData.eventName}
             </Text>
-            <Text appearance="hint" style={styles.details}>
+            <Text appearance="default" style={styles.details}>
               {eventData.organiserUsername}'s {eventData.gameName} Event!
             </Text>
             <Text appearance="hint" style={styles.details}>
@@ -138,28 +205,41 @@ function EventDetails({ route }) {
               Sign up by: {formattedDeadline}
             </Text>
             <Layout style={styles.buttonContainer}>
-              {isPast && (
+              <AttendanceButtons />
+              {/* {isPast && (
                 <Text appearance="hint" style={styles.details}>
                   Too late buddy!
                 </Text>
-              )}
-              {isFull && (
+              )} */}
+              
+              {/* {isFull && !userGoing && (
                 <>
                   <Text appearance="hint" style={styles.details}>
                     This event is full! Join the waitlist by clicking below:{" "}
                   </Text>
                   <Button
                     onPress={() => {
-                      joinWaitlist(user);
+                      handleWaitlistButton(user);
                     }}
                     style={styles.button}
-                    status="primary"
+                    status={ !userWaitlisted ? "primary" : "danger"}
                   >
                     Join Waitlist
                   </Button>
                 </>
-              )}
-              {!isPast && !isFull && (
+              )} */}
+              {/* {userGoing && (
+                <Button
+                onPress={() => {
+                  handleJoinLeaveButton(user);
+                }}
+                style={styles.button}
+                status={ !userGoing ? "primary" : "danger" }
+              >
+                {joinButtonText}
+              </Button>
+              )} */}
+              {/* {!isPast && !isFull && !userGoing (
                 <Button
                   onPress={() => {
                     handleJoinLeaveButton(user);
@@ -167,9 +247,9 @@ function EventDetails({ route }) {
                   style={styles.button}
                   status={ !userGoing ? "primary" : "danger" }
                 >
-                  {joinButtonText}
-                </Button>
-              )}
+                  {joinButtonText} */}
+                {/* </Button>
+              )} */}
             </Layout>
           </Layout>
         </KeyboardAvoidingView>
