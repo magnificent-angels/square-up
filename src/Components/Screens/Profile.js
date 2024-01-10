@@ -1,6 +1,20 @@
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, FlatList, ScrollView, StatusBar, TouchableOpacity } from "react-native";
-import { Layout, Text, Avatar, Divider, Card, Spinner, Button } from "@ui-kitten/components";
+import {
+  StyleSheet,
+  FlatList,
+  ScrollView,
+  StatusBar,
+  TouchableOpacity,
+} from "react-native";
+import {
+  Layout,
+  Text,
+  Avatar,
+  Divider,
+  Card,
+  Spinner,
+  Button,
+} from "@ui-kitten/components";
 import { UserContext } from "../Context/UserContext";
 import SignOut from "./SignOut";
 import { db } from "../../firebase";
@@ -9,7 +23,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 
 const Profile = () => {
-  const { user, wishlist, setWishlist, owned, setOwned, events, setEvents } = useContext(UserContext);
+  const { user, wishlist, setWishlist, owned, setOwned, events, setEvents } =
+    useContext(UserContext);
   const { photoURL, displayName, uid } = user;
   const [loading, setLoading] = useState(true);
 
@@ -38,32 +53,28 @@ const Profile = () => {
 
   const renderEventItem = ({ item, index }) => {
     return (
-      
-<TouchableOpacity
-style={styles.gameItemContainer}
-onPress={() => {
+      <TouchableOpacity
+        style={styles.gameItemContainer}
+        onPress={() => {
           navigation.navigate("EventDetails", { eventId: item.eventID });
-          
         }}
->
-    <Card style={styles.gameItemContainer} disabled>
-      <Avatar source={{ uri: item.image }} style={styles.image} />
+      >
+        <Card style={styles.gameItemContainer} disabled>
+          <Avatar source={{ uri: item.image }} style={styles.image} />
 
-      <Text category="c1" style={styles.gameTitle} numberOfLines={1}>
-        {item.eventName}
-      </Text>
-      <Text category="c1" style={styles.gameTitle} numberOfLines={1}>
-        {item.gameName}
-      </Text>
-      <Text category="c1" style={styles.gameTitle} numberOfLines={1}>
-        {new Date(item.dateAndTime).toUTCString()}
-      </Text>
-    </Card>
-    </TouchableOpacity>
-   
-
-    )
-  }
+          <Text category="c1" style={styles.gameTitle} numberOfLines={1}>
+            {item.eventName}
+          </Text>
+          <Text category="c1" style={styles.gameTitle} numberOfLines={1}>
+            {item.gameName}
+          </Text>
+          <Text category="c1" style={styles.gameTitle} numberOfLines={1}>
+            {new Date(item.dateAndTime).toUTCString()}
+          </Text>
+        </Card>
+      </TouchableOpacity>
+    );
+  };
 
   if (loading)
     return (
@@ -77,7 +88,11 @@ onPress={() => {
       <SignOut />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Card style={styles.profileBox} disabled status="primary">
-          <Avatar size="giant" source={{ uri: photoURL }} style={styles.avatar} />
+          <Avatar
+            size="giant"
+            source={{ uri: photoURL }}
+            style={styles.avatar}
+          />
           <Text category="h1" style={styles.username}>
             {displayName}
           </Text>
@@ -211,12 +226,12 @@ const styles = StyleSheet.create({
     height: 100,
     resizeMode: "cover",
     borderRadius: 10,
-    alignSelf: "center"
+    alignSelf: "center",
   },
   emptyList: {
     alignSelf: "center",
     margin: 16,
-  }
+  },
 });
 
 export default Profile;
