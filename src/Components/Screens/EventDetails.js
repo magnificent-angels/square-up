@@ -16,7 +16,12 @@ function EventDetails({ route }) {
   const [formattedDeadline, setFormattedDeadline] = useState("");
   const [isFull, setIsFull] = useState(false);
   const [isPast, setIsPast] = useState(false);
+  const [userGoing, setUserGoing] = useState(false)
+  const [userWaitlisted, setUserWaitlisted] = useState(false)
+  const [joinButtonText, setJoinButtonText] = useState('')
+
   const notFoundAnimation = useRef(null);
+
   const { user, events, setEvents } = useContext(UserContext);
 
   const { eventId } = route.params;
@@ -24,43 +29,71 @@ function EventDetails({ route }) {
   useEffect(() => {
     setIsError(false);
     setIsLoading(true);
-    const docRef = doc(db, "events", eventId);
-    getDoc(docRef)
-      .then((res) => {
-        const result = res.data();
-        setEventData(result);
-        setFormattedDate(new Date(result.dateTime).toUTCString());
-        setFormattedDeadline(new Date(result.eventDeadline).toUTCString());
-        if (result.attendees.length + 1 >= result.maxPlayers) {
-          setIsFull(true);
-        }
-        const checkDate = new Date(result.dateTime);
-        const deadlineDate = new Date(result.eventDeadline);
-        const currentDate = new Date();
-        if (checkDate < currentDate || deadlineDate < currentDate) {
-          setIsPast(true);
-        }
-      })
-      .then(() => {
-        setIsLoading(false);
-      });
+    const userRef = doc(db, "users", user.uid);
+    getDoc(userRef)
+    .then((result) => {
+      const userData = result.data();
+      setEvents(userData.events);
+      const goingCheck = events.some((event) => event.eventID === eventId);
+      setUserGoing(goingCheck);
+      if (goingCheck) {
+        setJoinButtonText(`Cancel attendance`)
+      } else {
+        setJoinButtonText('Join Event')
+      }
+      const docRef = doc(db, "events", eventId);
+      return getDoc(docRef)
+    })
+    .then((res) => {
+      const result = res.data();
+      setEventData(result);
+      setFormattedDate(new Date(result.dateTime).toUTCString());
+      setFormattedDeadline(new Date(result.eventDeadline).toUTCString());
+      if (result.attendees.length + 1 >= result.maxPlayers) {
+        setIsFull(true);
+      }
+      const checkDate = new Date(result.dateTime);
+      const deadlineDate = new Date(result.eventDeadline);
+      const currentDate = new Date();
+      if (checkDate < currentDate || deadlineDate < currentDate) {
+        setIsPast(true);
+      }
+    })
+    .then(() => {
+      setIsLoading(false);
+    });
   }, []);
 
-  function joinEvent(user) {
-    setEvents([...events, {eventName: eventData.eventName, dateAndTime: eventData.dateTime, image: eventData.imageUrl, gameName: eventData.gameName, eventID: eventId }])
-    const eventRef = doc(db, "events", eventId);
-    updateDoc(eventRef, {
-      attendees: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
-    }).then(() => {
-      const userRef = doc(db, "users", user.uid)
-      updateDoc(userRef, {
-        events: arrayUnion({eventName: eventData.eventName, dateAndTime: eventData.dateTime, image: eventData.imageUrl, gameName: eventData.gameName, eventID: eventId })
+  const userRef = doc(db, "users", user.uid)
+  const eventRef = doc(db, "events", eventId);
+
+  function handleJoinLeaveButton(user) {
+    if (!userGoing) {
+      setUserGoing(true)
+      setJoinButtonText(`Cancel attendance`)
+      setEvents([...events, {eventName: eventData.eventName, dateAndTime: eventData.dateTime, image: eventData.imageUrl, gameName: eventData.gameName, eventID: eventId }])
+      updateDoc(eventRef, {
+        attendees: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
       })
-    })
+      .then(() => {
+        updateDoc(userRef, {
+          events: arrayUnion({eventName: eventData.eventName, dateAndTime: eventData.dateTime, image: eventData.imageUrl, gameName: eventData.gameName, eventID: eventId })
+        })
+      })
+    } else if (userGoing) {
+      setUserGoing(false)
+      setJoinButtonText('Join Event')
+      const updatedEvents = events.filter((event) => event.eventID !== eventId)
+      setEvents(updatedEvents)
+      const updatedAttendees = eventData.attendees.filter((attendee) => attendee.username !== user.displayName)
+      updateDoc(eventRef, { attendees: updatedAttendees })
+      .then(() => {
+        updateDoc(userRef, { events: updatedEvents })
+      })
+    }
   }
 
-  function joinWaitlist(user) {
-    const eventRef = doc(db, "events", eventId);
+  function handleWaitlistButton(user) {
     updateDoc(eventRef, {
       waitlist: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
     });
@@ -120,7 +153,7 @@ function EventDetails({ route }) {
                       joinWaitlist(user);
                     }}
                     style={styles.button}
-                    status="info"
+                    status="primary"
                   >
                     Join Waitlist
                   </Button>
@@ -129,12 +162,12 @@ function EventDetails({ route }) {
               {!isPast && !isFull && (
                 <Button
                   onPress={() => {
-                    joinEvent(user);
+                    handleJoinLeaveButton(user);
                   }}
                   style={styles.button}
-                  status="info"
+                  status={ !userGoing ? "primary" : "danger" }
                 >
-                  Join Event
+                  {joinButtonText}
                 </Button>
               )}
             </Layout>
