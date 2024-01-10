@@ -83,10 +83,50 @@ const Profile = () => {
             <Text style={styles.bio}>Game Attendance Rate (100%)</Text>
           </Card>
 
-          <Section title="Wishlist" data={wishlist} renderItem={renderGameItem} />
-          <Section title="Owned Games" data={owned} renderItem={renderGameItem} />
-          <Section
-            title="Joined Events"
+        <Layout style={styles.section} level="2">
+          <Text category="h4" style={styles.sectionTitle}>
+            Favourites
+          </Text>
+          <Divider style={styles.divider}></Divider>
+          <FlatList
+            data={wishlist}
+            renderItem={renderGameItem}
+            keyExtractor={(item) => item.name}
+            numColumns={2}
+            scrollEnabled={false}
+            ListEmptyComponent={
+              <Text category="h6" style={styles.emptyList}>
+                No favourite games...
+              </Text>
+            }
+          />
+        </Layout>
+
+        <Layout style={styles.section} level="2">
+          <Text category="h4" style={styles.sectionTitle}>
+            Owned Games
+          </Text>
+          <Divider style={styles.divider}></Divider>
+          <FlatList
+            data={owned}
+            renderItem={renderGameItem}
+            keyExtractor={(item) => item.name}
+            numColumns={2}
+            scrollEnabled={false}
+            ListEmptyComponent={
+              <Text category="h6" style={styles.emptyList}>
+                No owned games...
+              </Text>
+            }
+          />
+        </Layout>
+
+        <Layout style={styles.section} level="2">
+          <Text category="h4" style={styles.sectionTitle}>
+            Joined Events
+          </Text>
+          <Divider style={styles.divider}></Divider>
+          <FlatList
             data={events}
             renderItem={renderEventItem}
             keyExtractor={(item) => item.name}
