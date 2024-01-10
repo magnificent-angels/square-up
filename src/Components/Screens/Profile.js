@@ -37,7 +37,6 @@ const Profile = () => {
   );
 
   const renderEventItem = ({ item, index }) => {
-    console.log(item)
     return (
       
 <TouchableOpacity
