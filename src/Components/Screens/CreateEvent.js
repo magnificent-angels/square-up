@@ -1,14 +1,14 @@
 import { Layout, Text, Input, Button, Spinner, RangeCalendar } from '@ui-kitten/components';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { UserContext } from '../Context/UserContext';
 import dayjs from 'dayjs';
 import { getLatLong } from '../../utils/postcodeLookup';
-import { auth, db } from '../../firebase';
+import { db } from '../../firebase';
 import { doc, getDoc, GeoPoint, addDoc, collection } from 'firebase/firestore';
 import { StyleSheet } from 'react-native';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
-  const [userData, setUserData] = useState(null);
   const [eventName, setEventName] = useState('');
   const [postcode, setPostcode] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -19,7 +19,7 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
   const [isDeadlinePickerVisible, setDeadlinePickerVisibility] = useState(false);
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false)
 
-  const user = auth.currentUser;
+  const { user, events, setEvents } = useContext(UserContext);
   const { name, minPlayers, maxPlayers, playingTime, imageUrl } = game;
 
   const showDatePicker = () => {
@@ -62,7 +62,6 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
     hideDeadlinePicker();
   };
 
-
   const handleDates = () => {
     const dateString = eventDate.toISOString()
     const timeString = eventTime.toISOString()
@@ -81,6 +80,10 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
     return milliseconds
   }
 
+  useEffect(() => {
+    setIsLoading(false)
+  }, [])
+
   const onSubmit = () => {
       getLatLong(postcode)
         .then(({ latitude, longitude }) => {
@@ -94,7 +97,7 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
             eventName,
             dateTime,
             eventDeadline,
-            organiserUsername: userData.username,
+            organiserUsername: user.displayName,
             organiserUid: user.uid,
             organiserAvatar: user.photoURL,
             gameName: name,
@@ -102,7 +105,7 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
             maxPlayers: +maxPlayers,
             playingTime: +playingTime,
             imageUrl,
-            attendees: [],
+            attendees: [{ username: user.displayName, avatarUrl: user.photoURL }],
             waitlist: []
           });
         })
@@ -114,19 +117,12 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
           setPostcode('')
           setEventCreated(true)
           setEventBeingCreated(false)
+          setIsLoading(false)
         })
         .catch((err) => {
           console.log(err);
         });
   };
-
-  useEffect(() => {
-    const docRef = doc(db, 'users', user.uid);
-    getDoc(docRef).then((result) => {
-      setUserData(result.data());
-      setIsLoading(false);
-    });
-  }, []);
 
   if (isLoading) return (
     <Layout style={styles.loadingContainer}>
@@ -136,7 +132,7 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
 
   return (
     <Layout style={styles.container}>
-      <Text category="h5">Organise an event {userData.username}!</Text>
+      <Text category="h5">Organise an event {user.displayName}!</Text>
       <Input
         placeholder="Enter event name"
         value={eventName}
