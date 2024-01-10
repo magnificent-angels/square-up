@@ -8,17 +8,17 @@ import * as Location from 'expo-location';
 import * as Device from 'expo-device';
 const customMapStyle = require('../../../assets/DarkMaps.json');
 import { Button } from "@ui-kitten/components";
-
+import { useNavigation } from "@react-navigation/native";
 
 function Map() {
-  const mapRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [region, setRegion] = useState(null);
-  const [eventMarkers, setEventMarkers] = useState();
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
-
-  const { location, setLocation, globalEvents, setGlobalEvents } = useContext(UserContext);
+  const { location, setLocation, globalEvents } = useContext(UserContext);
+  
+  const navigation = useNavigation();
+  
+  const mapRef = useRef(null);
 
   useEffect(() => {
     (async () => {
@@ -43,7 +43,6 @@ function Map() {
         longitudeDelta: 0.01,
       })
     })();
-    setEventMarkers(globalEvents);
     setLoading(false);
   }, []);
 
@@ -63,7 +62,7 @@ function Map() {
     return new Date(epoch).toLocaleString();
   };
 
-  const nav = useNavigation();
+
 
   return (
 
@@ -78,7 +77,7 @@ function Map() {
         provider={PROVIDER_GOOGLE}
         customMapStyle={customMapStyle}
       >
-        {eventMarkers && eventMarkers.map((eventMarker, index) => (
+        {globalEvents && globalEvents.map((eventMarker, index) => (
           <Marker
             key={index}
             coordinate={{
