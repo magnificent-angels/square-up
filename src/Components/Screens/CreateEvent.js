@@ -4,7 +4,7 @@ import { UserContext } from "../Context/UserContext";
 import dayjs from "dayjs";
 import { getLatLong } from "../../utils/postcodeLookup";
 import { db } from "../../firebase";
-import { GeoPoint, addDoc, collection } from "firebase/firestore";
+import { GeoPoint, addDoc, collection, getDocs } from "firebase/firestore";
 import { StyleSheet } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
@@ -19,7 +19,7 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
   const [isDeadlinePickerVisible, setDeadlinePickerVisibility] = useState(false);
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
 
-  const { user } = useContext(UserContext);
+  const { user, setEvents, events, setGlobalEvents, globalEvents } = useContext(UserContext);
   const { name, minPlayers, maxPlayers, playingTime, imageUrl } = game;
 
   const showDatePicker = () => {
@@ -107,6 +107,17 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
           attendees: [{ username: user.displayName, avatarUrl: user.photoURL }],
           waitlist: [],
         });
+      })
+      .then(() => {
+        const eventsCollection = collection(db, "events")
+        return getDocs(eventsCollection)
+      })
+      .then((querySnapshot) => {
+        const eventsData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setGlobalEvents(eventsData);
       })
       .then(() => {
         setEventName("");
