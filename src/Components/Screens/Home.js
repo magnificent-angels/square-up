@@ -1,6 +1,6 @@
 import Map from "./Map";
 import EventList from "./EventList";
-import { StyleSheet, Platform, StatusBar, SafeAreaView } from "react-native"; // Added import statements
+import { StyleSheet, Platform, StatusBar, SafeAreaView } from "react-native";
 import { Button, Layout } from "@ui-kitten/components";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase";
