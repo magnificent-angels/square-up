@@ -24,7 +24,7 @@ function LandingPage() {
         autoPlay
         ref={TopAnimation}
         style={styles.topAnimation}
-        source={require('../../../assets/animations/TopAnimation.json')}
+        source={require("../../../assets/animations/TopAnimation.json")}
         speed={1}
         loop={false}
         onAnimationFinish={handleTopAnimationFinish}
@@ -33,22 +33,34 @@ function LandingPage() {
         autoPlay
         ref={BoardGameAnimation}
         style={styles.boardGameAnimation}
-        source={require('../../../assets/animations/BoardGame.json')}
+        source={require("../../../assets/animations/BoardGame.json")}
       />
-      <Text category='h1' style={styles.landingHeader}>
-        Connect with Game Enthusiasts Like You!
+      <Text category="h1" style={styles.landingHeader}>
+        SquareUp
       </Text>
-      <Button style={styles.button} onPress={() => navigation.navigate('SignIn')} size='large'>
+      <Text category="h2" style={styles.landingSubHeader}>
+        Connect with game enthusiasts like you!
+      </Text>
+      <Button
+        style={styles.button}
+        onPress={() => navigation.navigate("SignIn")}
+        size="large"
+      >
         Log In
       </Button>
-      <Button style={styles.button} onPress={() => navigation.navigate('SignUp')} size='large' appearance='ghost'>
+      <Button
+        style={styles.button}
+        onPress={() => navigation.navigate("SignUp")}
+        size="large"
+        appearance="ghost"
+      >
         Join SquareUp
       </Button>
       <LottieView
         autoPlay
         ref={BottomAnimation}
         style={styles.bottomAnimation}
-        source={require('../../../assets/animations/bottomAnimation.json')}
+        source={require("../../../assets/animations/bottomAnimation.json")}
         speed={1.35}
       />
     </Layout>
@@ -60,44 +72,26 @@ export default LandingPage;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  topAnimation: {
-    position: 'absolute',
-    width: Dimensions.get('window').width,
-    height: 'auto',
-    top: 0,
+    justifyContent: "center",
+    alignItems: "center",
   },
   boardGameAnimation: {
     width: 350,
-    height: 'auto',
+    height: "auto",
     left: 8.5,
-    top: -2.5,
-  },
-  bottomAnimation: {
-    position: 'absolute',
-    width: Dimensions.get('window').width,
-    height: 'auto',
-    bottom: 0,
+    top: 4,
   },
   topAnimation: {
-    position: 'absolute',
-    width: Dimensions.get('window').width,
-    height: 'auto',
-    top: 0,
-  },
-  boardGameAnimation: {
-    width: 350,
-    height: 'auto',
-    left: 8.5,
-    top: -2.5,
+    position: "absolute",
+    width: Dimensions.get("window").width,
+    height: "auto",
+    top: -8,
   },
   bottomAnimation: {
-    position: 'absolute',
-    width: Dimensions.get('window').width,
-    height: 'auto',
-    bottom: 0,
+    position: "absolute",
+    width: Dimensions.get("window").width,
+    height: "auto",
+    bottom: -15,
   },
   button: {
     paddingVertical: 10,
@@ -106,8 +100,13 @@ const styles = StyleSheet.create({
     width: 200,
     zIndex: 1,
   },
+  landingSubHeader: {
+    textAlign: "center",
+    marginBottom: 30,
+    fontSize: 15,
+  },
   landingHeader: {
     textAlign: "center",
-    marginBottom: 50,
+    marginBottom: 20,
   },
 });
