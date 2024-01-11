@@ -32,7 +32,6 @@ function SignIn() {
       })
       .catch((error) => {
         console.log(error.code);
-        console.log(errors);
       })
       .finally(() => {
         setLoading(false);
