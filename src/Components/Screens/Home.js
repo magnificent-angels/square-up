@@ -40,11 +40,26 @@ function Home() {
     }, [option, order])
   );
 
-  return (
-    <Layout style={styles.background}>
-      <SafeAreaView style={styles.container}>
-        {!showEventsList && <Map eventsList={eventsList} />}
-        {showEventsList && <EventList eventsList={eventsList} setOption={setOption} setOrder={setOrder} />}
+  if (showEventsList) {
+    return (
+      <Layout style={{ flex: 1 }}>
+        <SafeAreaView style={showEventsList && styles.container}>
+          <EventList eventsList={eventsList} setOption={setOption} setOrder={setOrder} />
+          <Button
+            style={styles.showHide}
+            onPress={() => {
+              setShowEventsList(!showEventsList);
+            }}
+          >
+            {showEventsList ? "Map" : "List"}
+          </Button>
+        </SafeAreaView>
+      </Layout>
+    );
+  } else {
+    return (
+      <>
+        <Map eventsList={eventsList} />
         <Button
           style={styles.showHide}
           onPress={() => {
@@ -53,17 +68,14 @@ function Home() {
         >
           {showEventsList ? "Map" : "List"}
         </Button>
-      </SafeAreaView>
-    </Layout>
-  );
+      </>
+    );
+  }
 }
 
 export default Home;
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-  },
   container: {
     flex: 1,
     marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 50,
