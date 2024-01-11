@@ -1,36 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, Image, SafeAreaView } from "react-native";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
-import { db } from "../../firebase";
 import { Layout, Text, Select, SelectItem, List, Divider, Button } from "@ui-kitten/components";
 import { useNavigation } from "@react-navigation/native";
 import { formatDate } from "../../utils/dateFormat";
 
-const EventList = () => {
+const EventList = ({ eventsList, setOrder, setOption }) => {
   const [optionIndex, setOptionIndex] = useState(0);
   const [orderIndex, setOrderIndex] = useState(0);
-  const [order, setOrder] = useState("asc");
-  const [option, setOption] = useState("playingTime");
-  const [eventsList, setEventsList] = useState([]);
-
   const navigation = useNavigation();
-
-  const fetchEventList = async () => {
-    const eventsRef = collection(db, "events");
-    const listQuery = query(eventsRef, orderBy(option, order));
-    const eventsSnapshot = await getDocs(listQuery);
-    const eventsArray = [];
-    eventsSnapshot.forEach((list) => {
-      const data = list.data();
-      data.id = list.id;
-      eventsArray.push(data);
-    });
-    setEventsList(eventsArray);
-  };
-
-  useEffect(() => {
-    fetchEventList();
-  }, [option, order]);
 
   const handleOption = (index) => {
     let selectedOption;

@@ -1,21 +1,18 @@
-import React, { useRef, useState, useEffect, useContext } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { StatusBar, StyleSheet, Platform, Image } from "react-native";
 import { Layout, Spinner, Text } from "@ui-kitten/components";
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps";
-import { UserContext } from "../Context/UserContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import * as Device from "expo-device";
 const customMapStyle = require("../../../assets/DarkMaps.json");
-import { Button } from "@ui-kitten/components";
 import { useNavigation } from "@react-navigation/native";
 import { formatDate } from "../../utils/dateFormat";
 
-function Map() {
+function Map({ eventsList }) {
   const [loading, setLoading] = useState(true);
   const [region, setRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const { location, setLocation, globalEvents } = useContext(UserContext);
 
   const navigation = useNavigation();
 
@@ -73,8 +70,8 @@ function Map() {
         provider={PROVIDER_GOOGLE}
         customMapStyle={customMapStyle}
       >
-        {globalEvents &&
-          globalEvents.map((eventMarker, index) => (
+        {eventsList &&
+          eventsList.map((eventMarker, index) => (
             <Marker
               key={index}
               coordinate={{
@@ -113,14 +110,6 @@ function Map() {
           ))}
       </MapView>
       <StatusBar backgroundColor="#06D6A0" barStyle={"dark-content"} />
-      <Button
-        onPress={() => {
-          navigation.navigate("EventList");
-        }}
-        style={styles.ListNav}
-      >
-        List View
-      </Button>
     </SafeAreaView>
   );
 }
@@ -162,11 +151,6 @@ const styles = StyleSheet.create({
   },
   details: {
     fontSize: 12,
-  },
-  ListNav: {
-    position: "absolute",
-    marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 50,
-    left: 30,
   },
 });
 
