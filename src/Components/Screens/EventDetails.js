@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { Image, StyleSheet, KeyboardAvoidingView } from "react-native";
-import { Layout, Text, Button, Spinner, Modal } from "@ui-kitten/components";
+import { Layout, Text, Button, Spinner } from "@ui-kitten/components";
 import LottieView from "lottie-react-native";
 import { db } from "../../firebase";
 import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
@@ -16,8 +16,8 @@ function EventDetails({ route }) {
   const [formattedDeadline, setFormattedDeadline] = useState("");
   const [isFull, setIsFull] = useState(false);
   const [isPast, setIsPast] = useState(false);
-  const [userGoing, setUserGoing] = useState(false)
-  const [userWaitlisted, setUserWaitlisted] = useState(false)
+  const [userGoing, setUserGoing] = useState(false);
+  const [userWaitlisted, setUserWaitlisted] = useState(false);
 
   const notFoundAnimation = useRef(null);
 
@@ -30,77 +30,74 @@ function EventDetails({ route }) {
     setIsLoading(true);
     const userRef = doc(db, "users", user.uid);
     getDoc(userRef)
-    .then((result) => {
-      const userData = result.data();
-      setEvents(userData.events);
-      const goingCheck = events.some((event) => event.eventID === eventId);
-      setUserGoing(goingCheck);
-      const docRef = doc(db, "events", eventId);
-      return getDoc(docRef)
-    })
-    .then((res) => {
-      const result = res.data();
-      setEventData(result);
-      const waitlistCheck = result.waitlist.some((waitlister) => waitlister.username === user.displayName)
-      setUserWaitlisted(waitlistCheck)
-      setFormattedDate(new Date(result.dateTime).toUTCString());
-      setFormattedDeadline(new Date(result.eventDeadline).toUTCString());
-      if (result.attendees.length >= result.maxPlayers) {
-        setIsFull(true);
-      }
-      const checkDate = new Date(result.dateTime);
-      const deadlineDate = new Date(result.eventDeadline);
-      const currentDate = new Date();
-      if (checkDate < currentDate || deadlineDate < currentDate) {
-        setIsPast(true);
-      }
-    })
-    .then(() => {
-      setIsLoading(false);
-    });
+      .then((result) => {
+        const userData = result.data();
+        setEvents(userData.events);
+        const goingCheck = events.some((event) => event.eventID === eventId);
+        setUserGoing(goingCheck);
+        const docRef = doc(db, "events", eventId);
+        return getDoc(docRef);
+      })
+      .then((res) => {
+        const result = res.data();
+        setEventData(result);
+        const waitlistCheck = result.waitlist.some((waitlister) => waitlister.username === user.displayName);
+        setUserWaitlisted(waitlistCheck);
+        setFormattedDate(new Date(result.dateTime).toUTCString());
+        setFormattedDeadline(new Date(result.eventDeadline).toUTCString());
+        if (result.attendees.length >= result.maxPlayers) {
+          setIsFull(true);
+        }
+        const checkDate = new Date(result.dateTime);
+        const deadlineDate = new Date(result.eventDeadline);
+        const currentDate = new Date();
+        if (checkDate < currentDate || deadlineDate < currentDate) {
+          setIsPast(true);
+        }
+      })
+      .then(() => {
+        setIsLoading(false);
+      });
   }, []);
 
-  const { eventName, dateTime, imageUrl, gameName, attendees, waitlist, maxPlayers } = eventData
-  const userRef = doc(db, "users", user.uid)
+  const { eventName, dateTime, imageUrl, gameName, attendees, waitlist, maxPlayers } = eventData;
+  const userRef = doc(db, "users", user.uid);
   const eventRef = doc(db, "events", eventId);
 
   function handleJoinLeaveButton(user) {
     if (!userGoing) {
-      setUserGoing(true)
-      setEvents([...events, {eventName, dateAndTime: dateTime, image: imageUrl, gameName, eventID: eventId }])
+      setUserGoing(true);
+      setEvents([...events, { eventName, dateAndTime: dateTime, image: imageUrl, gameName, eventID: eventId }]);
       updateDoc(eventRef, {
         attendees: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
-      })
-      .then(() => {
+      }).then(() => {
         updateDoc(userRef, {
-          events: arrayUnion({eventName, dateAndTime: dateTime, image: imageUrl, gameName, eventID: eventId })
-        })
-      })
+          events: arrayUnion({ eventName, dateAndTime: dateTime, image: imageUrl, gameName, eventID: eventId }),
+        });
+      });
     } else if (userGoing) {
-      setUserGoing(false)
-      const updatedEvents = events.filter((event) => event.eventID !== eventId)
-      setEvents(updatedEvents)
-      const updatedAttendees = attendees.filter((attendee) => attendee.username !== user.displayName)
-      updateDoc(eventRef, { attendees: updatedAttendees })
-      .then(() => {
-        updateDoc(userRef, { events: updatedEvents })
-      })
+      setUserGoing(false);
+      const updatedEvents = events.filter((event) => event.eventID !== eventId);
+      setEvents(updatedEvents);
+      const updatedAttendees = attendees.filter((attendee) => attendee.username !== user.displayName);
+      updateDoc(eventRef, { attendees: updatedAttendees }).then(() => {
+        updateDoc(userRef, { events: updatedEvents });
+      });
     }
   }
 
   function handleWaitlistButton(user) {
-    if(!userWaitlisted) {
-      setUserWaitlisted(true)
+    if (!userWaitlisted) {
+      setUserWaitlisted(true);
       updateDoc(eventRef, {
         waitlist: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
       });
     } else if (userWaitlisted) {
-      setUserWaitlisted(false)
-      const updatedWaitlist = waitlist.filter((waitlister) => waitlister.username !== user.displayName)
-      updateDoc(eventRef, { waitlist: updatedWaitlist })
+      setUserWaitlisted(false);
+      const updatedWaitlist = waitlist.filter((waitlister) => waitlister.username !== user.displayName);
+      updateDoc(eventRef, { waitlist: updatedWaitlist });
     }
   }
-
 
   if (isError)
     return (
@@ -120,9 +117,10 @@ function EventDetails({ route }) {
   const AttendanceButtons = () => {
     if (isPast) {
       return (
-        <Text appearance="default" style={styles.details}>
+        <Button disabled style={styles.details}>
           Too late buddy!
-        </Text>)
+        </Button>
+      );
     } else if (isFull && !userWaitlisted) {
       return (
         <>
@@ -135,11 +133,11 @@ function EventDetails({ route }) {
             }}
             style={styles.button}
             status="primary"
-            >
+          >
             Join the waitlist
           </Button>
         </>
-      )
+      );
     } else if (isFull && userWaitlisted) {
       return (
         <>
@@ -152,11 +150,11 @@ function EventDetails({ route }) {
             }}
             style={styles.button}
             status="danger"
-            >
+          >
             Remove me from the waitlist
           </Button>
         </>
-      )
+      );
     } else if (userGoing) {
       return (
         <Button
@@ -168,7 +166,7 @@ function EventDetails({ route }) {
         >
           Cancel attendance
         </Button>
-      )
+      );
     } else {
       return (
         <Button
@@ -180,9 +178,9 @@ function EventDetails({ route }) {
         >
           Join Event
         </Button>
-      )
+      );
     }
-  }
+  };
 
   return (
     <Layout style={styles.container}>
@@ -206,9 +204,11 @@ function EventDetails({ route }) {
             <Text appearance="hint" style={styles.details}>
               Sign up by: {formattedDeadline}
             </Text>
-            {!isFull ? <Text appearance="hint" style={styles.details}>
-              There are {maxPlayers - attendees.length} spaces left!
-            </Text> : null}
+            {!isFull ? (
+              <Text appearance="hint" style={styles.details}>
+                There are {maxPlayers - attendees.length} spaces left!
+              </Text>
+            ) : null}
             <Layout style={styles.buttonContainer}>
               <AttendanceButtons />
             </Layout>
@@ -281,6 +281,7 @@ const styles = StyleSheet.create({
   },
   details: {
     marginBottom: 10,
+    textAlign: "center",
   },
   image: {
     width: 300,
