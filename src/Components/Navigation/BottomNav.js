@@ -12,27 +12,27 @@ function BottomNav() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarStyle: { backgroundColor: "#06d6a0" },
-        tabBarActiveTintColor: "#fff",
-        tabInactiveTintColor: "#5A5A5A",
+        tabBarStyle: { backgroundColor: "#101426", borderTopColor: "#006760", borderTopWidth: 2 },
+        tabBarActiveTintColor: "#06D6A0",
+        tabBarInactiveTintColor: "#5a5a5a",
         tabBarIcon: ({ focused, size }) => {
           let iconName;
           let iconColor;
 
           if (route.name === "Home") {
             iconName = focused ? "ios-home" : "ios-home-outline";
-            iconColor = focused ? "#fff" : "#5A5A5A";
+            iconColor = focused ? "#06D6A0" : "#5A5A5A";
           } else if (route.name === "Profile") {
             iconName = focused ? "ios-person" : "ios-person-outline";
-            iconColor = focused ? "#fff" : "#5A5A5A";
+            iconColor = focused ? "#06D6A0" : "#5A5A5A";
           } else if (route.name === "Search") {
             iconName = focused ? "ios-search" : "ios-search-outline";
-            iconColor = focused ? "#fff" : "#5A5A5A";
+            iconColor = focused ? "#06D6A0" : "#5A5A5A";
           } else if (route.name === "Messages") {
             iconName = focused ? "ios-chatbubbles" : "ios-chatbubbles-outline";
-            iconColor = focused ? "#fff" : "#5A5A5A";
+            iconColor = focused ? "#06D6A0" : "#5A5A5A";
           }
-          return <Ionicons name={iconName} size={size} color={iconColor} />;
+          return <Ionicons name={iconName} size={size - 4} color={iconColor} />;
         },
       })}
     >
@@ -50,6 +50,10 @@ function BottomNav() {
         component={Messages}
         options={{
           headerShown: true,
+          headerStyle: {
+            backgroundColor: "#101426",
+          },
+          headerTintColor: "#06D6A0",
         }}
       />
     </Tab.Navigator>

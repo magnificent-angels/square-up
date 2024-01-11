@@ -59,7 +59,7 @@ const Messages = () => {
     let isMounted = true;
 
     const fetchUsernames = async (searchTerm) => {
-      const q = query(collection(db, "users"), where("username", ">=", searchTerm.toLowerCase()));
+      const q = query(collection(db, "users"), where("username", ">=", searchTerm));
 
       const querySnapshot = await getDocs(q);
 

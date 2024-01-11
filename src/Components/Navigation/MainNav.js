@@ -23,11 +23,10 @@ function MainNav() {
         options={{
           headerShown: true,
           headerTitle: "Event List",
-          headerTitleAlign: "center",
           headerStyle: {
-            backgroundColor: "#000",
+            backgroundColor: "#101426",
           },
-          headerTintColor: "#fff",
+          headerTintColor: "#06D6A0",
         }}
       />
       <MainStack.Screen
@@ -35,12 +34,11 @@ function MainNav() {
         component={EventDetails}
         options={{
           headerShown: true,
-          headerTitle: "Event List",
-          headerTitleAlign: "center",
+          headerTitle: "Event",
           headerStyle: {
-            backgroundColor: "#000",
+            backgroundColor: "#101426",
           },
-          headerTintColor: "#fff",
+          headerTintColor: "#06D6A0",
         }}
       />
     </MainStack.Navigator>
