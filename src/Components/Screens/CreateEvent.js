@@ -1,16 +1,16 @@
-import { Layout, Text, Input, Button, Spinner, RangeCalendar } from "@ui-kitten/components";
-import { useState, useEffect } from "react";
-import dayjs from "dayjs";
-import { getLatLong } from "../../utils/postcodeLookup";
-import { auth, db } from "../../firebase";
-import { doc, getDoc, GeoPoint, addDoc, collection } from "firebase/firestore";
-import { StyleSheet } from "react-native";
+import { Layout, Text, Input, Button, Spinner, RangeCalendar } from '@ui-kitten/components';
+import { useState, useEffect, useContext } from 'react';
+import { UserContext } from '../Context/UserContext';
+import dayjs from 'dayjs';
+import { getLatLong } from '../../utils/postcodeLookup';
+import { db } from '../../firebase';
+import { doc, getDoc, GeoPoint, addDoc, collection } from 'firebase/firestore';
+import { StyleSheet } from 'react-native';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
-  const [userData, setUserData] = useState(null);
-  const [eventName, setEventName] = useState("");
-  const [postcode, setPostcode] = useState("");
+  const [eventName, setEventName] = useState('');
+  const [postcode, setPostcode] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [eventDate, setEventDate] = useState(dayjs());
   const [eventTime, setEventTime] = useState("");
@@ -19,7 +19,7 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
   const [isDeadlinePickerVisible, setDeadlinePickerVisibility] = useState(false);
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
 
-  const user = auth.currentUser;
+  const { user, events, setEvents } = useContext(UserContext);
   const { name, minPlayers, maxPlayers, playingTime, imageUrl } = game;
 
   const showDatePicker = () => {
@@ -71,60 +71,57 @@ function CreateEvent({ game, setEventBeingCreated, setEventCreated }) {
   };
 
   const handleDeadline = () => {
-    const dateString = deadline.toISOString();
-    const timeString = eventTime.toISOString();
-    const newDateString = dateString.slice(0, 11).concat(timeString.slice(11));
-    const newDate = new Date(newDateString);
-    const milliseconds = newDate.getTime();
-    return milliseconds;
-  };
-
-  const onSubmit = () => {
-    getLatLong(postcode)
-      .then(({ latitude, longitude }) => {
-        const dateTime = handleDates(eventDate);
-        const eventDeadline = handleDeadline(deadline);
-        return [dateTime, eventDeadline, latitude, longitude];
-      })
-      .then(([dateTime, eventDeadline, latitude, longitude]) => {
-        return addDoc(collection(db, "events"), {
-          location: new GeoPoint(latitude, longitude),
-          eventName,
-          dateTime,
-          eventDeadline,
-          organiserUsername: userData.username,
-          organiserUid: user.uid,
-          organiserAvatar: user.photoURL,
-          gameName: name,
-          minPlayers: +minPlayers,
-          maxPlayers: +maxPlayers,
-          playingTime: +playingTime,
-          imageUrl,
-          attendees: [],
-          waitlist: [],
-        });
-      })
-      .then(() => {
-        setEventName("");
-        setEventTime("");
-        setEventDate(dayjs());
-        setDeadline(dayjs());
-        setPostcode("");
-        setEventCreated(true);
-        setEventBeingCreated(false);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+    const dateString = deadline.toISOString()
+    const timeString = eventTime.toISOString()
+    const newDateString = dateString.slice(0, 11).concat(timeString.slice(11))
+    const newDate = new Date(newDateString)
+    const milliseconds = newDate.getTime()
+    return milliseconds
+  }
 
   useEffect(() => {
-    const docRef = doc(db, "users", user.uid);
-    getDoc(docRef).then((result) => {
-      setUserData(result.data());
-      setIsLoading(false);
-    });
-  }, []);
+    setIsLoading(false)
+  }, [])
+
+  const onSubmit = () => {
+      getLatLong(postcode)
+        .then(({ latitude, longitude }) => {
+          const dateTime = handleDates(eventDate)
+          const eventDeadline = handleDeadline(deadline)
+          return [dateTime, eventDeadline, latitude, longitude];
+        })
+        .then(([dateTime, eventDeadline, latitude, longitude]) => {
+          return addDoc(collection(db, 'events'), {
+            location: new GeoPoint(latitude, longitude),
+            eventName,
+            dateTime,
+            eventDeadline,
+            organiserUsername: user.displayName,
+            organiserUid: user.uid,
+            organiserAvatar: user.photoURL,
+            gameName: name,
+            minPlayers: +minPlayers,
+            maxPlayers: +maxPlayers,
+            playingTime: +playingTime,
+            imageUrl,
+            attendees: [{ username: user.displayName, avatarUrl: user.photoURL }],
+            waitlist: []
+          });
+        })
+        .then(() => {
+          setEventName('')
+          setEventTime('')
+          setEventDate(dayjs())
+          setDeadline(dayjs())
+          setPostcode('')
+          setEventCreated(true)
+          setEventBeingCreated(false)
+          setIsLoading(false)
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+  };
 
   if (isLoading)
     return (

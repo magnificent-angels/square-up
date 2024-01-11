@@ -33,6 +33,7 @@ function GameScreen({ search }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [eventBeingCreated, setEventBeingCreated] = useState(false)
   const [eventCreated, setEventCreated] = useState(false);
   const notFoundAnimation = useRef(null);
   const [wishlistAdded, setWishlistAdded] = useState(false);
@@ -74,9 +75,6 @@ function GameScreen({ search }) {
       .catch(() => {
         setIsError(true);
       })
-      .finally(() => {
-        setIsLoading(false);
-      });
   }, [search]);
 
   if (isError)
@@ -137,6 +135,7 @@ function GameScreen({ search }) {
 
   function handleOnPress() {
     setModalVisible(true);
+    setEventBeingCreated(true)
   }
 
   return (

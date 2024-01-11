@@ -16,7 +16,11 @@ function EventDetails({ route }) {
   const [formattedDeadline, setFormattedDeadline] = useState("");
   const [isFull, setIsFull] = useState(false);
   const [isPast, setIsPast] = useState(false);
+  const [userGoing, setUserGoing] = useState(false)
+  const [userWaitlisted, setUserWaitlisted] = useState(false)
+
   const notFoundAnimation = useRef(null);
+
   const { user, events, setEvents } = useContext(UserContext);
 
   const { eventId } = route.params;
@@ -24,46 +28,77 @@ function EventDetails({ route }) {
   useEffect(() => {
     setIsError(false);
     setIsLoading(true);
-    const docRef = doc(db, "events", eventId);
-    getDoc(docRef)
-      .then((res) => {
-        const result = res.data();
-        setEventData(result);
-        setFormattedDate(new Date(result.dateTime).toUTCString());
-        setFormattedDeadline(new Date(result.eventDeadline).toUTCString());
-        if (result.attendees.length + 1 >= result.maxPlayers) {
-          setIsFull(true);
-        }
-        const checkDate = new Date(result.dateTime);
-        const deadlineDate = new Date(result.eventDeadline);
-        const currentDate = new Date();
-        if (checkDate < currentDate || deadlineDate < currentDate) {
-          setIsPast(true);
-        }
-      })
-      .then(() => {
-        setIsLoading(false);
-      });
+    const userRef = doc(db, "users", user.uid);
+    getDoc(userRef)
+    .then((result) => {
+      const userData = result.data();
+      setEvents(userData.events);
+      const goingCheck = events.some((event) => event.eventID === eventId);
+      setUserGoing(goingCheck);
+      const docRef = doc(db, "events", eventId);
+      return getDoc(docRef)
+    })
+    .then((res) => {
+      const result = res.data();
+      setEventData(result);
+      const waitlistCheck = result.waitlist.some((waitlister) => waitlister.username === user.displayName)
+      setUserWaitlisted(waitlistCheck)
+      setFormattedDate(new Date(result.dateTime).toUTCString());
+      setFormattedDeadline(new Date(result.eventDeadline).toUTCString());
+      if (result.attendees.length >= result.maxPlayers) {
+        setIsFull(true);
+      }
+      const checkDate = new Date(result.dateTime);
+      const deadlineDate = new Date(result.eventDeadline);
+      const currentDate = new Date();
+      if (checkDate < currentDate || deadlineDate < currentDate) {
+        setIsPast(true);
+      }
+    })
+    .then(() => {
+      setIsLoading(false);
+    });
   }, []);
 
-  function joinEvent(user) {
-    setEvents([...events, {eventName: eventData.eventName, dateAndTime: eventData.dateTime, image: eventData.imageUrl, gameName: eventData.gameName, eventID: eventId }])
-    const eventRef = doc(db, "events", eventId);
-    updateDoc(eventRef, {
-      attendees: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
-    }).then(() => {
-      const userRef = doc(db, "users", user.uid)
-      updateDoc(userRef, {
-        events: arrayUnion({eventName: eventData.eventName, dateAndTime: eventData.dateTime, image: eventData.imageUrl, gameName: eventData.gameName, eventID: eventId })
+  const { eventName, dateTime, imageUrl, gameName, attendees, waitlist, maxPlayers } = eventData
+  const userRef = doc(db, "users", user.uid)
+  const eventRef = doc(db, "events", eventId);
+
+  function handleJoinLeaveButton(user) {
+    if (!userGoing) {
+      setUserGoing(true)
+      setEvents([...events, {eventName, dateAndTime: dateTime, image: imageUrl, gameName, eventID: eventId }])
+      updateDoc(eventRef, {
+        attendees: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
       })
-    })
+      .then(() => {
+        updateDoc(userRef, {
+          events: arrayUnion({eventName, dateAndTime: dateTime, image: imageUrl, gameName, eventID: eventId })
+        })
+      })
+    } else if (userGoing) {
+      setUserGoing(false)
+      const updatedEvents = events.filter((event) => event.eventID !== eventId)
+      setEvents(updatedEvents)
+      const updatedAttendees = attendees.filter((attendee) => attendee.username !== user.displayName)
+      updateDoc(eventRef, { attendees: updatedAttendees })
+      .then(() => {
+        updateDoc(userRef, { events: updatedEvents })
+      })
+    }
   }
 
-  function joinWaitlist(user) {
-    const eventRef = doc(db, "events", eventId);
-    updateDoc(eventRef, {
-      waitlist: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
-    });
+  function handleWaitlistButton(user) {
+    if(!userWaitlisted) {
+      setUserWaitlisted(true)
+      updateDoc(eventRef, {
+        waitlist: arrayUnion({ username: user.displayName, avatarUrl: user.photoURL }),
+      });
+    } else if (userWaitlisted) {
+      setUserWaitlisted(false)
+      const updatedWaitlist = waitlist.filter((waitlister) => waitlister.username !== user.displayName)
+      updateDoc(eventRef, { waitlist: updatedWaitlist })
+    }
   }
 
 
@@ -82,6 +117,73 @@ function EventDetails({ route }) {
       </Layout>
     );
 
+  const AttendanceButtons = () => {
+    if (isPast) {
+      return (
+        <Text appearance="default" style={styles.details}>
+          Too late buddy!
+        </Text>)
+    } else if (isFull && !userWaitlisted) {
+      return (
+        <>
+          <Text appearance="default" style={styles.details}>
+            This event is full! Join the waitlist by clicking below:{" "}
+          </Text>
+          <Button
+            onPress={() => {
+              handleWaitlistButton(user);
+            }}
+            style={styles.button}
+            status="primary"
+            >
+            Join the waitlist
+          </Button>
+        </>
+      )
+    } else if (isFull && userWaitlisted) {
+      return (
+        <>
+          <Text appearance="default" style={styles.details}>
+            You are currently on the waitlist for this event.
+          </Text>
+          <Button
+            onPress={() => {
+              handleWaitlistButton(user);
+            }}
+            style={styles.button}
+            status="danger"
+            >
+            Remove me from the waitlist
+          </Button>
+        </>
+      )
+    } else if (userGoing) {
+      return (
+        <Button
+          onPress={() => {
+            handleJoinLeaveButton(user);
+          }}
+          style={styles.button}
+          status="danger"
+        >
+          Cancel attendance
+        </Button>
+      )
+    } else {
+      return (
+        <Button
+          onPress={() => {
+            handleJoinLeaveButton(user);
+          }}
+          style={styles.button}
+          status="primary"
+        >
+          Join Event
+        </Button>
+      )
+    }
+  }
+
   return (
     <Layout style={styles.container}>
       {isLoading ? (
@@ -95,7 +197,7 @@ function EventDetails({ route }) {
             <Text category="h5" style={styles.name}>
               {eventData.eventName}
             </Text>
-            <Text appearance="hint" style={styles.details}>
+            <Text appearance="default" style={styles.details}>
               {eventData.organiserUsername}'s {eventData.gameName} Event!
             </Text>
             <Text appearance="hint" style={styles.details}>
@@ -104,39 +206,11 @@ function EventDetails({ route }) {
             <Text appearance="hint" style={styles.details}>
               Sign up by: {formattedDeadline}
             </Text>
+            {!isFull ? <Text appearance="hint" style={styles.details}>
+              There are {maxPlayers - attendees.length} spaces left!
+            </Text> : null}
             <Layout style={styles.buttonContainer}>
-              {isPast && (
-                <Text appearance="hint" style={styles.details}>
-                  Too late buddy!
-                </Text>
-              )}
-              {isFull && (
-                <>
-                  <Text appearance="hint" style={styles.details}>
-                    This event is full! Join the waitlist by clicking below:{" "}
-                  </Text>
-                  <Button
-                    onPress={() => {
-                      joinWaitlist(user);
-                    }}
-                    style={styles.button}
-                    status="info"
-                  >
-                    Join Waitlist
-                  </Button>
-                </>
-              )}
-              {!isPast && !isFull && (
-                <Button
-                  onPress={() => {
-                    joinEvent(user);
-                  }}
-                  style={styles.button}
-                  status="info"
-                >
-                  Join Event
-                </Button>
-              )}
+              <AttendanceButtons />
             </Layout>
           </Layout>
         </KeyboardAvoidingView>
