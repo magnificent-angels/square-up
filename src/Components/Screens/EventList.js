@@ -112,9 +112,7 @@ const EventList = () => {
         </Select>
       </Layout>
 
-      <Layout style={styles.listLayout}>
-        <List data={eventsList} renderItem={renderItem} ItemSeparatorComponent={Divider} />
-      </Layout>
+      <List data={eventsList} renderItem={renderItem} ItemSeparatorComponent={Divider} />
     </Layout>
   );
 };
