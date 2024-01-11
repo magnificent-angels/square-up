@@ -1,29 +1,54 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { StyleSheet, FlatList, ScrollView, StatusBar, TouchableOpacity, View } from "react-native";
 import { Layout, Text, Avatar, Divider, Card, Spinner, Button } from "@ui-kitten/components";
 import { UserContext } from "../Context/UserContext";
 import SignOut from "./SignOut";
 import { db } from "../../firebase";
-import { getDoc, doc } from "firebase/firestore";
+import { getDoc, doc, query, collection, getDocs, where } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Profile = () => {
   const { user, wishlist, setWishlist, owned, setOwned, events, setEvents } = useContext(UserContext);
   const { photoURL, displayName, uid } = user;
   const [loading, setLoading] = useState(true);
-
+  const [myEventsList, setMyEventsList] = useState([]);
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const docRef = doc(db, "users", uid);
-    getDoc(docRef).then((result) => {
-      setLoading(false);
-      const userData = result.data();
-      setWishlist(userData.wishlist);
-      setOwned(userData.owned);
-      setEvents(userData.events);
+  const fetchEventList = async () => {
+    const q = query(collection(db, "events"), where("organiserUsername", "==", user.displayName));
+    const eventsSnapshot = await getDocs(q);
+    const eventsArray = [];
+    eventsSnapshot.forEach((list) => {
+      const data = list.data();
+      data.id = list.id;
+      eventsArray.push(data);
     });
-  }, []);
+    setMyEventsList(eventsArray);
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      let isActive = true;
+
+      if (isActive) {
+        const docRef = doc(db, "users", uid);
+        getDoc(docRef).then((result) => {
+          setLoading(false);
+          const userData = result.data();
+          setWishlist(userData.wishlist);
+          setOwned(userData.owned);
+          setEvents(userData.events);
+          fetchEventList();
+          console.log(myEventsList[0]);
+        });
+      }
+
+      return () => {
+        isActive = false;
+      };
+    }, [])
+  );
 
   const renderGameItem = ({ item }) => (
     <Card style={styles.gameItemContainer} disabled>
@@ -34,7 +59,7 @@ const Profile = () => {
     </Card>
   );
 
-  const renderEventItem = ({ item, index }) => {
+  const renderEventItem = ({ item }) => {
     return (
       <TouchableOpacity
         style={styles.gameItemContainer}
@@ -53,6 +78,31 @@ const Profile = () => {
           </Text>
           <Text category="c1" style={styles.gameTitle} numberOfLines={1}>
             {new Date(item.dateAndTime).toUTCString()}
+          </Text>
+        </Card>
+      </TouchableOpacity>
+    );
+  };
+
+  const renderMyEventItem = ({ item }) => {
+    return (
+      <TouchableOpacity
+        style={styles.gameItemContainer}
+        onPress={() => {
+          navigation.navigate("EventDetails", { eventId: item.id });
+        }}
+      >
+        <Card style={styles.gameItemContainer} disabled>
+          <Avatar source={{ uri: item.imageUrl }} style={styles.image} />
+
+          <Text category="c1" style={styles.gameTitle} numberOfLines={1}>
+            {item.eventName}
+          </Text>
+          <Text category="c1" style={styles.gameTitle} numberOfLines={1}>
+            {item.gameName}
+          </Text>
+          <Text category="c1" style={styles.gameTitle} numberOfLines={1}>
+            {new Date(item.dateTime).toUTCString()}
           </Text>
         </Card>
       </TouchableOpacity>
@@ -90,7 +140,7 @@ const Profile = () => {
             <FlatList
               data={wishlist}
               renderItem={renderGameItem}
-              keyExtractor={(item) => item.name}
+              keyExtractor={(item, index) => item.eventID || index}
               numColumns={2}
               scrollEnabled={false}
               ListEmptyComponent={
@@ -109,7 +159,7 @@ const Profile = () => {
             <FlatList
               data={owned}
               renderItem={renderGameItem}
-              keyExtractor={(item) => item.name}
+              keyExtractor={(item, index) => item.eventID || index}
               numColumns={2}
               scrollEnabled={false}
               ListEmptyComponent={
@@ -128,7 +178,7 @@ const Profile = () => {
             <FlatList
               data={events}
               renderItem={renderEventItem}
-              keyExtractor={(item) => item.name}
+              keyExtractor={(item, index) => item.eventID || index}
               numColumns={2}
               scrollEnabled={false}
               ListEmptyComponent={
@@ -138,28 +188,30 @@ const Profile = () => {
               }
             />
           </Layout>
+
+          <Layout style={styles.section} level="2">
+            <Text category="h4" style={styles.sectionTitle}>
+              My Events
+            </Text>
+            <Divider style={styles.divider}></Divider>
+            <FlatList
+              data={myEventsList}
+              renderItem={renderMyEventItem}
+              keyExtractor={(item, index) => item.eventID || index}
+              numColumns={2}
+              scrollEnabled={false}
+              ListEmptyComponent={
+                <Text category="h6" style={styles.emptyList}>
+                  No events created...
+                </Text>
+              }
+            />
+          </Layout>
         </Layout>
       </ScrollView>
     </Layout>
   );
 };
-
-const Section = ({ title, data, renderItem }) => (
-  <Layout style={styles.section} level="2">
-    <Text category="h4" style={styles.sectionTitle}>
-      {title}
-    </Text>
-    <Divider style={styles.divider} />
-    <FlatList
-      data={data}
-      renderItem={renderItem}
-      keyExtractor={(item) => item.name}
-      numColumns={2}
-      scrollEnabled={false}
-      ListEmptyComponent={<Text style={styles.emptyList}>No items found...</Text>}
-    />
-  </Layout>
-);
 
 const styles = StyleSheet.create({
   safeArea: {
