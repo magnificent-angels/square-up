@@ -6,6 +6,7 @@ import { UserContext } from "../Context/UserContext";
 import { useContext } from "react";
 import { Text } from "@ui-kitten/components";
 import { Button } from "@ui-kitten/components";
+import { StatusBar } from "react-native";
 
 function SignOut() {
   const { user, setUser } = useContext(UserContext);
@@ -33,7 +34,7 @@ export default SignOut;
 
 const styles = StyleSheet.create({
   pressable: {
-    marginTop: 10,
+    marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 10,
     maxWidth: "40%",
     alignSelf: "flex-end",
     marginRight: 15,

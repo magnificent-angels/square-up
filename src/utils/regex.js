@@ -15,14 +15,4 @@ const passwordValidation = {
   },
 };
 
-const confirmPasswordValidation = {
-  required: { value: true, message: "Please confirm your password" },
-  validate: {
-    matchesPreviousPassword: (value) => {
-      const { password } = getValues();
-      return password === value || "Passwords should match!";
-    },
-  },
-};
-
-export { emailValidation, passwordValidation, confirmPasswordValidation };
+export { emailValidation, passwordValidation };

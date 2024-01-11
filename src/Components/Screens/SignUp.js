@@ -6,7 +6,7 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "../../firebase";
 import { setDoc, doc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
-import { emailValidation, passwordValidation, confirmPasswordValidation } from "../../utils/regex";
+import { emailValidation, passwordValidation } from "../../utils/regex";
 
 function SignUp() {
   const [loading, setLoading] = useState(false);
@@ -26,6 +26,16 @@ function SignUp() {
   });
 
   const nav = useNavigation();
+
+  const confirmPasswordValidation = {
+    required: { value: true, message: "Please confirm your password" },
+    validate: {
+      matchesPreviousPassword: (value) => {
+        const { password } = getValues();
+        return password === value || "Passwords should match!";
+      },
+    },
+  };
 
   const onSubmit = ({ email, password, username, fullName }) => {
     setLoading(true);

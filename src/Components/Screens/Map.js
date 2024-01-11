@@ -24,9 +24,7 @@ function Map() {
   useEffect(() => {
     (async () => {
       if (Platform.OS === "android" && !Device.isDevice) {
-        setErrorMsg(
-          "This will not work on an Android emulator. Try it on your device."
-        );
+        setErrorMsg("This will not work on an Android emulator. Try it on your device.");
         setLoading(false);
         return;
       }
@@ -94,9 +92,7 @@ function Map() {
               >
                 <Layout style={styles.calloutView} level="4">
                   <Text style={styles.eventName}>{eventMarker.eventName}</Text>
-                  <Text style={styles.gameName}>
-                    Game: {eventMarker.gameName}
-                  </Text>
+                  <Text style={styles.gameName}>Game: {eventMarker.gameName}</Text>
                   <Text>
                     <Image
                       style={styles.image}
@@ -105,18 +101,12 @@ function Map() {
                       resizeMode="contain"
                     />
                   </Text>
-                  <Text style={styles.details}>
-                    Date: {formatDate(eventMarker.dateTime)}
-                  </Text>
+                  <Text style={styles.details}>Date: {formatDate(eventMarker.dateTime)}</Text>
                   <Text style={styles.details}>
                     Players: {eventMarker.minPlayers} - {eventMarker.maxPlayers}
                   </Text>
-                  <Text style={styles.details}>
-                    Organiser: {eventMarker.organiserUsername}
-                  </Text>
-                  <Text style={styles.details}>
-                    Duration: {eventMarker.playingTime} mins
-                  </Text>
+                  <Text style={styles.details}>Organiser: {eventMarker.organiserUsername}</Text>
+                  <Text style={styles.details}>Duration: {eventMarker.playingTime} mins</Text>
                 </Layout>
               </Callout>
             </Marker>
@@ -175,7 +165,7 @@ const styles = StyleSheet.create({
   },
   ListNav: {
     position: "absolute",
-    bottom: 30,
+    marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 50,
     left: 30,
   },
 });
