@@ -15,7 +15,7 @@ function Map() {
   const [loading, setLoading] = useState(true);
   const [region, setRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const { location, setLocation, globalEvents } = useContext(UserContext);
+  const { location, setLocation, globalEvents, user } = useContext(UserContext);
 
   const navigation = useNavigation();
 
@@ -81,6 +81,7 @@ function Map() {
                 latitude: eventMarker.location.latitude,
                 longitude: eventMarker.location.longitude,
               }}
+              pinColor={(user.uid === eventMarker.organiserUid) ? "#00d6a0" : 'red'}
             >
               <Callout
                 tooltip
@@ -105,7 +106,7 @@ function Map() {
                   <Text style={styles.details}>
                     Players: {eventMarker.minPlayers} - {eventMarker.maxPlayers}
                   </Text>
-                  <Text style={styles.details}>Organiser: {eventMarker.organiserUsername}</Text>
+                  <Text style={styles.details}>{eventMarker.organiserUid === user.uid? 'Your Event' : `Organiser: ${eventMarker.organiserUsername}`}</Text>
                   <Text style={styles.details}>Duration: {eventMarker.playingTime} mins</Text>
                 </Layout>
               </Callout>
@@ -162,6 +163,7 @@ const styles = StyleSheet.create({
   },
   details: {
     fontSize: 12,
+    fontWeight: "bold",
   },
   ListNav: {
     position: "absolute",
