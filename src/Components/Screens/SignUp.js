@@ -1,17 +1,12 @@
 import React, { useState } from "react";
-import {
-  StyleSheet,
-  TouchableWithoutFeedback,
-  TouchableOpacity,
-  View,
-  Keyboard,
-} from "react-native";
+import { StyleSheet, TouchableWithoutFeedback, TouchableOpacity, View, Keyboard } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { Layout, Text, Input, Button, Spinner } from "@ui-kitten/components";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "../../firebase";
 import { setDoc, doc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
+import { emailValidation, passwordValidation, confirmPasswordValidation } from "../../utils/regex";
 
 function SignUp() {
   const [loading, setLoading] = useState(false);
@@ -62,34 +57,6 @@ function SignUp() {
       });
   };
 
-  const emailValidation = {
-    required: { value: true, message: "Email is required" },
-    pattern: {
-      value:
-        /([-!#-'*+/-9=?A-Z^-~]+(\.[-!#-'*+/-9=?A-Z^-~]+)*|"([]!#-[^-~ \t]|(\\[\t -~]))+")@([0-9A-Za-z]([0-9A-Za-z-]{0,61}[0-9A-Za-z])?(\.[0-9A-Za-z]([0-9A-Za-z-]{0,61}[0-9A-Za-z])?)*|\[((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|IPv6:((((0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}):){6}|::((0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}):){5}|[0-9A-Fa-f]{0,4}::((0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}):){4}|(((0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}):)?(0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}))?::((0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}):){3}|(((0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}):){0,2}(0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}))?::((0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}):){2}|(((0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}):){0,3}(0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}))?::(0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}):|(((0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}):){0,4}(0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}))?::)((0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}):(0|[1-9A-Fa-f][0-9A-Fa-f]{0,3})|(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3})|(((0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}):){0,5}(0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}))?::(0|[1-9A-Fa-f][0-9A-Fa-f]{0,3})|(((0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}):){0,6}(0|[1-9A-Fa-f][0-9A-Fa-f]{0,3}))?::)|(?!IPv6:)[0-9A-Za-z-]*[0-9A-Za-z]:[!-Z^-~]+)])/,
-      message: "Invalid email",
-    },
-  };
-
-  const passwordValidation = {
-    required: { value: true, message: "Password is required" },
-    pattern: {
-      value:
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
-      message: "Invalid password",
-    },
-  };
-
-  const confirmPasswordValidation = {
-    required: { value: true, message: "Please confirm your password" },
-    validate: {
-      matchesPreviousPassword: (value) => {
-        const { password } = getValues();
-        return password === value || "Passwords should match!";
-      },
-    },
-  };
-
   if (loading) {
     return (
       <Layout style={styles.container}>
@@ -118,9 +85,7 @@ function SignUp() {
             )}
             name="fullName"
           />
-          {errors.fullName && (
-            <Text style={styles.error}>{errors.fullName.message}</Text>
-          )}
+          {errors.fullName && <Text style={styles.error}>{errors.fullName.message}</Text>}
 
           <Controller
             control={control}
@@ -138,9 +103,7 @@ function SignUp() {
             )}
             name="username"
           />
-          {errors.username && (
-            <Text style={styles.error}>{errors.username.message}</Text>
-          )}
+          {errors.username && <Text style={styles.error}>{errors.username.message}</Text>}
 
           <Controller
             control={control}
@@ -158,9 +121,7 @@ function SignUp() {
             )}
             name="email"
           />
-          {errors.email && (
-            <Text style={styles.error}>{errors.email.message}</Text>
-          )}
+          {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
 
           <Controller
             control={control}
@@ -178,9 +139,7 @@ function SignUp() {
             )}
             name="password"
           />
-          {errors.password && (
-            <Text style={styles.error}>{errors.password.message}</Text>
-          )}
+          {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
 
           <Controller
             control={control}
@@ -198,9 +157,7 @@ function SignUp() {
             )}
             name="confirmPassword"
           />
-          {errors.confirmPassword && (
-            <Text style={styles.error}>{errors.confirmPassword.message}</Text>
-          )}
+          {errors.confirmPassword && <Text style={styles.error}>{errors.confirmPassword.message}</Text>}
 
           <Button onPress={handleSubmit(onSubmit)} style={styles.button}>
             Sign Up

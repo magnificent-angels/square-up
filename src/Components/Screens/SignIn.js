@@ -6,6 +6,7 @@ import { auth } from "../../firebase";
 import { UserContext } from "../Context/UserContext";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigation } from "@react-navigation/native";
+import { emailValidation, passwordValidation } from "../../utils/regex";
 
 function SignIn() {
   const [loading, setLoading] = useState(false);
@@ -30,7 +31,8 @@ function SignIn() {
         setUser(userCred);
       })
       .catch((error) => {
-        console.error(error);
+        console.log(error.code);
+        console.log(errors);
       })
       .finally(() => {
         setLoading(false);
@@ -54,6 +56,7 @@ function SignIn() {
 
           <Controller
             control={control}
+            rules={emailValidation}
             name="email"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
@@ -70,6 +73,7 @@ function SignIn() {
 
           <Controller
             control={control}
+            rules={passwordValidation}
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
@@ -88,7 +92,12 @@ function SignIn() {
           <Button onPress={handleSubmit(onSubmit)} style={styles.button}>
             Submit
           </Button>
-          <TouchableOpacity onPress={() => nav.navigate("SignUp")}>
+          <TouchableOpacity
+            onPress={(e) => {
+              e.preventDefault();
+              nav.navigate("SignUp");
+            }}
+          >
             <Text style={styles.link}>Don't have an account? Sign Up</Text>
           </TouchableOpacity>
           <Text style={styles.forgotten}>Forgotten Password?</Text>
