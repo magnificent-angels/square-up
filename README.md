@@ -4,7 +4,7 @@
 
 ### Welcome to SquareUp, our final group project at Northcoders!
 
-We were tasked with creating an online application using at least two new tech stacks, all while adopting an agile working environment and using best industry practices. We created SquareUp - a mobile app that allows board game enthusiasts to connect with each other, join and host events, instant message other users, discover new games and find events near them on a map.
+We were tasked with creating an online application using at least two new technologies, all while adopting an agile working environment and using best industry practices. We created SquareUp - a mobile app that allows board game enthusiasts to connect with each other, join and host events, instant message other users, discover new games and find events near them on a map.
 
 ## Tech Stack Used
 
